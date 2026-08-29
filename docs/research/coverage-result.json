@@ -1,0 +1,1757 @@
+{
+  "covered": [
+    {
+      "name": "1Blocker.app",
+      "bundle_id": "com.khanov.BlockerX",
+      "version": "6.6.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "1Password for Safari.app",
+      "bundle_id": "com.1password.safari",
+      "version": "8.12.34",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "1Password.app",
+      "bundle_id": "com.1password.1password",
+      "version": "8.11.22",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "1password"
+    },
+    {
+      "name": "Alfred 5.app",
+      "bundle_id": "com.runningwithcrayons.Alfred",
+      "version": "5.7.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "alfred"
+    },
+    {
+      "name": "AltTab.app",
+      "bundle_id": "com.lwouis.alt-tab-macos",
+      "version": "11.5.0",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "alt-tab"
+    },
+    {
+      "name": "Amazon Kindle.app",
+      "bundle_id": "com.amazon.Lassen",
+      "version": "7.65",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Amazon Photos.app",
+      "bundle_id": "com.amazon.clouddrive.mac",
+      "version": "10.13.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "amazon-photos"
+    },
+    {
+      "name": "AudioBookBinder.app",
+      "bundle_id": "com.bluezbox.AudioBookBinder",
+      "version": "2.4",
+      "sparkle_feed": "https://bluezbox.com/audiobookbinder/appcast.xml",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "Sparkle"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Azure VPN Client.app",
+      "bundle_id": "com.microsoft.AzureVpnMac",
+      "version": "3.0.100",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "BambuStudio.app",
+      "bundle_id": "com.bambulab.bambu-studio",
+      "version": "02.08.02.61",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "bambu-studio"
+    },
+    {
+      "name": "Big Mean Folder Machine 2.app",
+      "bundle_id": "net.publicspace.bmfm2",
+      "version": "2.43",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "big-mean-folder-machine"
+    },
+    {
+      "name": "ChatGPT Classic.app",
+      "bundle_id": "com.openai.chat",
+      "version": "1.2026.184",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "chatgpt-classic"
+    },
+    {
+      "name": "Claude.app",
+      "bundle_id": "com.anthropic.claudefordesktop",
+      "version": "1.37937.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "claude"
+    },
+    {
+      "name": "Clawpilot.app",
+      "bundle_id": "com.microsoft.clawpilot",
+      "version": "0.22.118",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Codex.app",
+      "bundle_id": "com.openai.codex",
+      "version": "26.415.32059",
+      "sparkle_feed": "https://github.com/sohail288/codex-app-intel-repackager/releases/download/codex-intel-latest/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "codex-app"
+    },
+    {
+      "name": "Company Portal.app",
+      "bundle_id": "com.microsoft.CompanyPortalMac",
+      "version": "5.2608.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "intune-company-portal"
+    },
+    {
+      "name": "Copilot.app",
+      "bundle_id": "com.microsoft.copilot-mac",
+      "version": "25.7.440822001",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew",
+        "MAU"
+      ],
+      "cask": "copilot-money"
+    },
+    {
+      "name": "CotEditor.app",
+      "bundle_id": "com.coteditor.CotEditor",
+      "version": "7.0.8",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "coteditor"
+    },
+    {
+      "name": "Cyberduck.app",
+      "bundle_id": "ch.sudo.cyberduck",
+      "version": "9.5.4",
+      "sparkle_feed": "https://version.cyberduck.io//changelog.rss",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "cyberduck"
+    },
+    {
+      "name": "DEVONthink 3.app",
+      "bundle_id": "com.devon-technologies.think3",
+      "version": "3.9.18",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "DEVONthink.app",
+      "bundle_id": "com.devon-technologies.think",
+      "version": "4.4",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "devonthink"
+    },
+    {
+      "name": "Darkroom.app",
+      "bundle_id": "co.bergen.Darkroom",
+      "version": "7.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Disk Inventory X.app",
+      "bundle_id": "com.derlien.DiskInventoryX",
+      "version": "1.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "disk-inventory-x"
+    },
+    {
+      "name": "DisplayLink Manager.app",
+      "bundle_id": "com.displaylink.DisplayLinkUserAgent",
+      "version": "15.0.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "elgato-camera-hub"
+    },
+    {
+      "name": "DockDoor.app",
+      "bundle_id": "com.ethanbills.DockDoor",
+      "version": "1.39.5",
+      "sparkle_feed": "https://dockdoor.kepler.cafe/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "dockdoor"
+    },
+    {
+      "name": "Dropbox.app",
+      "bundle_id": "com.getdropbox.dropbox",
+      "version": "268.4.4072",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "dropbox"
+    },
+    {
+      "name": "Duplicate File Finder.app",
+      "bundle_id": "com.nektony.Duplicates-Finder",
+      "version": "9.2.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Duplicate Photos Fixer Pro.app",
+      "bundle_id": "com.systweak.Duplicate-Photos-Fixer-Pro",
+      "version": "9.5",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Elgato Control Center.app",
+      "bundle_id": "com.corsair.ControlCenter",
+      "version": "1.9",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "elgato-control-center"
+    },
+    {
+      "name": "Elgato Stream Deck.app",
+      "bundle_id": "com.elgato.StreamDeck",
+      "version": "7.4.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "elgato-stream-deck"
+    },
+    {
+      "name": "Finanzblick.app",
+      "bundle_id": "com.BuhlData.FinanzblickMac",
+      "version": "7.4.184",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "GitHub Copilot.app",
+      "bundle_id": "com.github.githubapp",
+      "version": "1.1.14",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "github-copilot-app"
+    },
+    {
+      "name": "GitHub Desktop.app",
+      "bundle_id": "com.github.GitHubClient",
+      "version": "3.5.12",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "github"
+    },
+    {
+      "name": "Google Chrome.app",
+      "bundle_id": "com.google.Chrome",
+      "version": "152.0.7977.65",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "google-chrome"
+    },
+    {
+      "name": "HandBrake.app",
+      "bundle_id": "fr.handbrake.HandBrake",
+      "version": "1.11.2",
+      "sparkle_feed": "https://handbrake.fr/appcast.arm64.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "handbrake-app"
+    },
+    {
+      "name": "Hermes.app",
+      "bundle_id": "com.nousresearch.hermes",
+      "version": "0.15.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "hermes-desktop"
+    },
+    {
+      "name": "Home Assistant.app",
+      "bundle_id": "io.robbie.HomeAssistant",
+      "version": "2026.7.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "home-assistant"
+    },
+    {
+      "name": "HomeCam.app",
+      "bundle_id": "com.aaronpearce.Homecam",
+      "version": "2.7",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "HomePass.app",
+      "bundle_id": "com.aaronpearce.HomePass",
+      "version": "2.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "JSON Helper.app",
+      "bundle_id": "com.vidblishen.jsonhelper",
+      "version": "1.20",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Keepa - Price Tracker.app",
+      "bundle_id": "com.keepa.webextension",
+      "version": "4.20",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Keka.app",
+      "bundle_id": "com.aone.keka",
+      "version": "1.6.7",
+      "sparkle_feed": "https://u.keka.io",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "keka"
+    },
+    {
+      "name": "LibreOffice.app",
+      "bundle_id": "org.libreoffice.script",
+      "version": "26.8.0.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew*"
+      ],
+      "cask": "libreoffice"
+    },
+    {
+      "name": "Lunar.app",
+      "bundle_id": "fyi.lunar.Lunar",
+      "version": "6.11.0",
+      "sparkle_feed": "https://files.lunar.fyi/appcast2.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "lunar"
+    },
+    {
+      "name": "MacUpdater.app",
+      "bundle_id": "com.corecode.MacUpdater",
+      "version": "3.5.0",
+      "sparkle_feed": "https://www.corecode.io/macupdater/macupdater3.xml",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "macupdater"
+    },
+    {
+      "name": "MacWhisper.app",
+      "bundle_id": "com.goodsnooze.MacWhisper",
+      "version": "13.23.1",
+      "sparkle_feed": "https://macwhisper-site.vercel.app/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "macwhisper"
+    },
+    {
+      "name": "Magnet.app",
+      "bundle_id": "com.crowdcafe.windowmagnet",
+      "version": "3.0.7",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Make Social Media Great Again.app",
+      "bundle_id": "robinmanuelthiel.makesocialmediagreatagain",
+      "version": "1.3.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "MediathekView.app",
+      "bundle_id": "org.mediathekview.MediathekView",
+      "version": "14.4.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "mediathekview"
+    },
+    {
+      "name": "Microsoft Defender.app",
+      "bundle_id": "com.microsoft.wdav",
+      "version": "101.26072.0016",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "microsoft-office"
+    },
+    {
+      "name": "Microsoft Edge.app",
+      "bundle_id": "com.microsoft.edgemac",
+      "version": "152.0.4191.53",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "microsoft-edge"
+    },
+    {
+      "name": "Microsoft Excel.app",
+      "bundle_id": "com.microsoft.Excel",
+      "version": "16.113",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft OneNote.app",
+      "bundle_id": "com.microsoft.onenote.mac",
+      "version": "16.113",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft Outlook.app",
+      "bundle_id": "com.microsoft.Outlook",
+      "version": "16.113",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft PowerPoint.app",
+      "bundle_id": "com.microsoft.Powerpoint",
+      "version": "16.113",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft Remote Desktop Beta 2.app",
+      "bundle_id": "com.microsoft.rdc.osx.beta",
+      "version": "11.4.1",
+      "sparkle_feed": "https://api.appcenter.ms/v0.1/public/sparkle/apps/5e0c1442-89a5-1fca-2d3b-fa39ce7f2b06",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft Scout.app",
+      "bundle_id": "com.microsoft.clawpilot",
+      "version": "0.23.578",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft Teams.app",
+      "bundle_id": "com.microsoft.teams2",
+      "version": "26232.2001.5043.6023",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "microsoft-office-businesspro"
+    },
+    {
+      "name": "Microsoft To Do.app",
+      "bundle_id": "com.microsoft.to-do-mac",
+      "version": "2.177",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Microsoft Word.app",
+      "bundle_id": "com.microsoft.Word",
+      "version": "16.113",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "MAU"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "MoneyMoney.app",
+      "bundle_id": "com.moneymoney-app.retail",
+      "version": "2.5.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "moneymoney"
+    },
+    {
+      "name": "MonitorControl.app",
+      "bundle_id": "app.monitorcontrol.MonitorControl",
+      "version": "4.3.3",
+      "sparkle_feed": "https://monitorcontrol.app/appcast2.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "monitorcontrol"
+    },
+    {
+      "name": "Mountain Duck.app",
+      "bundle_id": "io.mountainduck",
+      "version": "5.3.2",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "mountain-duck"
+    },
+    {
+      "name": "Newsify.app",
+      "bundle_id": "com.synsion.Newsify",
+      "version": "8.0.5",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Obsidian.app",
+      "bundle_id": "md.obsidian",
+      "version": "1.11.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "obsidian"
+    },
+    {
+      "name": "OneDrive.app",
+      "bundle_id": "com.microsoft.OneDrive",
+      "version": "26.103.0531",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "microsoft-office"
+    },
+    {
+      "name": "OnyX.app",
+      "bundle_id": "",
+      "version": "",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "onyx"
+    },
+    {
+      "name": "OpenOats Light.app",
+      "bundle_id": "com.openoats.light",
+      "version": "1.24.0",
+      "sparkle_feed": "https://raw.githubusercontent.com/trsdn/OpenOats/gh-pages/appcast-light.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenOats.app",
+      "bundle_id": "com.openoats.app",
+      "version": "1.23.2",
+      "sparkle_feed": "https://raw.githubusercontent.com/yazinsai/OpenOats/gh-pages/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenSCAD.app",
+      "bundle_id": "org.openscad.OpenSCAD",
+      "version": "2021.01",
+      "sparkle_feed": "https://files.openscad.org/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "openscad@snapshot"
+    },
+    {
+      "name": "P-touch Editor.app",
+      "bundle_id": "com.brother.PtouchEditor",
+      "version": "5.3.24",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "PDF Toolkit.app",
+      "bundle_id": "com.fxcoudert.pdftools",
+      "version": "1.8",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Photos Duplicate Cleaner.app",
+      "bundle_id": "com.tuneupmymac.PhotosDuplicateCleaner",
+      "version": "4.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Pixelmator Pro.app",
+      "bundle_id": "com.pixelmatorteam.pixelmator.x",
+      "version": "3.8",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "PortfolioPerformance.app",
+      "bundle_id": "name.abuchen.portfolio.distro.product",
+      "version": "0.84.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "portfolioperformance"
+    },
+    {
+      "name": "Raspberry Pi Imager.app",
+      "bundle_id": "com.raspberrypi.rpi-imager",
+      "version": "v2.0.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "raspberry-pi-imager"
+    },
+    {
+      "name": "Remote Desktop.app",
+      "bundle_id": "com.apple.RemoteDesktop",
+      "version": "3.10",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "softwareupdate"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Safari.app",
+      "bundle_id": "com.apple.Safari",
+      "version": "26.6.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "softwareupdate"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Save to Reader.app",
+      "bundle_id": "com.readwise.Save-to-Reader",
+      "version": "0.18.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Setapp.app",
+      "bundle_id": "com.setapp.DesktopClient",
+      "version": "3.53.2",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "setapp"
+    },
+    {
+      "name": "Spark.app",
+      "bundle_id": "com.readdle.smartemail-Mac",
+      "version": "2.11.67",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "spark-app"
+    },
+    {
+      "name": "SponsorBlock.app",
+      "bundle_id": "app.ajay.sponsor.macos",
+      "version": "6.1.6",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Synology Drive Client.app",
+      "bundle_id": "com.synology.CloudStation",
+      "version": "8.0.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "synology-drive"
+    },
+    {
+      "name": "Telegram.app",
+      "bundle_id": "ru.keepcoder.Telegram",
+      "version": "12.9",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "telegram"
+    },
+    {
+      "name": "The Unarchiver.app",
+      "bundle_id": "cx.c3.theunarchiver",
+      "version": "4.3.9",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "the-unarchiver"
+    },
+    {
+      "name": "Time Stitch.app",
+      "bundle_id": "com.dddeev.timestitch",
+      "version": "1.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Todoist.app",
+      "bundle_id": "com.todoist.mac.Todoist",
+      "version": "9.30.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": true,
+      "sources": [
+        "MAS",
+        "brew"
+      ],
+      "cask": "todoist-app"
+    },
+    {
+      "name": "Transnomino.app",
+      "bundle_id": "com.bastiaanverreijt.Transnomino",
+      "version": "9.5.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "transnomino"
+    },
+    {
+      "name": "UlyssesMac.app",
+      "bundle_id": "com.ulyssesapp.mac",
+      "version": "40.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "VLC.app",
+      "bundle_id": "org.videolan.vlc",
+      "version": "3.0.23",
+      "sparkle_feed": "",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle(rt)",
+        "brew"
+      ],
+      "cask": "vlc"
+    },
+    {
+      "name": "Visual Studio Code - Insiders.app",
+      "bundle_id": "com.microsoft.VSCodeInsiders",
+      "version": "1.136.0-insider",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "visual-studio-code@insiders"
+    },
+    {
+      "name": "Visual Studio Code.app",
+      "bundle_id": "com.microsoft.VSCode",
+      "version": "1.135.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew",
+        "MAU"
+      ],
+      "cask": "visual-studio-code"
+    },
+    {
+      "name": "VueScan.app",
+      "bundle_id": "com.hamrick.vuescan",
+      "version": "9.7.48",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "vuescan"
+    },
+    {
+      "name": "WhatsApp.app",
+      "bundle_id": "net.whatsapp.WhatsApp",
+      "version": "26.33.19",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "brew"
+      ],
+      "cask": "whatsapp"
+    },
+    {
+      "name": "Windows App.app",
+      "bundle_id": "com.microsoft.rdc.macos",
+      "version": "11.4.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "brew",
+        "MAU"
+      ],
+      "cask": "microsoft-remote-desktop"
+    },
+    {
+      "name": "Xcode.app",
+      "bundle_id": "com.apple.dt.Xcode",
+      "version": "26.6",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS",
+        "softwareupdate"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "cmux.app",
+      "bundle_id": "com.cmuxterm.app",
+      "version": "0.64.16",
+      "sparkle_feed": "https://github.com/manaflow-ai/cmux/releases/latest/download/appcast.xml",
+      "sparkle_fw": true,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "Sparkle",
+        "brew"
+      ],
+      "cask": "cmux"
+    },
+    {
+      "name": "draw.io.app",
+      "bundle_id": "com.jgraph.drawio.desktop",
+      "version": "29.0.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [
+        "brew"
+      ],
+      "cask": "drawio"
+    },
+    {
+      "name": "iA Writer.app",
+      "bundle_id": "pro.writer.mac",
+      "version": "8.0.6",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "iNet Network Scanner.app",
+      "bundle_id": "com.bananaglue.mac.inet",
+      "version": "4.0.4",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": true,
+      "electron": false,
+      "sources": [
+        "MAS"
+      ],
+      "cask": ""
+    }
+  ],
+  "open": [
+    {
+      "name": "Authy Desktop.app",
+      "bundle_id": "com.authy.authy-mac",
+      "version": "3.0.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": true,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "FileZilla.app",
+      "bundle_id": "org.filezilla-project.filezilla",
+      "version": "3.69.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "JDownloader2.app",
+      "bundle_id": "",
+      "version": "",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "OpenDeck.app",
+      "bundle_id": "opendeck",
+      "version": "2.14.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "RODE Connect.app",
+      "bundle_id": "com.rode.rodeconnect",
+      "version": "1.3.47",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "Synology Photo Station Uploader.app",
+      "bundle_id": "com.synology.PhotoStationUploader",
+      "version": "1.4.6-098",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "TimeMachineEditor.app",
+      "bundle_id": "com.tclementdev.timemachineeditor.application",
+      "version": "5.2.2",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "YubiKey Manager.app",
+      "bundle_id": "com.yubico.ykman",
+      "version": "1.2.5",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "Claude Code URL Handler.app",
+      "bundle_id": "com.anthropic.claude-code-url-handler",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    }
+  ],
+  "own": [
+    {
+      "name": "AtlasDrop.app",
+      "bundle_id": "com.torsten.atlasdrop",
+      "version": "0.1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "HiveTerm.app",
+      "bundle_id": "com.hiveterm.HiveTerm",
+      "version": "0.1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "LinkDrop.app",
+      "bundle_id": "com.torsten.linkdrop",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "MDViewer+.app",
+      "bundle_id": "com.torstenmahr.MDViewerPlus",
+      "version": "1.0.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "MDViewer.app",
+      "bundle_id": "com.torstenmahr.MDViewer",
+      "version": "1.0.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenConnct.app",
+      "bundle_id": "audio.openconnct.app",
+      "version": "1.0.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenLens.app",
+      "bundle_id": "com.trsdn.openlens",
+      "version": "0.2.3",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenSwitchr.app",
+      "bundle_id": "com.openswitchr.app",
+      "version": "0.1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenWritr.app",
+      "bundle_id": "com.openwritr.app",
+      "version": "1.5.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "PrintFileManager.app",
+      "bundle_id": "com.printfilemanager.PrintFileManager",
+      "version": "0.2.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Ptions+.app",
+      "bundle_id": "com.torsten.Ptions-Plus",
+      "version": "1.1.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "Teleprompter Mirror.app",
+      "bundle_id": "com.github.trsdn.TeleprompterMirror",
+      "version": "1.0.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "ThreeMFQuickLook.app",
+      "bundle_id": "com.printfilemanager.ThreeMFQuickLook",
+      "version": "1.1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "md2loop.app",
+      "bundle_id": "com.md2loop.app",
+      "version": "1.0.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    },
+    {
+      "name": "OpenZonr.app",
+      "bundle_id": "com.trsdn.openzonr",
+      "version": "0.1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [
+        "eigenes Repo / GitHub Releases"
+      ],
+      "cask": ""
+    }
+  ],
+  "noise": [
+    {
+      "name": "Hermes-Setup-Backup-20260603-000749.app",
+      "bundle_id": "com.nousresearch.hermes.setup",
+      "version": "0.0.1",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "Licht AZ.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "duft an.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "duft aus.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "regal off.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "regal on.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "start AZ.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "turn AZ off.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "turn BG AZ on.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    },
+    {
+      "name": "turn off BG AZ.app",
+      "bundle_id": "com.apple.shortcuts.droplet",
+      "version": "1.0",
+      "sparkle_feed": "",
+      "sparkle_fw": false,
+      "mas": false,
+      "electron": false,
+      "sources": [],
+      "cask": ""
+    }
+  ]
+}
