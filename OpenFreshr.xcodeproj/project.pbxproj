@@ -1,0 +1,389 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3E701957DE9471A31ADF7AFD /* AppDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50B0D4F75022D7CD4C03CFD /* AppDetailView.swift */; };
+		4212803A02093169EC118FC8 /* OpenFreshrApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */; };
+		57C3C91826A970090989CE4F /* InstalledListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7843FD6418A87AAE4EED965 /* InstalledListView.swift */; };
+		57EDEA00F23E757E9B6458FE /* casks-snapshot.json in Resources */ = {isa = PBXBuildFile; fileRef = E976F7E78EC8563390B65645 /* casks-snapshot.json */; };
+		942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94728C9079084CFCB0F538EC /* ContentView.swift */; };
+		A97E25AD4936A4796231C555 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3606D483F2FD210B870351 /* AppViewModel.swift */; };
+		BF262F867F073F3CE0181255 /* AdoptionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */; };
+		E608ADD44F10BA8D70A3164B /* OpenFreshrCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		129AEEDD192940653B00200B /* OpenFreshr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenFreshr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdoptionSheet.swift; sourceTree = "<group>"; };
+		434B98C0A1144DE2F32F5FAE /* trsdn-reimagined-invention */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "trsdn-reimagined-invention"; path = .; sourceTree = SOURCE_ROOT; };
+		6A3606D483F2FD210B870351 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFreshrApp.swift; sourceTree = "<group>"; };
+		94728C9079084CFCB0F538EC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A50B0D4F75022D7CD4C03CFD /* AppDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDetailView.swift; sourceTree = "<group>"; };
+		C4AB47F2D3C54FE3F23B5D92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E7843FD6418A87AAE4EED965 /* InstalledListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledListView.swift; sourceTree = "<group>"; };
+		E976F7E78EC8563390B65645 /* casks-snapshot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "casks-snapshot.json"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8A576EF4D4B61C87DB9AC0BD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E608ADD44F10BA8D70A3164B /* OpenFreshrCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		05C5B5CF2EFBDB8ABA0D4EDE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				129AEEDD192940653B00200B /* OpenFreshr.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		784687B06B6C5BF68170D14B = {
+			isa = PBXGroup;
+			children = (
+				DD196D9834286FAC0FFB1FDE /* Packages */,
+				F9CA9BDFB910F4E6AF2965D1 /* Sources */,
+				05C5B5CF2EFBDB8ABA0D4EDE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D1AECCFBABF3E52E07E2B0F6 /* OpenFreshrApp */ = {
+			isa = PBXGroup;
+			children = (
+				39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */,
+				A50B0D4F75022D7CD4C03CFD /* AppDetailView.swift */,
+				6A3606D483F2FD210B870351 /* AppViewModel.swift */,
+				94728C9079084CFCB0F538EC /* ContentView.swift */,
+				C4AB47F2D3C54FE3F23B5D92 /* Info.plist */,
+				E7843FD6418A87AAE4EED965 /* InstalledListView.swift */,
+				7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */,
+				D9AC16429E9C3DA344683E2A /* Resources */,
+			);
+			path = OpenFreshrApp;
+			sourceTree = "<group>";
+		};
+		D9AC16429E9C3DA344683E2A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E976F7E78EC8563390B65645 /* casks-snapshot.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DD196D9834286FAC0FFB1FDE /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				434B98C0A1144DE2F32F5FAE /* trsdn-reimagined-invention */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		F9CA9BDFB910F4E6AF2965D1 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				D1AECCFBABF3E52E07E2B0F6 /* OpenFreshrApp */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		09E7DA3E1DB174F013609625 /* OpenFreshr */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 48283DC36010BA064047B347 /* Build configuration list for PBXNativeTarget "OpenFreshr" */;
+			buildPhases = (
+				1B4BD4E00AEE8E00C3F78022 /* Sources */,
+				38015B307B20ECA5AF7CA1C8 /* Resources */,
+				8A576EF4D4B61C87DB9AC0BD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OpenFreshr;
+			packageProductDependencies = (
+				9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */,
+			);
+			productName = OpenFreshr;
+			productReference = 129AEEDD192940653B00200B /* OpenFreshr.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1951BD53BA1EB91481638FC7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					09E7DA3E1DB174F013609625 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DB8DFB394BA0E35EB3559334 /* Build configuration list for PBXProject "OpenFreshr" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 784687B06B6C5BF68170D14B;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A2E42E8ABF5D01DF16432D97 /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 05C5B5CF2EFBDB8ABA0D4EDE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				09E7DA3E1DB174F013609625 /* OpenFreshr */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		38015B307B20ECA5AF7CA1C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57EDEA00F23E757E9B6458FE /* casks-snapshot.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1B4BD4E00AEE8E00C3F78022 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF262F867F073F3CE0181255 /* AdoptionSheet.swift in Sources */,
+				3E701957DE9471A31ADF7AFD /* AppDetailView.swift in Sources */,
+				A97E25AD4936A4796231C555 /* AppViewModel.swift in Sources */,
+				942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */,
+				57C3C91826A970090989CE4F /* InstalledListView.swift in Sources */,
+				4212803A02093169EC118FC8 /* OpenFreshrApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9CC952DAB6A8FA3C20548E66 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		ABEF13F824D0BB0F93258979 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/OpenFreshrApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openfreshr.app;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B9FB3358AA3B0931930B8A7D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/OpenFreshrApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.openfreshr.app;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		EA9C6B9E90E85A31DE9161DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		48283DC36010BA064047B347 /* Build configuration list for PBXNativeTarget "OpenFreshr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9FB3358AA3B0931930B8A7D /* Debug */,
+				ABEF13F824D0BB0F93258979 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DB8DFB394BA0E35EB3559334 /* Build configuration list for PBXProject "OpenFreshr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CC952DAB6A8FA3C20548E66 /* Debug */,
+				EA9C6B9E90E85A31DE9161DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A2E42E8ABF5D01DF16432D97 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OpenFreshrCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1951BD53BA1EB91481638FC7 /* Project object */;
+}

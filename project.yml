@@ -1,0 +1,55 @@
+name: OpenFreshr
+options:
+  bundleIdPrefix: com.openfreshr
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+# The app shell consumes the UI-free core through the local Swift package. Only
+# the thin SwiftUI layer lives in the Xcode target; all logic stays in the
+# separately testable OpenFreshrCore library.
+packages:
+  OpenFreshrCore:
+    path: .
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # The app writes to /Applications and shells out to package managers, so it
+    # is not sandboxed. Hardened runtime and notarisation are a later phase.
+    ENABLE_APP_SANDBOX: NO
+
+targets:
+  OpenFreshr:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Sources/OpenFreshrApp
+        excludes:
+          - "Resources/**"
+      # The reduced Homebrew cask catalog snapshot ingested by loadCatalog()
+      # when no fresh Application Support cache exists, so the app matches real
+      # apps out of the box.
+      - path: Sources/OpenFreshrApp/Resources
+        buildPhase: resources
+    dependencies:
+      - package: OpenFreshrCore
+        product: OpenFreshrCore
+    info:
+      path: Sources/OpenFreshrApp/Info.plist
+      properties:
+        CFBundleDisplayName: OpenFreshr
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.utilities
+        NSHumanReadableCopyright: "OpenFreshr"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.openfreshr.app
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
