@@ -14,7 +14,7 @@ import Foundation
 ///   validated against a strict allowlist before use.
 /// * **A `CaskError` is detected and reported distinctly** from other failures,
 ///   so a version-mismatch hard-fail is never mistaken for "nothing happened".
-public struct HomebrewBackend: PackageBackend {
+public struct HomebrewBackend: AdoptingBackend {
 
     private let processRunner: any ProcessRunning
     private let fileSystem: any FileSystemReading
@@ -59,6 +59,58 @@ public struct HomebrewBackend: PackageBackend {
             .map { String($0).trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
         return Set(tokens)
+    }
+
+    /// Resolve the exact `brew upgrade` command for `caskToken`, or `nil` when
+    /// Homebrew is absent or the token fails validation. The command is
+    /// `brew upgrade --cask --greedy -- <token>` — `--greedy` so casks marked
+    /// auto-updating are still upgraded on explicit request, `--` so the token
+    /// can never be read as a flag, and never `--force`.
+    public func resolveUpdateCommand(identifier: String) -> ResolvedCommand? {
+        guard let brewURL = brewURL() else { return nil }
+        guard Self.isValidCaskToken(identifier) else { return nil }
+        return ResolvedCommand(
+            executablePath: brewURL.path,
+            arguments: ["upgrade", "--cask", "--greedy", "--", identifier]
+        )
+    }
+
+    /// Update the cask `identifier` via `brew upgrade --cask --greedy -- <token>`.
+    ///
+    /// Reuses the adopt path's token validation and `CaskError` classification:
+    /// the token is refused before launch on any violation, and a cask-level
+    /// abort is reported distinctly from an ordinary non-zero exit.
+    public func update(identifier: String) -> BackendActionResult {
+        guard let command = resolveUpdateCommand(identifier: identifier) else {
+            if brewURL() == nil { return .failed(reason: .homebrewUnavailable) }
+            return .failed(reason: .invalidCaskToken(identifier))
+        }
+
+        let result: ProcessResult
+        do {
+            result = try processRunner.run(
+                executableURL: URL(fileURLWithPath: command.executablePath),
+                arguments: command.arguments
+            )
+        } catch {
+            return .failed(reason: .launchFailed(message: String(describing: error)))
+        }
+
+        if result.didSucceed {
+            return .succeeded(standardOutput: result.standardOutput)
+        }
+
+        let combined = result.standardError + "\n" + result.standardOutput
+        if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
+            return .caskError(message: caskErrorMessage)
+        }
+
+        return .failed(
+            reason: .processFailed(
+                exitCode: result.exitCode,
+                standardError: result.standardError
+            )
+        )
     }
 
     /// Adopt `app` as `caskToken` via `brew install --cask --adopt <token>`.

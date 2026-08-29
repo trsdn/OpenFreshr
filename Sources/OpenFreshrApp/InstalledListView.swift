@@ -1,33 +1,68 @@
 import SwiftUI
 import OpenFreshrCore
 
-/// The sidebar: every scanned app as a selectable row.
+/// The sidebar: a filter control over every scanned app as a selectable row.
 struct InstalledListView: View {
 
     @Environment(AppViewModel.self) private var viewModel
     @Binding var selection: AppReport.ID?
 
     var body: some View {
-        List(viewModel.reports, selection: $selection) { report in
-            InstalledRow(report: report)
-                .tag(report.id)
-        }
-        .overlay {
-            if viewModel.reports.isEmpty && !viewModel.isScanning {
-                ContentUnavailableView(
-                    "Keine Apps gefunden",
-                    systemImage: "magnifyingglass",
-                    description: Text("Der Scan hat keine Programme erkannt.")
-                )
+        @Bindable var viewModel = viewModel
+
+        VStack(spacing: 0) {
+            Picker("Filter", selection: $viewModel.listFilter) {
+                ForEach(AppListFilter.allCases) { filter in
+                    Text("\(filter.label) (\(viewModel.count(for: filter)))")
+                        .tag(filter)
+                }
             }
+            .pickerStyle(.menu)
+            .labelsHidden()
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+
+            Divider()
+
+            List(viewModel.filteredReports, selection: $selection) { report in
+                InstalledRow(report: report)
+                    .tag(report.id)
+            }
+            .overlay {
+                if viewModel.filteredReports.isEmpty && !viewModel.isScanning {
+                    ContentUnavailableView(
+                        emptyTitle,
+                        systemImage: "magnifyingglass",
+                        description: Text(emptyDescription)
+                    )
+                }
+            }
+        }
+    }
+
+    private var emptyTitle: String {
+        viewModel.listFilter == .all ? "Keine Apps gefunden" : "Nichts im Filter"
+    }
+
+    private var emptyDescription: String {
+        switch viewModel.listFilter {
+        case .all: return "Der Scan hat keine Programme erkannt."
+        case .updates: return "Für keine App wurde ein Update erkannt."
+        case .selfUpdating: return "Keine App aktualisiert sich selbst."
+        case .unassigned: return "Jede App ist einer Quelle zugeordnet."
+        case .problems: return "Keine Quelle meldet ein Problem."
         }
     }
 }
 
-/// One app row: name, version and a compact adoption badge.
+/// One app row: name, version, the available update version when known, and a
+/// compact update/adoption badge.
 private struct InstalledRow: View {
 
+    @Environment(AppViewModel.self) private var viewModel
     let report: AppReport
+
+    private var update: AppUpdateReport? { viewModel.updateReport(for: report) }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -39,18 +74,61 @@ private struct InstalledRow: View {
                 Text(report.app.displayName)
                     .font(.body)
                     .lineLimit(1)
-                Text(report.app.displayVersion.map { "Version \($0)" } ?? "Version unbekannt")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(report.app.displayVersion.map { "Version \($0)" } ?? "Version unbekannt")
+                        .foregroundStyle(.secondary)
+                    if let available = availableVersion {
+                        Image(systemName: "arrow.right")
+                            .imageScale(.small)
+                            .foregroundStyle(.secondary)
+                        Text(available)
+                            .foregroundStyle(.orange)
+                    }
+                }
+                .font(.caption)
+                .lineLimit(1)
             }
 
             Spacer()
 
-            AdoptionBadge(report: report)
+            badge
         }
         .padding(.vertical, 2)
     }
+
+    /// The version the most actionable source would move to, if any.
+    private var availableVersion: String? {
+        update?.primarySource?.state.availableVersion
+    }
+
+    @ViewBuilder
+    private var badge: some View {
+        if viewModel.updateInFlight.contains(report.app.bundlePath) {
+            ProgressView().controlSize(.small)
+        } else if let update, update.hasUpdate {
+            UpdateBadge(isMajor: update.hasMajorUpdate)
+        } else {
+            AdoptionBadge(report: report)
+        }
+    }
+}
+
+/// A small capsule marking an available update; major upgrades read differently
+/// so the user can spot the ones that need a separate, deliberate confirmation.
+struct UpdateBadge: View {
+
+    let isMajor: Bool
+
+    var body: some View {
+        Text(isMajor ? "Major" : "Update")
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.18), in: Capsule())
+            .foregroundStyle(color)
+    }
+
+    private var color: Color { isMajor ? .orange : .accentColor }
 }
 
 /// A small colored capsule summarising the adoption verdict.

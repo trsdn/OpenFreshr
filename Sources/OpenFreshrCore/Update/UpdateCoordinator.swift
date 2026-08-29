@@ -1,0 +1,434 @@
+import Foundation
+
+/// The outcome of one attempted update, confirmed (or not) by a rescan.
+///
+/// Mirrors ``AdoptionResult`` but for updates. The decisive case is
+/// ``updated``: it is reported **only** when a fresh scan no longer sees the
+/// update, never on the backend's word alone. Every case carries its
+/// ``UpdateItem`` so a batch can retry exactly the ones that did not land.
+public enum UpdateOutcome: Sendable {
+    /// The backend reported success **and** a rescan confirms the update is gone.
+    case updated(UpdateItem)
+    /// The backend reported success but the rescan still sees the update. Not done.
+    case notConfirmedByRescan(UpdateItem)
+    /// A cask-level hard fail with a known cause; the app is untouched.
+    case caskError(UpdateItem, message: String)
+    /// Any other failure (tool missing, non-zero exit, launch failure).
+    case failed(UpdateItem, reason: BackendFailureReason)
+
+    public var item: UpdateItem {
+        switch self {
+        case let .updated(item),
+             let .notConfirmedByRescan(item),
+             let .caskError(item, _),
+             let .failed(item, _):
+            return item
+        }
+    }
+
+    public var didUpdate: Bool {
+        if case .updated = self { return true }
+        return false
+    }
+
+    /// Whether offering a retry makes sense (everything but a confirmed update).
+    public var isRetryable: Bool { !didUpdate }
+}
+
+/// The result of running a whole ``UpdateRelease``.
+///
+/// Each item is executed and confirmed independently, so one app's failure can
+/// never turn into another app's false success. ``retryRelease()`` bundles only
+/// the items that did not land, honouring the "retry just the failures" rule.
+public struct UpdateBatchResult: Sendable {
+
+    public let outcomes: [UpdateOutcome]
+
+    public init(outcomes: [UpdateOutcome]) {
+        self.outcomes = outcomes
+    }
+
+    /// Items whose update was confirmed by a rescan.
+    public var updatedItems: [UpdateItem] { outcomes.filter { $0.didUpdate }.map { $0.item } }
+
+    /// Items that failed or were not confirmed, and could be retried.
+    public var retryableItems: [UpdateItem] { outcomes.filter { $0.isRetryable }.map { $0.item } }
+
+    public var allSucceeded: Bool { outcomes.allSatisfy { $0.didUpdate } }
+
+    /// A release containing only the retryable items, preserving the release
+    /// invariant (never mixes major with regular). `nil` when nothing remains.
+    public func retryRelease() -> UpdateRelease? {
+        UpdateRelease(items: retryableItems)
+    }
+}
+
+/// Owns the phase 2/3 sequence **scan → detect (per source) → update →
+/// rescan → confirm**, the update-side analogue of ``AdoptionCoordinator``.
+///
+/// It lives in the core so the whole flow — version comparison, feed and tool
+/// probing, batch execution, rescan confirmation — is exercised through fakes,
+/// never SwiftUI. Every fact it gathers degrades independently: a missing tool,
+/// an unreachable feed or an unreadable version turns *its* source `unbekannt`
+/// and leaves the rest of the app's sources intact.
+public struct UpdateCoordinator: Sendable {
+
+    private let scanner: any Scanning
+    private let homebrew: HomebrewBackend
+    private let macAppStore: MacAppStoreBackend
+    private let microsoftAutoUpdate: MicrosoftAutoUpdateBackend
+    private let catalog: CaskCatalog
+    private let httpFetcher: any HTTPFetching
+    private let scanDirectories: [String]
+
+    public init(
+        scanner: any Scanning,
+        homebrew: HomebrewBackend,
+        macAppStore: MacAppStoreBackend,
+        microsoftAutoUpdate: MicrosoftAutoUpdateBackend,
+        catalog: CaskCatalog,
+        httpFetcher: any HTTPFetching,
+        scanDirectories: [String]
+    ) {
+        self.scanner = scanner
+        self.homebrew = homebrew
+        self.macAppStore = macAppStore
+        self.microsoftAutoUpdate = microsoftAutoUpdate
+        self.catalog = catalog
+        self.httpFetcher = httpFetcher
+        self.scanDirectories = scanDirectories
+    }
+
+    // MARK: - Detection
+
+    /// Scan, probe every source and classify each app into an ``AppUpdateReport``.
+    public func makeUpdateReports() async -> [AppUpdateReport] {
+        let apps = scanner.scan(directories: scanDirectories)
+        let facts = await gatherFacts(for: apps)
+        return apps.map { report(for: $0, facts: facts) }
+    }
+
+    /// The environment facts a batch of reports is built from, gathered once.
+    private struct Facts: Sendable {
+        var index: CaskIndex
+        var resolver: MatchResolver
+        var managedTokens: Set<String>
+        var masOutdated: [MasOutdatedEntry]?
+        var mauList: [MsupdateAppEntry]?
+        var sparkle: [String: SparkleOutcome]
+    }
+
+    /// What a Sparkle feed probe produced for one app.
+    private enum SparkleOutcome: Sendable {
+        case unreachable
+        case unparsable
+        case version(String)
+    }
+
+    /// Gather every fact once: Homebrew catalog/managed state (pure + one `brew
+    /// list`), a single `mas outdated`, a single `msupdate --list`, and the
+    /// Sparkle feeds fetched concurrently — only for apps that actually carry one.
+    private func gatherFacts(for apps: [InstalledApp]) async -> Facts {
+        let index = CaskIndex(casks: catalog.casks)
+        let managed = homebrew.managedTokens()
+        let resolver = MatchResolver(index: index, managedTokens: managed)
+        let masOutdated = macAppStore.isAvailable() ? macAppStore.outdated() : nil
+        let mauList = microsoftAutoUpdate.isAvailable() ? microsoftAutoUpdate.list() : nil
+        let sparkle = await fetchSparkleOutcomes(for: apps)
+        return Facts(
+            index: index,
+            resolver: resolver,
+            managedTokens: managed,
+            masOutdated: masOutdated,
+            mauList: mauList,
+            sparkle: sparkle
+        )
+    }
+
+    /// Fetch every Sparkle feed concurrently, distinguishing "could not reach"
+    /// from "reached but no usable version" so the UI can say which.
+    private func fetchSparkleOutcomes(for apps: [InstalledApp]) async -> [String: SparkleOutcome] {
+        let feeds: [(bundlePath: String, feed: String)] = apps.compactMap { app in
+            guard let feed = app.sparkleFeedURL, !feed.isEmpty else { return nil }
+            return (app.bundlePath, feed)
+        }
+        guard !feeds.isEmpty else { return [:] }
+
+        let fetcher = httpFetcher
+        return await withTaskGroup(of: (String, SparkleOutcome).self) { group in
+            for entry in feeds {
+                group.addTask {
+                    (entry.bundlePath, await Self.probeFeed(entry.feed, using: fetcher))
+                }
+            }
+            var outcomes: [String: SparkleOutcome] = [:]
+            for await (bundlePath, outcome) in group {
+                outcomes[bundlePath] = outcome
+            }
+            return outcomes
+        }
+    }
+
+    /// Probe a single feed: transport failure → `.unreachable`; fetched but no
+    /// version → `.unparsable`; otherwise the newest advertised version.
+    private static func probeFeed(_ feed: String, using fetcher: any HTTPFetching) async -> SparkleOutcome {
+        guard let url = URL(string: feed),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "https" || scheme == "http" else {
+            return .unreachable
+        }
+        guard let data = try? await fetcher.data(from: url) else { return .unreachable }
+        guard let version = SparkleAppcast.newestVersion(from: data) else { return .unparsable }
+        return .version(version)
+    }
+
+    /// Build the full per-source report for one app from the gathered facts.
+    private func report(for app: InstalledApp, facts: Facts) -> AppUpdateReport {
+        var sources: [SourceUpdate] = []
+
+        if let homebrew = homebrewSource(for: app, facts: facts) { sources.append(homebrew) }
+        if let mas = macAppStoreSource(for: app, facts: facts) { sources.append(mas) }
+        if let mau = microsoftAutoUpdateSource(for: app, facts: facts) { sources.append(mau) }
+        if let sparkle = sparkleSource(for: app, facts: facts) { sources.append(sparkle) }
+
+        let isSelfUpdating = app.hasSparkleFramework || app.isElectron || app.sparkleFeedURL != nil
+        return AppUpdateReport(app: app, sources: sources, isSelfUpdating: isSelfUpdating)
+    }
+
+    // MARK: - Per-source detection
+
+    /// The Homebrew source, emitted only for a **confident** cask association —
+    /// an already-managed token, or an app the fail-closed eligibility gate would
+    /// adopt. Anything less is skipped rather than risk a wrong-cask comparison
+    /// producing a phantom update.
+    private func homebrewSource(for app: InstalledApp, facts: Facts) -> SourceUpdate? {
+        let matches = facts.resolver.matches(for: app)
+        var token = matches.first(where: { facts.managedTokens.contains($0.caskToken) })?.caskToken
+        if token == nil,
+           case let .eligible(eligibleToken) = facts.resolver.eligibility(for: app, matches: matches) {
+            token = eligibleToken
+        }
+        guard let token, let cask = facts.index.cask(for: token) else { return nil }
+
+        let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
+        let command = state.hasUpdate ? homebrew.resolveUpdateCommand(identifier: token) : nil
+        return SourceUpdate(
+            appBundlePath: app.bundlePath,
+            kind: .homebrew(token: token),
+            state: state,
+            command: command
+        )
+    }
+
+    /// The Mac App Store source for any app carrying a store receipt. `mas` is
+    /// authoritative here: an app it lists as outdated is an update (target =
+    /// the version `mas` names); a receipt app it does not list is up to date;
+    /// and a missing `mas` degrades the source to `unbekannt`.
+    private func macAppStoreSource(for app: InstalledApp, facts: Facts) -> SourceUpdate? {
+        guard app.hasMacAppStoreReceipt else { return nil }
+
+        guard let outdated = facts.masOutdated else {
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .macAppStore(appID: ""),
+                state: .unknown(.toolUnavailable)
+            )
+        }
+
+        guard let entry = outdated.first(where: { Self.namesMatch($0.name, app) }) else {
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .macAppStore(appID: ""),
+                state: .upToDate
+            )
+        }
+
+        let isMajor = VersionComparator.isMajorChange(
+            from: app.displayVersion ?? entry.installedVersion,
+            to: entry.availableVersion
+        )
+        let command = macAppStore.resolveUpdateCommand(identifier: entry.identifier)
+        return SourceUpdate(
+            appBundlePath: app.bundlePath,
+            kind: .macAppStore(appID: entry.identifier),
+            state: .updateAvailable(available: entry.availableVersion, isMajor: isMajor),
+            command: command
+        )
+    }
+
+    /// The Microsoft AutoUpdate source for any `com.microsoft.` app. A missing
+    /// `msupdate` degrades to `unbekannt`; an app MAU does not list is up to
+    /// date; a listed app becomes an update only when its version parses and
+    /// compares strictly newer — otherwise it stays `unbekannt` (never a guess).
+    private func microsoftAutoUpdateSource(for app: InstalledApp, facts: Facts) -> SourceUpdate? {
+        guard app.isMicrosoftAutoUpdateManaged else { return nil }
+
+        guard let list = facts.mauList else {
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .microsoftAutoUpdate(appID: ""),
+                state: .unknown(.toolUnavailable)
+            )
+        }
+
+        guard let entry = list.first(where: { Self.namesMatch($0.title, app) }) else {
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .microsoftAutoUpdate(appID: ""),
+                state: .upToDate
+            )
+        }
+
+        let state = UpdateResolver.state(installed: app.displayVersion, available: entry.availableVersion)
+        let command = state.hasUpdate ? microsoftAutoUpdate.resolveUpdateCommand(identifier: entry.appID) : nil
+        return SourceUpdate(
+            appBundlePath: app.bundlePath,
+            kind: .microsoftAutoUpdate(appID: entry.appID),
+            state: state,
+            command: command
+        )
+    }
+
+    /// The Sparkle source, present only when the app advertises a feed. It never
+    /// carries a command: a Sparkle app updates itself, and OpenFreshr must not
+    /// drive a second updater against it. The feed outcome maps straight to a
+    /// state, defaulting to `unbekannt` on any doubt.
+    private func sparkleSource(for app: InstalledApp, facts: Facts) -> SourceUpdate? {
+        guard let feed = app.sparkleFeedURL, !feed.isEmpty else { return nil }
+
+        let state: UpdateState
+        switch facts.sparkle[app.bundlePath] {
+        case .version(let version):
+            state = UpdateResolver.state(installed: app.displayVersion, available: version)
+        case .unparsable:
+            state = .unknown(.feedUnparsable)
+        case .unreachable, nil:
+            state = .unknown(.feedUnreachable)
+        }
+        return SourceUpdate(
+            appBundlePath: app.bundlePath,
+            kind: .sparkle(feedURL: feed),
+            state: state,
+            command: nil
+        )
+    }
+
+    // MARK: - Execution
+
+    /// Run every item in `release`, each isolated and each confirmed by a rescan.
+    ///
+    /// Isolation is total: an item's failure is captured in its own
+    /// ``UpdateOutcome`` and never propagates, so one broken update can never
+    /// mark another app as done. Success is asserted **only** when a fresh scan
+    /// no longer reports the update.
+    public func perform(_ release: UpdateRelease) async -> UpdateBatchResult {
+        var outcomes: [UpdateOutcome] = []
+        for item in release.items {
+            outcomes.append(perform(item))
+        }
+        return UpdateBatchResult(outcomes: outcomes)
+    }
+
+    /// Run and confirm a single item.
+    public func perform(_ item: UpdateItem) -> UpdateOutcome {
+        guard let identifier = item.sourceKind.identifier, !identifier.isEmpty else {
+            return .failed(item, reason: .invalidIdentifier(""))
+        }
+
+        let result = backend(for: item.backend).update(identifier: identifier)
+        switch result {
+        case .succeeded:
+            return reconfirm(item) ? .updated(item) : .notConfirmedByRescan(item)
+        case let .caskError(message):
+            return .caskError(item, message: message)
+        case let .failed(reason):
+            return .failed(item, reason: reason)
+        }
+    }
+
+    /// The backend that drives a given kind.
+    private func backend(for kind: UpdateBackendKind) -> any PackageBackend {
+        switch kind {
+        case .homebrew: return homebrew
+        case .macAppStore: return macAppStore
+        case .microsoftAutoUpdate: return microsoftAutoUpdate
+        }
+    }
+
+    /// Re-scan and re-detect just this item's source; `true` only when the update
+    /// is no longer offered. Trusts data, never the backend's success claim.
+    private func reconfirm(_ item: UpdateItem) -> Bool {
+        let apps = scanner.scan(directories: scanDirectories)
+        guard let app = apps.first(where: { $0.bundlePath == item.app.bundlePath })
+            ?? apps.first(where: { $0.bundleName == item.app.bundleName }) else {
+            return false
+        }
+
+        switch item.backend {
+        case .homebrew:
+            guard case let .homebrew(token) = item.sourceKind else { return false }
+            let index = CaskIndex(casks: catalog.casks)
+            guard let cask = index.cask(for: token) else { return false }
+            let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
+            return !state.hasUpdate
+
+        case .macAppStore:
+            guard case let .macAppStore(appID) = item.sourceKind else { return false }
+            // A degraded `mas` cannot confirm anything; refuse to claim success.
+            guard let outdated = macAppStore.outdated() else { return false }
+            return !outdated.contains { $0.identifier == appID }
+
+        case .microsoftAutoUpdate:
+            guard case let .microsoftAutoUpdate(appID) = item.sourceKind else { return false }
+            guard let list = microsoftAutoUpdate.list() else { return false }
+            return !list.contains { $0.appID == appID }
+        }
+    }
+
+    // MARK: - Item construction
+
+    /// Build the drivable ``UpdateItem`` for a report's source, or `nil` when the
+    /// source is not a drivable update. The single place the UI turns a detected
+    /// source into a unit of work.
+    public static func updateItem(for report: AppUpdateReport, source: SourceUpdate) -> UpdateItem? {
+        guard source.isDrivable,
+              let backend = source.backend,
+              let command = source.command,
+              case let .updateAvailable(available, isMajor) = source.state else {
+            return nil
+        }
+        return UpdateItem(
+            app: report.app,
+            sourceKind: source.kind,
+            backend: backend,
+            command: command,
+            targetVersion: available,
+            isMajor: isMajor
+        )
+    }
+
+    // MARK: - Name matching
+
+    /// Loose name match between a tool's app name and an installed bundle:
+    /// normalised equality first, then either-way containment for prefixes like
+    /// "Microsoft ". Conservative by design — a non-match simply means the tool's
+    /// entry is not linked to this app, which degrades to `unbekannt`/up-to-date
+    /// rather than to a wrong action.
+    static func namesMatch(_ toolName: String, _ app: InstalledApp) -> Bool {
+        let candidates = [app.displayName, app.bundleName].map(normalize)
+        let target = normalize(toolName)
+        guard !target.isEmpty else { return false }
+        for candidate in candidates where !candidate.isEmpty {
+            if candidate == target { return true }
+            if candidate.contains(target) || target.contains(candidate) { return true }
+        }
+        return false
+    }
+
+    private static func normalize(_ name: String) -> String {
+        var value = name.lowercased()
+        if value.hasSuffix(".app") { value = String(value.dropLast(4)) }
+        let allowed = value.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }
+        return String(String.UnicodeScalarView(allowed))
+    }
+}

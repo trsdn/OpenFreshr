@@ -72,13 +72,13 @@ public enum AdoptionResult: Sendable {
 public struct AdoptionCoordinator: Sendable {
 
     private let scanner: InventoryScanner
-    private let backend: any PackageBackend
+    private let backend: any AdoptingBackend
     private let catalog: CaskCatalog
     private let scanDirectories: [String]
 
     public init(
         scanner: InventoryScanner,
-        backend: any PackageBackend,
+        backend: any AdoptingBackend,
         catalog: CaskCatalog,
         scanDirectories: [String]
     ) {
