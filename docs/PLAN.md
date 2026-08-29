@@ -1,4 +1,4 @@
-# Implementierungsplan: OpenUpdatr
+# Implementierungsplan: OpenFreshr
 
 > Quelle: [PRD.md](PRD.md)  
 > Prinzip: Jede Phase ist ein schmaler, eigenständig startbarer Tracer Bullet mit
@@ -49,7 +49,7 @@
 
 ### Nutzwert
 
-Der Nutzer startet OpenUpdatr, sieht seine installierten GUI-Apps mit Version und
+Der Nutzer startet OpenFreshr, sieht seine installierten GUI-Apps mit Version und
 Quelle und erhält die zentrale Vorschau: Welche manuell installierten Apps können
 sofort sicher in die Homebrew-Verwaltung übernommen werden? Er wählt einzelne Apps
 aus und stößt `brew install --cask --adopt` kontrolliert an.
@@ -117,6 +117,10 @@ Updates aus.
 - Manuelles Aktualisieren aller Metadaten und erneuter Scan.
 - Offline-Fallback auf den zuletzt erfolgreichen Bestand und Katalog mit klarer
   Altersangabe.
+- Persistenter Prüf-Cache mit Zeitstempel, damit ein App-Neustart keine vollständige
+  Netzwerkprüfung erzwingt.
+- System-Ignorierliste für Apple-eigene und MDM-verwaltete Apps sowie
+  nutzerdefiniertes Ignorieren pro App oder pro Version.
 
 ### Akzeptanzkriterien
 
@@ -128,6 +132,7 @@ Updates aus.
 - [ ] Ein eingebettetes Sparkle-Framework ohne auslesbaren Feed erzeugt keine
       erfundene verfügbare Version.
 - [ ] Veraltete Cache-Daten sind in der UI eindeutig erkennbar.
+- [ ] Ignorierte Apps und übersprungene Versionen bleiben einsehbar und rücknehmbar.
 - [ ] Alle Parser und Versionsfälle laufen reproduzierbar gegen lokale Fixtures.
 
 ---
@@ -148,11 +153,12 @@ Microsoft-AutoUpdate-Aktionen in einem konsistenten Ablauf aus.
 - Mac-App-Store-Updates über `mas`.
 - Microsoft-Updates über `msupdate`.
 - Selbst-updatende Sparkle-/Electron-Apps bleiben standardmäßig reine Hinweise.
-- Pro-App-Ausnahme „trotzdem über OpenUpdatr aktualisieren“, sofern ein geeignetes
+- Pro-App-Ausnahme „trotzdem über OpenFreshr aktualisieren“, sofern ein geeignetes
   ausführbares Backend existiert.
 - Batch-Fortschritt mit unabhängigem Ergebnis je App.
 - Wiederholung fehlgeschlagener Aktionen ohne erneute Ausführung erfolgreicher Apps.
 - Erneuter Scan nach jeder abgeschlossenen Aktion.
+- Major-Upgrades werden erkannt, gesondert dargestellt und separat bestätigt.
 
 ### Akzeptanzkriterien
 
@@ -160,6 +166,8 @@ Microsoft-AutoUpdate-Aktionen in einem konsistenten Ablauf aus.
 - [ ] Keine Aktion startet ohne explizite Nutzerfreigabe.
 - [ ] Homebrew-, MAS- und MAU-Aktionen liefern dasselbe verständliche Statusmodell.
 - [ ] Sparkle-/Electron-Apps werden nicht automatisch parallel aktualisiert.
+- [ ] Ein Major-Upgrade wird nie zusammen mit regulären Updates in einem Schritt
+      freigegeben.
 - [ ] Ein Fehler in einem Backend erzeugt keine falsche Erfolgsmeldung für andere
       oder nachfolgende Apps.
 - [ ] Abbruch und Wiederholung sind deterministisch und getestet.
@@ -173,7 +181,7 @@ Microsoft-AutoUpdate-Aktionen in einem konsistenten Ablauf aus.
 
 ### Nutzwert
 
-OpenUpdatr schützt aktiv vor unerwarteten Herausgeberwechseln und macht
+OpenFreshr schützt aktiv vor unerwarteten Herausgeberwechseln und macht
 Sicherheitsentscheidungen verständlich. Das ist ein sichtbares
 Alleinstellungsmerkmal gegenüber einem reinen Paketmanager-Frontend.
 
@@ -186,7 +194,7 @@ Alleinstellungsmerkmal gegenüber einem reinen Paketmanager-Frontend.
   Team-ID-Wechsel.
 - Expliziter, protokollierter Ausnahmeablauf für einen legitimen Team-ID-Wechsel.
 - Ansicht zum Prüfen und Zurücksetzen gespeicherter Vertrauensentscheidungen.
-- Klare Trennung zwischen OpenUpdatr-Prüfung und Sicherheitsgarantien des Backends.
+- Klare Trennung zwischen OpenFreshr-Prüfung und Sicherheitsgarantien des Backends.
 
 ### Akzeptanzkriterien
 
@@ -208,7 +216,7 @@ Alleinstellungsmerkmal gegenüber einem reinen Paketmanager-Frontend.
 
 ### Nutzwert
 
-OpenUpdatr wird vom Updater zum „App Store für den Rest des Mac“: Der Nutzer kann
+OpenFreshr wird vom Updater zum „App Store für den Rest des Mac“: Der Nutzer kann
 den Cask-Katalog durchsuchen, populäre Apps entdecken und eine ausgewählte GUI-App
 installieren.
 
@@ -274,7 +282,7 @@ einem Klick zur relevanten Liste.
 
 ### Nutzwert
 
-OpenUpdatr kann außerhalb der Entwicklungsmaschine sicher installiert und über
+OpenFreshr kann außerhalb der Entwicklungsmaschine sicher installiert und über
 Sparkle aktualisiert werden. Damit dogfoodet das Produkt seinen eigenen
 Erkennungsfall.
 
@@ -287,6 +295,15 @@ Erkennungsfall.
 - Secretloser Build und Preflight vor dem getrennten Signierschritt.
 - Dokumentierter Installations-, Verifikations- und Releaseablauf.
 - Smoke-Test eines Upgrades von der vorherigen veröffentlichten Version.
+
+### Referenz für eine spätere Helper-Härtung
+
+Sollte sich ein privilegierter Helper als notwendig erweisen, ist die Validierung des
+aufrufenden XPC-Clients der kritische und leicht falsch umgesetzte Teil. Eine
+tragfähige Referenzimplementierung liegt in `OpenUpdaterHelper/XPCAuditToken.m` bei
+[chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater) (MIT). Ein Helper,
+der den Audit Token des Clients nicht prüft, lässt sich von beliebigen lokalen
+Prozessen ansprechen und wäre eine Rechteausweitung mit Root-Rechten.
 
 ### Akzeptanzkriterien
 
@@ -303,6 +320,11 @@ Erkennungsfall.
 
 ## Nach v1 mögliche Erweiterungen
 
+- Deklarative Fallback-Rezepte für Apps ohne jede automatische Quelle, orientiert am
+  Schema von [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
+  (`check` per JSON-Pfad oder HTML-Pattern, `download`, `arch`, `channels`). Auf dem
+  Referenzsystem betrifft das nur rund fünf Apps, überwiegend eingestellte Produkte —
+  der Nutzen rechtfertigt den Pflegeaufwand in v1 daher nicht.
 - Native Download-/Installations-Engine als weiteres `PackageBackend`.
 - Homebrew Formulae und CLI-Tools in einem getrennten Produktbereich.
 - Apple-`softwareupdate`-Aktionen, sofern UX und Abgrenzung zu Systemupdates

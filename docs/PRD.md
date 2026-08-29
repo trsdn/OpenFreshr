@@ -1,4 +1,4 @@
-# Product Requirements Document: OpenUpdatr
+# Product Requirements Document: OpenFreshr
 
 **Status:** Entwurf  
 **Zielplattform:** macOS 14+, Apple Silicon  
@@ -10,10 +10,10 @@ Updates transparent macht und neue Apps finden und installieren kann.
 
 MacUpdater wurde zum 1. Januar 2026 eingestellt. Sein Kernnutzen – Updates für
 außerhalb des Mac App Store installierte Apps sichtbar und ausführbar zu machen –
-bleibt relevant. Ein reiner Nachbau würde jedoch zu kurz greifen: OpenUpdatr soll
+bleibt relevant. Ein reiner Nachbau würde jedoch zu kurz greifen: OpenFreshr soll
 zusätzlich einen durchsuchbaren Katalog bieten und neue Apps installieren können.
 
-OpenUpdatr kombiniert lokale, von Homebrew unabhängige Erkennung mit mehreren
+OpenFreshr kombiniert lokale, von Homebrew unabhängige Erkennung mit mehreren
 Updatequellen. Für die Ausführung verwendet es zunächst etablierte Paket-Backends:
 Homebrew Cask, Mac App Store und Microsoft AutoUpdate. Sparkle- und andere
 Selbst-Update-Mechanismen werden erkannt und transparent dargestellt, aber nicht
@@ -32,13 +32,13 @@ Homebrew-bekannter Apps mittels `brew install --cask --adopt`.
   mehreren Quellen zugeordnet.
 - Kontrolliertes Fuzzy-Matching erhöht die überprüfbare Zuordnung auf mindestens
   104 von 109 Apps, ohne einen falschen Cask automatisch zu übernehmen.
-- OpenUpdatr funktioniert für Erkennung und Anzeige auch dann, wenn Homebrew nicht
+- OpenFreshr funktioniert für Erkennung und Anzeige auch dann, wenn Homebrew nicht
   installiert oder vorübergehend nicht verfügbar ist.
 - Der Nutzer kann in Phase 1 erkannte, noch nicht von Homebrew verwaltete Apps
   einzeln prüfen, auswählen und mit `--adopt` übernehmen.
 - Keine Installation oder Adoption erfolgt allein aufgrund eines unsicheren
   Namensmatches.
-- Vor jedem durch OpenUpdatr ausgeführten App-Ersatz werden Signatur, Gatekeeper-
+- Vor jedem durch OpenFreshr ausgeführten App-Ersatz werden Signatur, Gatekeeper-
   Bewertung und Team-ID-Vertrauen geprüft.
 - Jede Produktphase liefert einen eigenständig startbaren und demonstrierbaren
   End-to-End-Nutzen.
@@ -80,7 +80,7 @@ Paketmanager selbst bedienen zu müssen.
 
 ## Lösung
 
-OpenUpdatr ist eine native SwiftUI-App mit zwei primären Bereichen:
+OpenFreshr ist eine native SwiftUI-App mit zwei primären Bereichen:
 
 - **Installiert:** erkannte Apps, installierte und verfügbare Version, Quelle,
   Vertrauensstatus und mögliche Aktionen.
@@ -120,14 +120,14 @@ deutlich aufwendiger, sicherheitskritischer und würde den ersten Nutzwert verz�
 
 ### 2. Direktvertrieb ohne privilegierten Helper in v1
 
-**Entscheidung:** OpenUpdatr wird mit Developer ID signiert, notarisiert und als DMG
+**Entscheidung:** OpenFreshr wird mit Developer ID signiert, notarisiert und als DMG
 direkt vertrieben. Selbst-Updates erfolgen über Sparkle. Ein `SMAppService`-Helper
 gehört nicht zu v1. Falls ein Cask erhöhte Rechte benötigt, verantwortet Homebrew
 den sichtbaren `sudo`-Prompt.
 
 **Begründung:** Die App muss nach `/Applications` schreiben und kann deshalb nicht
 sinnvoll in der Mac-App-Store-Sandbox betrieben werden. Für die meisten App-Bundles
-ist kein dauerhaft privilegierter Prozess nötig. OpenUpdatr nutzt mit Sparkle selbst
+ist kein dauerhaft privilegierter Prozess nötig. OpenFreshr nutzt mit Sparkle selbst
 einen Mechanismus, den es bei anderen Apps erkennt.
 
 **Verworfene Alternative:** Ein privilegierter Helper ab v1. Er erhöht
@@ -148,7 +148,7 @@ geeignet, aber nicht für ernsthaftes Katalog-Browsing.
 
 ### 4. Signaturprüfung und Team-ID-Vertrauen
 
-**Entscheidung:** Vor jedem von OpenUpdatr veranlassten Ersatz eines App-Bundles
+**Entscheidung:** Vor jedem von OpenFreshr veranlassten Ersatz eines App-Bundles
 werden `codesign --verify --strict`, Gatekeeper via `spctl --assess --type execute`
 und die Team ID geprüft. Die beim ersten Scan gefundene Team ID wird pro Bundle-ID
 als Trust-on-first-use gespeichert. Ein Team-ID-Wechsel stoppt die automatische
@@ -164,9 +164,9 @@ Das erkennt keinen unerwarteten Wechsel des signierenden Herausgebers.
 ### 5. Selbst-Updater anzeigen, nicht parallel auslösen
 
 **Entscheidung:** Sparkle- und Electron-/Squirrel-basierte Apps werden als
-„aktualisiert sich selbst“ gekennzeichnet. OpenUpdatr stößt deren eigenen Updater
+„aktualisiert sich selbst“ gekennzeichnet. OpenFreshr stößt deren eigenen Updater
 nicht heimlich an. Der Nutzer kann pro App ausdrücklich eine Aktualisierung über
-OpenUpdatr wählen. Microsoft AutoUpdate darf über `msupdate` ausgelöst werden.
+OpenFreshr wählen. Microsoft AutoUpdate darf über `msupdate` ausgelöst werden.
 
 **Begründung:** Zwei konkurrierende Updatewege können laufende Apps oder Bundles
 beschädigen. `msupdate` ist dagegen die vorgesehene zentrale MAU-Schnittstelle.
@@ -232,7 +232,7 @@ den primären Bedarf besser zu lösen.
 20. Als Nutzer möchte ich Quellkonflikte sehen, wenn mehrere Mechanismen dieselbe
     App abdecken, damit kein verdeckter Updateweg gewählt wird.
 21. Als Nutzer möchte ich selbst-updatende Apps gekennzeichnet sehen, damit ich weiß,
-    warum OpenUpdatr nicht automatisch eingreift.
+    warum OpenFreshr nicht automatisch eingreift.
 22. Als Nutzer möchte ich pro selbst-updatender App ausdrücklich Homebrew als
     bevorzugten Weg wählen können, damit ich Ausnahmen bewusst steuere.
 23. Als Nutzer möchte ich Mac-App-Store-Updates über `mas` ausführen können, damit
@@ -279,7 +279,7 @@ den primären Bedarf besser zu lösen.
     sehen, damit ich ohne geöffnetes Hauptfenster informiert bin.
 43. Als Nutzer möchte ich von der Menüleiste direkt zur gefilterten Updateansicht
     springen, damit Hinweise handlungsorientiert sind.
-44. Als Nutzer möchte ich OpenUpdatr über Sparkle aktualisieren, damit das Werkzeug
+44. Als Nutzer möchte ich OpenFreshr über Sparkle aktualisieren, damit das Werkzeug
     selbst denselben sicheren Direktvertriebsweg nutzt.
 45. Als Entwickler möchte ich Scan, Matching, Versionsvergleich, Vertrauen und
     Paket-Ausführung als getrennte Module testen können, damit Quellen oder Backends
@@ -349,6 +349,21 @@ den primären Bedarf besser zu lösen.
 - Nutzerfreigabe vor einer Updategruppe und sichtbarer Status pro App.
 - Nach jeder Aktion erfolgt ein erneuter lokaler Scan statt einer optimistischen
   Erfolgsannahme.
+- Major-Upgrades werden gesondert gekennzeichnet und nicht mit regulären Updates
+  vermischt, da sie Lizenz, Dateiformate oder Systemvoraussetzungen ändern können.
+  Sie erfordern eine eigene Bestätigung mit sichtbarer Begründung.
+- Prüfergebnisse werden mit Zeitstempel zwischengespeichert, damit ein Neustart der
+  App keine vollständige Netzwerkprüfung auslöst. Das Cache-Alter ist sichtbar und
+  manuell invalidierbar.
+
+### Ignorierlisten
+
+- Apple-eigene und über MDM verwaltete Apps stehen auf einer System-Ignorierliste und
+  erscheinen nicht als Handlungsvorschlag.
+- Der Nutzer kann eine App dauerhaft ignorieren oder eine einzelne Version
+  überspringen.
+- Ignorierte Einträge bleiben einsehbar und rücknehmbar; sie werden nicht still
+  verborgen.
 
 ### Katalog und Neuinstallation
 
@@ -390,10 +405,10 @@ den primären Bedarf besser zu lösen.
 - Kein privilegierter, dauerhaft laufender Helper in v1.
 - Keine Shell-Interpolation für Toolaufrufe.
 - Keine automatische Aktion aufgrund eines reinen Fuzzy-Namensmatches.
-- Signatur- und Gatekeeper-Prüfung vor einem von OpenUpdatr ausgeführten Ersatz.
+- Signatur- und Gatekeeper-Prüfung vor einem von OpenFreshr ausgeführten Ersatz.
 - Team-ID-Wechsel ist ein blockierender Vertrauenskonflikt mit explizitem Opt-in.
 - Homebrew übernimmt seine eigenen Checksummen-, Quarantäne- und Installerprüfungen;
-  OpenUpdatr stellt deren Ergebnis nicht als eigenen Sicherheitsnachweis dar.
+  OpenFreshr stellt deren Ergebnis nicht als eigenen Sicherheitsnachweis dar.
 - Appcast- und Katalogdaten gelten als nicht vertrauenswürdige Eingaben und werden
   defensiv geparst.
 - URLs dürfen nur über unterstützte sichere Protokolle abgerufen werden; Weiterleitungen
@@ -430,7 +445,7 @@ Diese Grenzen sind wichtiger als konkrete Dateinamen. Insbesondere dürfen
 
 ## Akzeptanzkriterien
 
-- [ ] OpenUpdatr startet als native macOS-App und zeigt eine installierte Ansicht.
+- [ ] OpenFreshr startet als native macOS-App und zeigt eine installierte Ansicht.
 - [ ] Ein Scan findet App-Bundles in allen definierten Verzeichnissen und bleibt
       bei einem unlesbaren Bundle funktionsfähig.
 - [ ] Die Referenzdaten ergeben mindestens 100 automatisch zugeordnete Fremd-Apps.
@@ -445,13 +460,13 @@ Diese Grenzen sind wichtiger als konkrete Dateinamen. Insbesondere dürfen
 - [ ] Jede Adoption wird nach Abschluss durch einen erneuten Scan verifiziert.
 - [ ] MAS-, MAU-, Sparkle- und Homebrew-Quellen können gleichzeitig an einer App
       sichtbar sein.
-- [ ] Selbst-updatende Apps werden standardmäßig nicht durch OpenUpdatr aktualisiert.
+- [ ] Selbst-updatende Apps werden standardmäßig nicht durch OpenFreshr aktualisiert.
 - [ ] Ein ungültig signiertes oder von Gatekeeper abgelehntes Bundle wird blockiert.
 - [ ] Ein Team-ID-Wechsel wird blockiert, erklärt und nur nach expliziter
       Bestätigung akzeptiert.
 - [ ] Der Katalog ist durchsuchbar und kann nach 365-Tage-Popularität sortiert werden.
 - [ ] Eine Kataloginstallation zeigt Backend und Token vor der Bestätigung.
-- [ ] OpenUpdatr kann sich über einen signierten Sparkle-Feed selbst aktualisieren.
+- [ ] OpenFreshr kann sich über einen signierten Sparkle-Feed selbst aktualisieren.
 
 ## Testentscheidungen
 
@@ -477,6 +492,56 @@ Das vorhandene Muster der Vergleichsprojekte wird übernommen: Kernlogik wird in
 einem separat testbaren Swift-Package beziehungsweise Core-Modul gehalten; Tests
 laufen headless. Das Xcode-Projekt wird aus einer deklarativen `project.yml`
 generiert und für den reproduzierbaren Release-Build eingecheckt.
+
+## Stand der Technik
+
+Zwei aktive Open-Source-Projekte verfolgen einen ähnlichen Zweck. Beide wurden am
+29.08.2026 geprüft, um Doppelarbeit zu vermeiden.
+
+### chenasraf/OpenUpdater
+
+Swift, MIT, aktiv. Deckt GitHub Releases, Sparkle-Appcasts und direkte Downloads über
+**handgepflegte, crowdgesourcte YAML-Rezepte** ab.
+
+Gemessen gegen dieselben 109 Fremd-Apps des Referenzsystems:
+
+| Ansatz | Abgedeckte Apps |
+|---|---|
+| OpenUpdater: 53 Rezepte | 9 |
+| OpenUpdater: Rezepte + automatische Sparkle-Erkennung | 24 (22 %) |
+| OpenFreshr: vier bestehende Quellen | 100 (91 %) |
+
+Die Abdeckung von OpenUpdater ist auf dem Referenzsystem eine **echte Teilmenge**: Es
+gibt keine App, die OpenUpdater abdeckt und OpenFreshr nicht.
+
+Die Ursache ist strukturell, nicht qualitativ. Ein rezeptbasierter Ansatz reproduziert
+das Skalierungsproblem, an dem MacUpdater gescheitert ist: Jede unterstützte App
+erfordert dauerhafte manuelle Pflege. OpenFreshr verlagert diese Pflege an Instanzen,
+die sie ohnehin leisten — Homebrew, Apple, Microsoft und die Hersteller selbst.
+
+**Übernommene Erkenntnisse:**
+
+- Das deklarative Rezept-Schema (`check` mit JSON-Pfad oder HTML-Pattern, `download`,
+  `arch`, `channels`) ist eine gute Lösung für Apps ohne jede automatische Quelle und
+  dient als Vorlage für die Fallback-Rezepte in OpenFreshr.
+- Die Quellenabstraktion (`AppStoreSource`, `GitHubReleaseSource`, `SparkleSource`,
+  `HTTPVersionSource` hinter einem gemeinsamen Manager) bestätigt das hier gewählte
+  Backend-Protokoll unabhängig.
+- `XPCAuditToken` zeigt die korrekte Validierung des aufrufenden Clients in einem
+  privilegierten Helper — Referenz für die spätere Härtungsphase.
+- Drei Konzepte werden übernommen: gesonderte Behandlung von Major-Upgrades, ein
+  Cache für Prüfergebnisse und eine System-Ignorierliste.
+
+### jakejarvis/versioneer
+
+TypeScript, MIT, frühe Alpha. Ebenfalls ein nativer macOS-App-Updater, jedoch ohne
+Installation neuer Apps und ohne Signaturprüfung als Sicherheitsmerkmal.
+
+### Abgrenzung
+
+Zwei Funktionen bietet keines der beiden Projekte und sie bleiben die Kernunterscheidung
+von OpenFreshr: **Installation neuer Apps aus einem durchsuchbaren Katalog** und die
+**Team-ID-Prüfung vor dem Ersetzen einer App**.
 
 ## Nicht-Ziele für v1
 
@@ -519,9 +584,12 @@ Erweiterungen, sofern ihr Nutzen die zusätzliche Komplexität rechtfertigt.
   Warnungen erzeugen. Der Ausnahmeablauf darf nicht banalisiert werden.
 - **Apple-Apps:** `softwareupdate` bleibt zunächst Erkennungsquelle; konkrete
   Ausführung und UX müssen separat validiert werden.
-- **Lizenz:** Die Projektlizenz ist noch nicht festgelegt.
-- **Produktname:** Ähnlichkeit zu bestehenden Marken und Domains ist vor öffentlicher
-  Veröffentlichung zu prüfen.
+- **Lizenz:** MIT, siehe [LICENSE](../LICENSE). Entschieden am 29.08.2026.
+- **Produktname:** Geprüft am 29.08.2026. Der ursprüngliche Arbeitstitel `OpenUpdatr`
+  kollidierte mit [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
+  (Swift, MIT, aktiv, gleicher Zweck) und wurde deshalb zu `OpenFreshr` geändert.
+  GitHub und npm sind für den neuen Namen frei. Eine markenrechtliche Prüfung steht
+  vor einer kommerziellen Nutzung weiterhin aus.
 
 ## Rollout
 
