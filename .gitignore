@@ -1,7 +1,11 @@
 # Swift Package Manager
 .build/
 .swiftpm/
-Package.resolved
+
+# Package.resolved is deliberately tracked. This is an application, not a
+# library, so builds have to be reproducible: the notarization broker pins the
+# build to a committed lockfile (`dependency_lock` in its profile), and an
+# unpinned dependency graph would let a release differ from what was reviewed.
 
 # XcodeGen output is regenerated from project.yml; the checked-in project is only
 # refreshed deliberately for broker builds.
@@ -29,3 +33,6 @@ build/
 .vscode/
 .idea/
 *.swp
+
+# Worktrees created for agent sessions live inside the checkout.
+.worktrees/
