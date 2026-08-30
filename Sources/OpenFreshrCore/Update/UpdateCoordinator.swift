@@ -113,6 +113,7 @@ public struct UpdateCoordinator: Sendable {
         var index: CaskIndex
         var resolver: MatchResolver
         var managedTokens: Set<String>
+        var receiptVersions: [String: String]
         var masOutdated: [MasOutdatedEntry]?
         var mauList: [MsupdateAppEntry]?
         var sparkle: [String: SparkleOutcome]
@@ -131,6 +132,7 @@ public struct UpdateCoordinator: Sendable {
     private func gatherFacts(for apps: [InstalledApp]) async -> Facts {
         let index = CaskIndex(casks: catalog.casks)
         let managed = homebrew.managedTokens()
+        let receiptVersions = homebrew.managedReceiptVersions()
         let resolver = MatchResolver(index: index, managedTokens: managed)
         let masOutdated = macAppStore.isAvailable() ? macAppStore.outdated() : nil
         let mauList = microsoftAutoUpdate.isAvailable() ? microsoftAutoUpdate.list() : nil
@@ -139,6 +141,7 @@ public struct UpdateCoordinator: Sendable {
             index: index,
             resolver: resolver,
             managedTokens: managed,
+            receiptVersions: receiptVersions,
             masOutdated: masOutdated,
             mauList: mauList,
             sparkle: sparkle
@@ -197,27 +200,93 @@ public struct UpdateCoordinator: Sendable {
 
     // MARK: - Per-source detection
 
-    /// The Homebrew source, emitted only for a **confident** cask association —
-    /// an already-managed token, or an app the fail-closed eligibility gate would
-    /// adopt. Anything less is skipped rather than risk a wrong-cask comparison
-    /// producing a phantom update.
+    /// The Homebrew source, emitted for a **confident** cask association. Three
+    /// cases, kept strictly apart because conflating them is exactly what breaks
+    /// real apps:
+    ///
+    /// * The token is one Homebrew **manages** (`brew list --cask`): a real
+    ///   `brew upgrade` can act on it, so this is the *only* path that may carry
+    ///   an executable ``SourceUpdate/command``. Within it, one further split:
+    ///   an ordinary **backlog** (the receipt is behind the cask) upgrades, but a
+    ///   **receipt drift** (the receipt has already reached the cask version while
+    ///   the app on disk is older — the `auto_updates` blind spot) makes
+    ///   `brew upgrade` a silent no-op, so it is driven with `brew reinstall`
+    ///   instead. The disk version stays the sole authority on *whether* an update
+    ///   is due; the receipt only picks *which verb* lands it.
+    /// * The token is merely **adoptable** — the fail-closed eligibility gate
+    ///   would adopt it — but not yet managed. The newer version is real and
+    ///   worth reporting, yet `brew upgrade` would fail with *"Cask is not
+    ///   installed"*. So the state is reported with **no command** and an
+    ///   ``UpdateActionBlocker/requiresAdoption`` marker, which keeps the update
+    ///   visible while routing the user to adoption first.
+    ///
+    /// Anything less than a confident association is skipped rather than risk a
+    /// wrong-cask comparison producing a phantom update.
     private func homebrewSource(for app: InstalledApp, facts: Facts) -> SourceUpdate? {
         let matches = facts.resolver.matches(for: app)
-        var token = matches.first(where: { facts.managedTokens.contains($0.caskToken) })?.caskToken
-        if token == nil,
-           case let .eligible(eligibleToken) = facts.resolver.eligibility(for: app, matches: matches) {
-            token = eligibleToken
-        }
-        guard let token, let cask = facts.index.cask(for: token) else { return nil }
 
+        // Managed → the single path allowed to produce an executable upgrade.
+        if let managedToken = matches.first(where: { facts.managedTokens.contains($0.caskToken) })?.caskToken,
+           let cask = facts.index.cask(for: managedToken) {
+            // Disk is always the authority on whether an update is due. When one
+            // is, decide *which* brew verb actually lands it: an ordinary backlog
+            // upgrades, but a receipt that has already reached the cask version
+            // while the disk lags behind is drift — `brew upgrade` would no-op, so
+            // reinstall instead.
+            let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
+            let strategy: HomebrewUpdateStrategy? = state.hasUpdate
+                ? (Self.isReceiptDrift(token: managedToken, caskVersion: cask.version, facts: facts)
+                    ? .reinstall : .upgrade)
+                : nil
+            let command = strategy.flatMap {
+                homebrew.resolveUpdateCommand(identifier: managedToken, strategy: $0)
+            }
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .homebrew(token: managedToken),
+                state: state,
+                command: command,
+                homebrewStrategy: strategy
+            )
+        }
+
+        // Adoptable but not managed → report the (correct) state, but never a
+        // command: `brew upgrade` cannot act on a cask Homebrew does not manage.
+        // Mark the blocker so the update stays honest and visible while the
+        // offered action becomes "erst übernehmen".
+        guard case let .eligible(eligibleToken) = facts.resolver.eligibility(for: app, matches: matches),
+              let cask = facts.index.cask(for: eligibleToken) else {
+            return nil
+        }
         let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
-        let command = state.hasUpdate ? homebrew.resolveUpdateCommand(identifier: token) : nil
+        let blocker: UpdateActionBlocker? = state.hasUpdate ? .requiresAdoption(caskToken: eligibleToken) : nil
         return SourceUpdate(
             appBundlePath: app.bundlePath,
-            kind: .homebrew(token: token),
+            kind: .homebrew(token: eligibleToken),
             state: state,
-            command: command
+            command: nil,
+            actionBlocker: blocker
         )
+    }
+
+    /// Whether a managed cask is in **receipt drift**: Homebrew's receipt version
+    /// has already reached (or passed) the cask version. Only a *confident*
+    /// "receipt ≥ cask" counts — an absent or incomparable receipt yields `false`,
+    /// so a reinstall is chosen only when certain, exactly as the "im Zweifel
+    /// nicht handeln" rule requires. The complementary "disk is behind the cask"
+    /// half is the caller's `state.hasUpdate`, itself the authoritative
+    /// disk-vs-cask comparison — so the two together mean *receipt caught up, disk
+    /// did not*, which is precisely when `brew upgrade` no-ops and `reinstall` is
+    /// the only verb that lands the update. The LibreOffice shape (receipt
+    /// `26.8.0`, disk `26.8.0.3`) never reaches here: the disk is *newer* than the
+    /// cask, so `state.hasUpdate` is already false and no action is taken.
+    private static func isReceiptDrift(token: String, caskVersion: String?, facts: Facts) -> Bool {
+        guard let caskVersion,
+              let receipt = facts.receiptVersions[token],
+              let order = VersionComparator.compare(installed: receipt, available: caskVersion) else {
+            return false
+        }
+        return order == .same || order == .newer
     }
 
     /// The Mac App Store source for any app carrying a store receipt. `mas` is
@@ -335,7 +404,34 @@ public struct UpdateCoordinator: Sendable {
             return .failed(item, reason: .invalidIdentifier(""))
         }
 
-        let result = backend(for: item.backend).update(identifier: identifier)
+        // Execution-site guard against the "adoptable but not brew-managed" trap
+        // that broke Amazon Photos: `brew upgrade <token>` only works when
+        // Homebrew actually manages the cask. An app that is merely adoptable
+        // must be adopted first, so refuse it **here**, before it can reach the
+        // backend. Because a single update, a batch (which calls this per item)
+        // and the major-upgrade path all run through this one method, this one
+        // check covers every route — the confirm-by-rescan contract is untouched
+        // since a refused item never claims success.
+        //
+        // A managed cask is then driven with the item's own
+        // ``UpdateItem/homebrewStrategy`` (`upgrade` normally, `reinstall` for a
+        // receipt drift), so the executed verb matches the previewed command
+        // exactly — a drift item never falls back to the no-op `upgrade`.
+        if case let .homebrew(token) = item.sourceKind {
+            guard homebrew.managedTokens().contains(token) else {
+                return .failed(item, reason: .requiresAdoption(caskToken: token))
+            }
+            return classify(homebrew.update(identifier: token, strategy: item.homebrewStrategy), for: item)
+        }
+
+        return classify(backend(for: item.backend).update(identifier: identifier), for: item)
+    }
+
+    /// Turn a backend's claimed result into a confirmed outcome. Success is
+    /// asserted **only** when a fresh rescan no longer sees the update; a
+    /// `CaskError` and any other failure are reported as-is. Shared by every
+    /// backend route so the confirm-by-rescan contract has a single home.
+    private func classify(_ result: BackendActionResult, for item: UpdateItem) -> UpdateOutcome {
         switch result {
         case .succeeded:
             return reconfirm(item) ? .updated(item) : .notConfirmedByRescan(item)
@@ -403,7 +499,8 @@ public struct UpdateCoordinator: Sendable {
             backend: backend,
             command: command,
             targetVersion: available,
-            isMajor: isMajor
+            isMajor: isMajor,
+            homebrewStrategy: source.homebrewStrategy ?? .upgrade
         )
     }
 

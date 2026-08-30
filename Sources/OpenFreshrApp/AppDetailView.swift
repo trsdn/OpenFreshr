@@ -149,6 +149,17 @@ struct AppDetailView: View {
                     .foregroundStyle(.orange)
                 }
 
+                if source.isReceiptDrift {
+                    Label(
+                        "Homebrew führt diese App bereits als aktuell, auf der Platte liegt aber eine ältere Version. "
+                            + "Ein normales Upgrade bliebe wirkungslos, deshalb wird die App neu installiert statt aktualisiert.",
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Button {
                     Task { await viewModel.update(update, source: source) }
                 } label: {
@@ -157,6 +168,44 @@ struct AppDetailView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(source.state.isMajor ? .orange : .accentColor)
                 .disabled(isInFlight)
+            }
+        } else if let blocked = update.adoptionBlockedSource {
+            adoptionRequiredNotice(for: blocked)
+        }
+    }
+
+    /// A detected-but-not-drivable Homebrew update: the newer version is real,
+    /// but the cask is not brew-managed, so the only correct next step is
+    /// adoption — never an "Aktualisieren" button that could only fail with
+    /// *"Cask is not installed"* (the Amazon Photos case). Show the version-bound
+    /// reason and, when the app is eligible, a direct button into the existing
+    /// adoption sheet.
+    @ViewBuilder
+    private func adoptionRequiredNotice(for source: SourceUpdate) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(
+                source.actionBlocker?.explanation
+                    ?? "Diese App muss zuerst von Homebrew übernommen werden, bevor OpenFreshr sie aktualisieren kann.",
+                systemImage: "square.and.arrow.down.on.square"
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+
+            if report.eligibility.isEligible {
+                Button {
+                    showingAdoptionSheet = true
+                } label: {
+                    Label("Zum Aktualisieren zuerst übernehmen …", systemImage: "square.and.arrow.down.on.square")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!viewModel.homebrewAvailable || viewModel.adoptionInFlight.contains(report.app.bundlePath))
+
+                if !viewModel.homebrewAvailable {
+                    Text("Homebrew ist nicht verfügbar — Übernahme ist deaktiviert, der Scan funktioniert weiterhin.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             }
         }
     }
@@ -243,6 +292,7 @@ private struct UpdateSourceRow: View {
     }
 
     private var color: Color {
+        if source.requiresAdoption { return .secondary }
         switch source.state {
         case .upToDate: return .green
         case .updateAvailable(_, let isMajor): return isMajor ? .orange : .accentColor
@@ -255,7 +305,8 @@ private struct UpdateSourceRow: View {
         case .upToDate:
             return "aktuell"
         case let .updateAvailable(available, isMajor):
-            return isMajor ? "Major → \(available)" : "→ \(available)"
+            let arrow = isMajor ? "Major → \(available)" : "→ \(available)"
+            return source.requiresAdoption ? "\(arrow) · Übernahme nötig" : arrow
         case let .unknown(reason):
             return reason.explanation
         }

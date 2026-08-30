@@ -323,7 +323,16 @@ public final class AppViewModel {
         switch outcome {
         case .updated:
             return "Aktualisiert und per Scan bestätigt."
-        case .notConfirmedByRescan:
+        case let .notConfirmedByRescan(item):
+            // The generic "reported success but rescan disagrees" line is right,
+            // but a receipt-drift item (driven by reinstall) has a *nameable*
+            // cause, so say it instead of leaving the user stranded.
+            if item.homebrewStrategy == .reinstall {
+                return "Homebrew führt diese App als aktuell, auf der Platte liegt aber eine ältere Version. "
+                    + "Die Neuinstallation meldete Erfolg, der Scan bestätigt ihn aber nicht — die App bringt "
+                    + "ihre Version vermutlich selbst mit (auto_updates). Bitte einmal manuell starten und "
+                    + "aktualisieren lassen; danach erneut prüfen."
+            }
             return "Das Werkzeug meldete Erfolg, der erneute Scan bestätigt ihn aber nicht."
         case let .caskError(_, message):
             return "Abgebrochen (CaskError): \(message)"

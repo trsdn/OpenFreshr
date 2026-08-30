@@ -41,6 +41,12 @@ public enum BackendFailureReason: Sendable, Equatable {
     /// A store/MAU identifier failed strict validation and was refused before
     /// any process was launched.
     case invalidIdentifier(String)
+    /// The app is confidently attributed to a Homebrew cask and a newer version
+    /// is known, but Homebrew does **not** manage that cask, so `brew upgrade`
+    /// cannot act on it (it would abort with *"Cask '<token>' is not
+    /// installed"*). The update is refused **before** any process runs; the app
+    /// must be adopted (`brew install --cask --adopt`) first. Carries the token.
+    case requiresAdoption(caskToken: String)
 
     public var explanation: String {
         switch self {
@@ -57,6 +63,8 @@ public enum BackendFailureReason: Sendable, Equatable {
             return "Ungültiger Cask-Token abgelehnt (nicht ausgeführt): \(token)"
         case let .invalidIdentifier(identifier):
             return "Ungültiger Bezeichner abgelehnt (nicht ausgeführt): \(identifier)"
+        case let .requiresAdoption(token):
+            return "Erfordert zuerst Übernahme — Cask „\(token)“ ist nicht brew-verwaltet (nicht ausgeführt)."
         }
     }
 }

@@ -140,6 +140,40 @@ public enum UpdateSourceKind: Hashable, Sendable {
     }
 }
 
+/// Why a **real, detected** update cannot be driven by OpenFreshr as-is.
+///
+/// A blocker never hides an update: the newer version is known and correct, and
+/// the "Updates" filter keeps listing the app. It only explains why the source
+/// carries **no executable ``SourceUpdate/command``**, and points the user at the
+/// prerequisite they must satisfy first. Distinguishing "a newer version exists"
+/// from "OpenFreshr can run it" is the whole point — conflating the two is what
+/// let an *adoptable* app be offered a `brew upgrade` it could only fail.
+public enum UpdateActionBlocker: Hashable, Sendable {
+
+    /// The app is confidently attributed to a cask and a newer version is known,
+    /// but Homebrew does **not** manage that cask yet. `brew upgrade <token>`
+    /// would fail with *"Cask '<token>' is not installed"* (the Amazon Photos
+    /// case), so the app must first be taken over with
+    /// `brew install --cask --adopt <token>`. Only *after* that is it updatable
+    /// through OpenFreshr.
+    case requiresAdoption(caskToken: String)
+
+    /// The cask token the user must adopt to unblock the update.
+    public var caskToken: String {
+        switch self {
+        case let .requiresAdoption(token): return token
+        }
+    }
+
+    /// A short, human-facing reason for the UI.
+    public var explanation: String {
+        switch self {
+        case let .requiresAdoption(token):
+            return "Erfordert zuerst Übernahme — der Cask „\(token)“ wird noch nicht von Homebrew verwaltet."
+        }
+    }
+}
+
 /// One source's resolved update situation for one app.
 ///
 /// It pairs the channel (``kind``) with its determined ``state`` and, when a
@@ -157,19 +191,37 @@ public struct SourceUpdate: Hashable, Sendable, Identifiable {
     public var state: UpdateState
 
     /// The resolved command a backend would run, when one is available. `nil`
-    /// for Sparkle (no backend) or when the backing tool is unavailable.
+    /// for Sparkle (no backend), when the backing tool is unavailable, or when
+    /// an ``actionBlocker`` withholds the action (e.g. the cask is not yet
+    /// brew-managed and must be adopted first).
     public var command: ResolvedCommand?
+
+    /// Set when a **real** update was detected that OpenFreshr must not drive
+    /// as-is. The update stays visible and honest; only the action is withheld,
+    /// and this names the prerequisite. `nil` for an ordinary drivable update.
+    public var actionBlocker: UpdateActionBlocker?
+
+    /// For a **managed Homebrew** source with a drivable update, which brew verb
+    /// actually repairs it: ``HomebrewUpdateStrategy/upgrade`` for an ordinary
+    /// backlog, ``HomebrewUpdateStrategy/reinstall`` when the receipt has drifted
+    /// ahead of the app on disk (see ``isReceiptDrift``). `nil` for every other
+    /// source and whenever no drivable update is offered.
+    public var homebrewStrategy: HomebrewUpdateStrategy?
 
     public init(
         appBundlePath: String,
         kind: UpdateSourceKind,
         state: UpdateState,
-        command: ResolvedCommand? = nil
+        command: ResolvedCommand? = nil,
+        actionBlocker: UpdateActionBlocker? = nil,
+        homebrewStrategy: HomebrewUpdateStrategy? = nil
     ) {
         self.appBundlePath = appBundlePath
         self.kind = kind
         self.state = state
         self.command = command
+        self.actionBlocker = actionBlocker
+        self.homebrewStrategy = homebrewStrategy
     }
 
     public var id: String { "\(appBundlePath)|\(kind.label)" }
@@ -177,9 +229,27 @@ public struct SourceUpdate: Hashable, Sendable, Identifiable {
     /// The backend that can drive this source, if any.
     public var backend: UpdateBackendKind? { kind.backend }
 
+    /// `true` when this update is a Homebrew **receipt drift**: Homebrew's
+    /// receipt already reports the cask version as installed, yet the app on disk
+    /// is older, so `brew upgrade` would be a silent no-op and only a `reinstall`
+    /// actually lands the update. Drives the explanatory hint in the detail view.
+    public var isReceiptDrift: Bool { homebrewStrategy == .reinstall }
+
     /// `true` when this source both offers an update and can actually be driven.
+    ///
+    /// A present ``actionBlocker`` always wins: even if a command were attached,
+    /// a blocked source is never drivable — the update is real but the action is
+    /// not available until the prerequisite (adoption) is met.
     public var isDrivable: Bool {
-        state.hasUpdate && command != nil
+        state.hasUpdate && command != nil && actionBlocker == nil
+    }
+
+    /// `true` when a real update is known but cannot be driven until the app is
+    /// adopted into Homebrew (its cask is not brew-managed). The information is
+    /// still valid and shown — only the one-click action is withheld.
+    public var requiresAdoption: Bool {
+        if case .requiresAdoption = actionBlocker { return true }
+        return false
     }
 }
 
@@ -215,6 +285,21 @@ public struct AppUpdateReport: Sendable, Identifiable {
 
     /// `true` when no update source was detected at all.
     public var isUnassigned: Bool { sources.isEmpty }
+
+    /// `true` when a real, newer version is known for at least one source but
+    /// OpenFreshr cannot drive it yet because the app must first be adopted into
+    /// Homebrew (the cask is not brew-managed). ``hasUpdate`` stays `true`, so
+    /// the app keeps showing under the "Updates" filter — only the action is
+    /// "erst übernehmen" instead of "aktualisieren".
+    public var requiresAdoptionForUpdate: Bool {
+        sources.contains { $0.requiresAdoption }
+    }
+
+    /// The source that knows of a newer version but is blocked on adoption, if
+    /// any. Lets the UI render the version together with the adoption hint.
+    public var adoptionBlockedSource: SourceUpdate? {
+        sources.first { $0.requiresAdoption }
+    }
 
     /// `true` when a source could not be determined for a reason worth flagging
     /// (a feed or tool problem, as opposed to simply lacking a version).
@@ -262,13 +347,20 @@ public struct UpdateItem: Sendable, Identifiable, Equatable {
     public var targetVersion: String
     public var isMajor: Bool
 
+    /// For a Homebrew item, the brew verb to run: `.upgrade` normally,
+    /// `.reinstall` to repair a receipt-vs-disk drift. Defaults to `.upgrade` and
+    /// is ignored by the other backends. Carried on the item so the executed
+    /// command always matches the previewed ``command`` exactly.
+    public var homebrewStrategy: HomebrewUpdateStrategy
+
     public init(
         app: InstalledApp,
         sourceKind: UpdateSourceKind,
         backend: UpdateBackendKind,
         command: ResolvedCommand,
         targetVersion: String,
-        isMajor: Bool
+        isMajor: Bool,
+        homebrewStrategy: HomebrewUpdateStrategy = .upgrade
     ) {
         self.app = app
         self.sourceKind = sourceKind
@@ -276,6 +368,7 @@ public struct UpdateItem: Sendable, Identifiable, Equatable {
         self.command = command
         self.targetVersion = targetVersion
         self.isMajor = isMajor
+        self.homebrewStrategy = homebrewStrategy
     }
 
     public var id: String { app.bundlePath }

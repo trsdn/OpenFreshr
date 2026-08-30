@@ -236,4 +236,104 @@ struct HomebrewBackendTests {
         )
         #expect(backend.managedTokens().isEmpty)
     }
+
+    // MARK: - Receipt versions & the reinstall (drift) command
+
+    @Test
+    func parsesReceiptVersionsFromBrewListVersions() {
+        // `brew list --cask --versions` prints `token version…` per line. The
+        // receipt version is what Homebrew *believes* is installed — captured here
+        // so the coordinator can spot the auto_updates drift where it disagrees
+        // with the disk.
+        let runner = RecordingProcessRunner { _, arguments in
+            #expect(arguments == ["list", "--cask", "--versions"])
+            return ProcessResult(
+                exitCode: 0,
+                standardOutput: "transnomino 10.1.0\nwhatsapp 26.34.24\nlibreoffice 26.8.0\n",
+                standardError: ""
+            )
+        }
+        let backend = HomebrewBackend(
+            processRunner: runner,
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        #expect(
+            backend.managedReceiptVersions()
+                == ["transnomino": "10.1.0", "whatsapp": "26.34.24", "libreoffice": "26.8.0"]
+        )
+    }
+
+    @Test
+    func receiptVersionForATokenWithSeveralVersionsIsTheNewest() {
+        // A cask can carry more than one installed version; the receipt we compare
+        // against must be the newest, never merely the first printed.
+        let runner = RecordingProcessRunner { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "thing 1.5.0 2.0.0 1.9.0\n", standardError: "")
+        }
+        let backend = HomebrewBackend(
+            processRunner: runner,
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        #expect(backend.managedReceiptVersions() == ["thing": "2.0.0"])
+    }
+
+    @Test
+    func receiptVersionsSkipTokenOnlyLines() {
+        // A token with no version column carries no receipt to compare, so it is
+        // skipped rather than recorded as an empty (and later mis-ordered) version.
+        let runner = RecordingProcessRunner { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "lonely\nbaz 1.2.3\n", standardError: "")
+        }
+        let backend = HomebrewBackend(
+            processRunner: runner,
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        #expect(backend.managedReceiptVersions() == ["baz": "1.2.3"])
+    }
+
+    @Test
+    func managedReceiptVersionsIsEmptyWhenBrewAbsent() {
+        let backend = HomebrewBackend(
+            processRunner: RecordingProcessRunner(),
+            fileSystem: fileSystem(brewPaths: [])
+        )
+        #expect(backend.managedReceiptVersions().isEmpty)
+    }
+
+    @Test
+    func resolvesReinstallCommandForDriftStrategy() {
+        // The drift verb: `brew reinstall --cask -- <token>` — separated arguments,
+        // a `--` terminator, and never `--force`, exactly like the upgrade path.
+        let backend = HomebrewBackend(
+            processRunner: RecordingProcessRunner(),
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        let reinstall = backend.resolveUpdateCommand(identifier: "transnomino", strategy: .reinstall)
+        #expect(reinstall?.arguments == ["reinstall", "--cask", "--", "transnomino"])
+
+        // The default and the explicit upgrade strategy remain the greedy upgrade.
+        #expect(
+            backend.resolveUpdateCommand(identifier: "transnomino")?.arguments
+                == ["upgrade", "--cask", "--greedy", "--", "transnomino"]
+        )
+        #expect(
+            backend.resolveUpdateCommand(identifier: "transnomino", strategy: .upgrade)?.arguments
+                == ["upgrade", "--cask", "--greedy", "--", "transnomino"]
+        )
+    }
+
+    @Test
+    func rejectsHostileTokenForReinstallWithoutLaunchingAProcess() {
+        // The reinstall path must honour the same allowlist as upgrade/adopt: a
+        // token that fails validation yields no command at all.
+        let backend = HomebrewBackend(
+            processRunner: RecordingProcessRunner(),
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+        #expect(backend.resolveUpdateCommand(identifier: "../evil", strategy: .reinstall) == nil)
+    }
 }

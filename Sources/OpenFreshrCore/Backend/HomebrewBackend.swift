@@ -1,5 +1,23 @@
 import Foundation
 
+/// How Homebrew should be driven to bring a cask's app up to its cask version.
+/// The two verbs are **not** interchangeable:
+///
+/// * ``upgrade`` — the ordinary path. `brew upgrade --cask --greedy -- <token>`
+///   moves a cask whose receipt is *behind* the cask version forward.
+/// * ``reinstall`` — the drift path. A cask marked `auto_updates` can end up with
+///   a receipt that already **matches** the cask version while the app on disk is
+///   older (Homebrew skips the version check for such casks and writes the receipt
+///   to the cask version regardless of what actually landed). `brew upgrade` then
+///   sees receipt == cask and does nothing — reporting success without changing a
+///   thing. `brew reinstall --cask -- <token>` re-downloads and installs the
+///   current cask version, so the disk matches again. It is the only verb that
+///   repairs a receipt-vs-disk drift.
+public enum HomebrewUpdateStrategy: String, Sendable, Hashable {
+    case upgrade
+    case reinstall
+}
+
 /// The Homebrew implementation of ``PackageBackend``.
 ///
 /// Three verified facts from the spec shape this type:
@@ -61,18 +79,92 @@ public struct HomebrewBackend: AdoptingBackend {
         return Set(tokens)
     }
 
+    /// The newest **receipt** version Homebrew records per managed cask, parsed
+    /// from `brew list --cask --versions` (lines of the form `token v1 v2 …`).
+    ///
+    /// This is the version Homebrew *believes* is installed — which, for casks
+    /// marked `auto_updates`, can silently drift ahead of the app actually on
+    /// disk. Capturing it is what lets the coordinator tell a genuine backlog
+    /// (receipt behind cask ⇒ `upgrade`) apart from a drift (receipt already at
+    /// the cask version while the disk lags ⇒ `reinstall`). The receipt is never
+    /// treated as the truth about the update *state* — the disk always is — it is
+    /// used only to choose the verb that actually lands the update.
+    ///
+    /// A token may list several installed versions; the **newest** by
+    /// ``VersionComparator`` is kept, because that is the one Homebrew's own
+    /// outdated/upgrade logic treats as current. Returns an empty map when brew
+    /// is absent or the call fails — the caller then simply has no receipt to
+    /// reason about and stays on the plain upgrade path.
+    public func managedReceiptVersions() -> [String: String] {
+        guard let brewURL = brewURL() else { return [:] }
+        guard let result = try? processRunner.run(
+            executableURL: brewURL,
+            arguments: ["list", "--cask", "--versions"]
+        ), result.didSucceed else {
+            return [:]
+        }
+        var versions: [String: String] = [:]
+        for line in result.standardOutput.split(whereSeparator: { $0.isNewline }) {
+            let fields = line
+                .split(whereSeparator: { $0 == " " || $0 == "\t" })
+                .map(String.init)
+                .filter { !$0.isEmpty }
+            guard let token = fields.first, fields.count > 1 else { continue }
+            guard let newest = Self.newestReceiptVersion(Array(fields.dropFirst())) else { continue }
+            versions[token] = newest
+        }
+        return versions
+    }
+
+    /// Pick the newest version from a token's receipt list. A pair the comparator
+    /// cannot order (or a tie) keeps the incumbent, so the result is stable and
+    /// never invents an ordering — the same fail-closed stance as the comparator.
+    static func newestReceiptVersion(_ versions: [String]) -> String? {
+        guard var newest = versions.first else { return nil }
+        for candidate in versions.dropFirst()
+        where VersionComparator.compare(installed: newest, available: candidate) == .older {
+            newest = candidate
+        }
+        return newest
+    }
+
     /// Resolve the exact `brew upgrade` command for `caskToken`, or `nil` when
     /// Homebrew is absent or the token fails validation. The command is
     /// `brew upgrade --cask --greedy -- <token>` — `--greedy` so casks marked
     /// auto-updating are still upgraded on explicit request, `--` so the token
     /// can never be read as a flag, and never `--force`.
     public func resolveUpdateCommand(identifier: String) -> ResolvedCommand? {
+        resolveUpdateCommand(identifier: identifier, strategy: .upgrade)
+    }
+
+    /// Resolve the exact brew command for `identifier` under `strategy`, or `nil`
+    /// when Homebrew is absent or the token fails validation.
+    ///
+    /// `.upgrade` yields `brew upgrade --cask --greedy -- <token>`; `.reinstall`
+    /// yields `brew reinstall --cask -- <token>`. Both keep the standing safety
+    /// rules: a separated argument vector, a `--` terminator so the token can
+    /// never be parsed as a flag, a strictly validated token, and **never**
+    /// `--force`.
+    public func resolveUpdateCommand(
+        identifier: String, strategy: HomebrewUpdateStrategy
+    ) -> ResolvedCommand? {
         guard let brewURL = brewURL() else { return nil }
         guard Self.isValidCaskToken(identifier) else { return nil }
         return ResolvedCommand(
             executablePath: brewURL.path,
-            arguments: ["upgrade", "--cask", "--greedy", "--", identifier]
+            arguments: Self.arguments(for: strategy, token: identifier)
         )
+    }
+
+    /// The separated argument vector for a strategy, kept in one place so the
+    /// previewed command and the executed one can never diverge.
+    static func arguments(for strategy: HomebrewUpdateStrategy, token: String) -> [String] {
+        switch strategy {
+        case .upgrade:
+            return ["upgrade", "--cask", "--greedy", "--", token]
+        case .reinstall:
+            return ["reinstall", "--cask", "--", token]
+        }
     }
 
     /// Update the cask `identifier` via `brew upgrade --cask --greedy -- <token>`.
@@ -81,7 +173,21 @@ public struct HomebrewBackend: AdoptingBackend {
     /// the token is refused before launch on any violation, and a cask-level
     /// abort is reported distinctly from an ordinary non-zero exit.
     public func update(identifier: String) -> BackendActionResult {
-        guard let command = resolveUpdateCommand(identifier: identifier) else {
+        update(identifier: identifier, strategy: .upgrade)
+    }
+
+    /// Update the cask `identifier` under `strategy`.
+    ///
+    /// `.upgrade` runs `brew upgrade --cask --greedy -- <token>`; `.reinstall`
+    /// runs `brew reinstall --cask -- <token>` to repair a receipt-vs-disk drift
+    /// that `brew upgrade` would silently no-op. Both reuse the same token
+    /// validation and `CaskError` classification: the token is refused before
+    /// launch on any violation, and a cask-level abort is reported distinctly
+    /// from an ordinary non-zero exit.
+    public func update(
+        identifier: String, strategy: HomebrewUpdateStrategy
+    ) -> BackendActionResult {
+        guard let command = resolveUpdateCommand(identifier: identifier, strategy: strategy) else {
             if brewURL() == nil { return .failed(reason: .homebrewUnavailable) }
             return .failed(reason: .invalidCaskToken(identifier))
         }
