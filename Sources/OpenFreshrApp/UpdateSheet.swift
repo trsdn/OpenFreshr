@@ -230,12 +230,24 @@ private struct UpdateItemRow: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text(item.command.displayString)
-                    .font(.system(.caption, design: .monospaced))
-                    .textSelection(.enabled)
-                    .padding(6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
+                ForEach(Array(item.commandPlan.enumerated()), id: \.offset) { _, command in
+                    Text(command.displayString)
+                        .font(.system(.caption, design: .monospaced))
+                        .textSelection(.enabled)
+                        .padding(6)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 5))
+                }
+
+                if item.homebrewStrategy == .adoptThenReinstall {
+                    Label(
+                        "Nicht von Homebrew verwaltet — wird zuerst übernommen, dann aktualisiert (zwei Schritte, eine Aktion).",
+                        systemImage: "square.and.arrow.down.on.square"
+                    )
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
 
                 if inFlight {
                     HStack(spacing: 6) {

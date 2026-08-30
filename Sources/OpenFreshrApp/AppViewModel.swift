@@ -325,9 +325,10 @@ public final class AppViewModel {
             return "Aktualisiert und per Scan bestätigt."
         case let .notConfirmedByRescan(item):
             // The generic "reported success but rescan disagrees" line is right,
-            // but a receipt-drift item (driven by reinstall) has a *nameable*
-            // cause, so say it instead of leaving the user stranded.
-            if item.homebrewStrategy == .reinstall {
+            // but a reinstall-driven item (receipt drift, or the reinstall step of
+            // a take-over) has a *nameable* cause, so say it instead of leaving
+            // the user stranded.
+            if item.homebrewStrategy == .reinstall || item.homebrewStrategy == .adoptThenReinstall {
                 return "Homebrew führt diese App als aktuell, auf der Platte liegt aber eine ältere Version. "
                     + "Die Neuinstallation meldete Erfolg, der Scan bestätigt ihn aber nicht — die App bringt "
                     + "ihre Version vermutlich selbst mit (auto_updates). Bitte einmal manuell starten und "

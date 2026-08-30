@@ -47,13 +47,16 @@ struct UpdateAggregateFixtureTests {
         let withProblem = reports.filter { $0.hasSourceProblem }
 
         // Split the offered updates by whether OpenFreshr may actually DRIVE them.
-        // With nothing brew-managed here (idle runner → empty `brew list --cask`),
-        // every offered Homebrew update is only *adoptable*, so after the fix none
-        // is executable and all are marked "requires adoption first". This is the
-        // Amazon-Photos guarantee at fixture scale: the newer version is still
-        // reported (offered is unchanged), only the action is withheld.
+        // Nothing is brew-managed here (idle runner → empty `brew list --cask`), so
+        // every offered Homebrew update is *adoptable*. After the merge, an app
+        // whose cask auto-updates (or matches versions) becomes a drivable, single
+        // "Aktualisieren" that runs `install --cask --adopt` then `reinstall --cask`;
+        // only an app that Homebrew would refuse to adopt (`auto_updates == false`
+        // with a version mismatch — the Amazon-Photos trap) stays non-executable and
+        // is honestly named "über den Hersteller". The offered set is unchanged
+        // either way — the information is untouched, only the action.
         let executable = reports.filter { report in report.sources.contains { $0.isDrivable } }
-        let requiresAdoption = reports.filter { $0.requiresAdoptionForUpdate }
+        let adoptionWouldFail = reports.filter { $0.adoptionWouldFailForUpdate }
 
         // Every offered update is Homebrew-driven in this toolless environment,
         // and never a Sparkle source (those carry no command by construction).
@@ -76,9 +79,10 @@ struct UpdateAggregateFixtureTests {
         offered=\(offered.count) major=\(major.count) \
         selfUpdating=\(selfUpdating.count) unassigned=\(unassigned.count) \
         sourceProblem=\(withProblem.count)
-        [update-aggregate] executable=\(executable.count) requiresAdoption=\(requiresAdoption.count)
+        [update-aggregate] executable=\(executable.count) adoptionWouldFail=\(adoptionWouldFail.count)
         offered apps: \(offered.map { $0.app.displayName }.sorted())
-        requires adoption: \(requiresAdoption.map { $0.app.displayName }.sorted())
+        executable: \(executable.map { $0.app.displayName }.sorted())
+        adoption would fail: \(adoptionWouldFail.map { $0.app.displayName }.sorted())
         """)
 
         // Pins the headline count. If the fixture or comparator changes on
@@ -87,22 +91,27 @@ struct UpdateAggregateFixtureTests {
         #expect(offered.count == 17)
         #expect(major.count == 5)
 
-        // The fix's headline: with no cask managed, nothing is executable and all
-        // 17 offered updates require adoption first (offered stays 17 — the
-        // information is untouched, only the action changed).
-        #expect(executable.count == 0)
-        #expect(requiresAdoption.count == 17)
-        #expect(requiresAdoption.count == offered.count)
+        // The fix's headline: with nothing managed, the merged "Aktualisieren"
+        // makes every adoptable update executable — except the ones Homebrew would
+        // refuse to adopt, which stay non-executable and honestly named. The two
+        // partition the 17 offered updates (offered stays 17 — only the action
+        // changed, never the information). 11 become executable (was 0); the
+        // remaining 6 (auto_updates == false with a version drift) stay refused.
+        #expect(executable.count == 11)
+        #expect(adoptionWouldFail.count == 6)
+        #expect(executable.count + adoptionWouldFail.count == offered.count)
     }
 
     /// The counter-scenario to ``offeredUpdatesHoldAgainstTheReferenceSnapshot``:
     /// mark exactly **one** of the offered casks as brew-managed (mirroring the
-    /// reference system, where 37 apps are adoptable but only a single one is
-    /// actually managed). That one becomes executable; the other 16 stay
-    /// "requires adoption first". This proves the managed/adoptable split end to
-    /// end over real fixture data, not just a synthetic app.
+    /// reference system, where many apps are adoptable but only a few are actually
+    /// managed). It stays executable — but now via the direct `upgrade` path rather
+    /// than the adopt-then-reinstall merge — while every *other* adoptable app is
+    /// **also** executable through the merge, and only the apps Homebrew would
+    /// refuse to adopt stay non-executable. This proves the managed/adoptable/refused
+    /// split end to end over real fixture data, not just a synthetic app.
     @Test
-    func exactlyTheManagedCaskBecomesExecutableEverythingElseNeedsAdoption() async throws {
+    func theManagedCaskUpgradesWhileAdoptablePeersMergeAndRefusedOnesStayBlocked() async throws {
         let apps = try Fixture.installedApps()
         let casks = try Fixture.casks()
 
@@ -131,17 +140,39 @@ struct UpdateAggregateFixtureTests {
         let reports = await coordinator.makeUpdateReports()
         let offered = reports.filter { $0.hasUpdate }
         let executable = reports.filter { report in report.sources.contains { $0.isDrivable } }
-        let requiresAdoption = reports.filter { $0.requiresAdoptionForUpdate }
+        let adoptionWouldFail = reports.filter { $0.adoptionWouldFailForUpdate }
 
-        // The offered set is unchanged by what is managed — only the action is.
+        // The offered set is unchanged by what is managed — only *how* it is driven.
         #expect(offered.count == 17)
-        // Exactly the one managed cask (Obsidian) is now executable…
-        #expect(executable.count == 1)
-        #expect(executable.first?.app.displayName == "Obsidian")
-        #expect(executable.first?.sources.contains { $0.isDrivable && $0.backend == .homebrew } == true)
-        // …and the remaining 16 offered updates still require adoption first.
-        #expect(requiresAdoption.count == 16)
-        #expect(requiresAdoption.contains { $0.app.displayName == "Amazon Photos" })
-        #expect(requiresAdoption.allSatisfy { $0.app.displayName != "Obsidian" })
+
+        // Obsidian is executable via the direct managed upgrade (one command),
+        // NOT the adopt-then-reinstall merge.
+        let obsidian = try #require(reports.first { $0.app.displayName == "Obsidian" })
+        let obsidianSource = try #require(obsidian.sources.first { $0.backend == .homebrew })
+        #expect(obsidianSource.isDrivable)
+        #expect(obsidianSource.homebrewStrategy == .upgrade)
+        #expect(obsidianSource.commandPlan.count == 1)
+
+        // An adoptable peer that Homebrew can take over is executable via the merge
+        // (two commands: adopt then reinstall).
+        let mergedPeers = reports.filter { report in
+            report.sources.contains { $0.isDrivable && $0.homebrewStrategy == .adoptThenReinstall }
+        }
+        #expect(mergedPeers.contains { $0.app.displayName != "Obsidian" })
+        for peer in mergedPeers {
+            let source = try #require(peer.sources.first { $0.homebrewStrategy == .adoptThenReinstall })
+            #expect(source.commandPlan.count == 2)
+        }
+
+        // The refused apps (Amazon Photos among them) stay non-executable, exactly
+        // as in the toolless run — managing Obsidian does not change them.
+        #expect(adoptionWouldFail.contains { $0.app.displayName == "Amazon Photos" })
+        #expect(adoptionWouldFail.allSatisfy { $0.app.displayName != "Obsidian" })
+
+        // The whole snapshot still partitions: every offered update is either
+        // executable or a predicted-refused adoption.
+        #expect(executable.count == 11)
+        #expect(adoptionWouldFail.count == 6)
+        #expect(executable.count + adoptionWouldFail.count == offered.count)
     }
 }

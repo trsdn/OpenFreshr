@@ -636,9 +636,9 @@ struct UpdateCoordinatorTests {
         // …but the ACTION is withheld and explicitly named, never a command.
         #expect(source.command == nil)
         #expect(source.isDrivable == false)
-        #expect(source.requiresAdoption)
-        #expect(report.requiresAdoptionForUpdate)
-        #expect(source.actionBlocker == .requiresAdoption(caskToken: "amazon-photos"))
+        #expect(source.adoptionWouldFail)
+        #expect(report.adoptionWouldFailForUpdate)
+        #expect(source.actionBlocker == .adoptionWouldFail(caskToken: "amazon-photos"))
 
         // It never becomes a unit of work, nor a default batch pick.
         #expect(UpdateCoordinator.updateItem(for: report, source: source) == nil)
@@ -706,22 +706,178 @@ struct UpdateCoordinatorTests {
         #expect(log.upgradeCalls == [["upgrade", "--cask", "--greedy", "--", "figma"]])
     }
 
+    // MARK: - Merged adopt-then-update (the unmanaged app's "Aktualisieren")
+
+    @Test
+    func anUnmanagedButAdoptableAppWithAnUpdateRunsAdoptThenReinstallInOrder() async throws {
+        // The reported fix. A manually-installed app that Homebrew does NOT manage,
+        // whose cask auto-updates, becomes a single drivable "Aktualisieren". The
+        // plan is two commands — `install --cask --adopt` then `reinstall --cask` —
+        // that must run in that order, and only a rescan confirms the disk landed.
+        let widget = InstalledApp(
+            bundlePath: "/Applications/Widget.app", bundleIdentifier: "com.example.widget",
+            shortVersion: "1.0.0", bundleVersion: "1.0.0"
+        )
+        let widgetUpdated = InstalledApp(
+            bundlePath: "/Applications/Widget.app", bundleIdentifier: "com.example.widget",
+            shortVersion: "1.1.0", bundleVersion: "1.1.0"
+        )
+        let log = CallLog()
+        let coordinator = makeCoordinator(
+            apps: [[widget], [widgetUpdated]], // scan #1 reports; scan #2 confirms
+            casks: [Cask(
+                token: "widget", names: ["Widget"], version: "1.1.0", autoUpdates: true,
+                artifacts: [CaskArtifact(kind: .app, target: "Widget.app")],
+                primaryBundleIdentifiers: ["com.example.widget"]
+            )],
+            tools: [.brew],
+            brewList: "", // NOT managed — the whole point
+            brewUpgrade: { args in
+                log.record(args)
+                return ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "")
+            }
+        )
+
+        let report = try report(await coordinator.makeUpdateReports(), named: "Widget.app")
+        let source = try #require(report.sources.first { $0.backend == .homebrew })
+
+        // One user action, two previewed commands in order — and it IS drivable.
+        #expect(source.state == .updateAvailable(available: "1.1.0", isMajor: false))
+        #expect(source.isDrivable)
+        #expect(source.adoptionWouldFail == false)
+        #expect(source.homebrewStrategy == .adoptThenReinstall)
+        #expect(source.commandPlan.map(\.arguments) == [
+            ["install", "--cask", "--adopt", "--", "widget"],
+            ["reinstall", "--cask", "--", "widget"],
+        ])
+
+        let item = try #require(UpdateCoordinator.updateItem(for: report, source: source))
+        let outcome = coordinator.perform(item)
+
+        #expect(outcome.didUpdate)
+        #expect(log.allCalls == [
+            ["install", "--cask", "--adopt", "--", "widget"],
+            ["reinstall", "--cask", "--", "widget"],
+        ])
+        #expect(log.allCalls.allSatisfy { !$0.contains("--force") },
+                "the adopt-then-update chain must never pass --force")
+    }
+
+    @Test
+    func whenTheAdoptStepFailsTheReinstallIsNeverRun() {
+        // Step 1 gates step 2. If `install --cask --adopt` aborts (Homebrew's
+        // version-mismatch CaskError), the reinstall must not run and the error is
+        // attributed to this app — never a false success.
+        let log = CallLog()
+        let coordinator = makeCoordinator(
+            apps: [[InstalledApp(bundlePath: "/Applications/Widget.app",
+                                 bundleIdentifier: "com.example.widget", shortVersion: "1.0.0")]],
+            casks: [Cask(token: "widget", names: ["Widget"], version: "1.1.0", autoUpdates: true)],
+            tools: [.brew],
+            brewList: "",
+            brewUpgrade: { args in
+                log.record(args)
+                if args.first == "install" {
+                    return ProcessResult(exitCode: 1, standardOutput: "",
+                                         standardError: "Error: CaskError: version mismatch, refusing to adopt")
+                }
+                return ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "")
+            }
+        )
+
+        let item = Self.homebrewItem(
+            bundlePath: "/Applications/Widget.app", name: "Widget.app",
+            token: "widget", target: "1.1.0", strategy: .adoptThenReinstall
+        )
+        let outcome = coordinator.perform(item)
+
+        // The adopt ran and failed; the reinstall was skipped.
+        #expect(log.installCalls == [["install", "--cask", "--adopt", "--", "widget"]])
+        #expect(log.reinstallCalls.isEmpty, "step 2 must not run after a failed adopt")
+        #expect(outcome.didUpdate == false)
+        if case .caskError = outcome {} else {
+            Issue.record("expected .caskError from a refused adopt, got \(outcome)")
+        }
+    }
+
+    @Test
+    func aManagedAppWithAnUpdateStillProducesExactlyOneCommand() async throws {
+        // Counter-proof: an app Homebrew already manages keeps the single-step
+        // upgrade — the merge adds a second command only for unmanaged apps.
+        let coordinator = makeCoordinator(
+            apps: [[InstalledApp(bundlePath: "/Applications/Figma.app",
+                                 bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")]],
+            casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
+            tools: [.brew],
+            brewList: "figma\n"
+        )
+
+        let report = try report(await coordinator.makeUpdateReports(), named: "Figma.app")
+        let source = try #require(report.sources.first { $0.backend == .homebrew })
+
+        #expect(source.homebrewStrategy == .upgrade)
+        #expect(source.commandPlan.map(\.arguments) == [["upgrade", "--cask", "--greedy", "--", "figma"]])
+    }
+
+    @Test
+    func anAdoptionPredictedToFailIsNeverBuiltIntoAnExecutableCommand() async throws {
+        // `auto_updates == false` with a version mismatch is Homebrew's guarded
+        // refusal. The prediction logic flags it up-front: the update stays visible
+        // and honestly named, but no command is attached and nothing can run.
+        let coordinator = makeCoordinator(
+            apps: [[InstalledApp(bundlePath: "/Applications/Amazon Photos.app",
+                                 bundleIdentifier: "com.amazon.clouddrive.photos",
+                                 shortVersion: "1.0.0", bundleVersion: "1.0.0")]],
+            casks: [Cask(
+                token: "amazon-photos", names: ["Amazon Photos"], version: "2.0.0",
+                autoUpdates: false,
+                artifacts: [CaskArtifact(kind: .app, target: "Amazon Photos.app")],
+                primaryBundleIdentifiers: []
+            )],
+            tools: [.brew],
+            brewList: ""
+        )
+
+        let report = try report(await coordinator.makeUpdateReports(), named: "Amazon Photos.app")
+        let source = try #require(report.sources.first { $0.backend == .homebrew })
+
+        #expect(report.hasUpdate)
+        #expect(source.adoptionWouldFail)
+        #expect(source.command == nil)
+        #expect(source.commandPlan.isEmpty)
+        #expect(source.isDrivable == false)
+        #expect(UpdateCoordinator.updateItem(for: report, source: source) == nil)
+    }
+
+    @Test
+    func noHomebrewStrategyEverEmitsForce() {
+        // A guard rail pinned as a test: `--force` is forbidden on every path, so
+        // no strategy's command plan may contain it.
+        for strategy in [HomebrewUpdateStrategy.upgrade, .reinstall, .adoptThenReinstall] {
+            let flattened = HomebrewBackend.commandPlan(for: strategy, token: "widget").flatMap { $0 }
+            #expect(!flattened.contains("--force"), "\(strategy) must not pass --force")
+        }
+    }
+
     private static func homebrewItem(
         bundlePath: String, name: String, token: String, target: String,
         isMajor: Bool = false, strategy: HomebrewUpdateStrategy = .upgrade
     ) -> UpdateItem {
-        let arguments = strategy == .reinstall
-            ? ["reinstall", "--cask", "--", token]
-            : ["upgrade", "--cask", "--greedy", "--", token]
+        // Build the item's plan from the backend's single source of truth so the
+        // previewed and executed commands match — one command for upgrade/reinstall,
+        // two (adopt, then reinstall) for `.adoptThenReinstall`.
+        let plan = HomebrewBackend.commandPlan(for: strategy, token: token).map {
+            ResolvedCommand(executablePath: "/opt/homebrew/bin/brew", arguments: $0)
+        }
         return UpdateItem(
             app: InstalledApp(bundlePath: bundlePath, shortVersion: nil),
             sourceKind: .homebrew(token: token),
             backend: .homebrew,
-            command: ResolvedCommand(executablePath: "/opt/homebrew/bin/brew",
-                                     arguments: arguments),
+            command: plan[0],
             targetVersion: target,
             isMajor: isMajor,
-            homebrewStrategy: strategy
+            homebrewStrategy: strategy,
+            commandPlan: plan
         )
     }
 }
@@ -749,5 +905,18 @@ private final class CallLog: @unchecked Sendable {
     var reinstallCalls: [[String]] {
         lock.lock(); defer { lock.unlock() }
         return calls.filter { $0.first == "reinstall" }
+    }
+
+    /// Every recorded invocation that is a `brew install` (the adopt step runs
+    /// `install --cask --adopt`).
+    var installCalls: [[String]] {
+        lock.lock(); defer { lock.unlock() }
+        return calls.filter { $0.first == "install" }
+    }
+
+    /// Every recorded invocation, in order — for asserting exact command sequences.
+    var allCalls: [[String]] {
+        lock.lock(); defer { lock.unlock() }
+        return calls
     }
 }

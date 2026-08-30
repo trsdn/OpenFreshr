@@ -131,14 +131,31 @@ struct AppDetailView: View {
 
     @ViewBuilder
     private func updateAction(for update: AppUpdateReport) -> some View {
-        if let source = update.sources.first(where: { $0.isDrivable }), let command = source.command {
+        if let source = update.sources.first(where: { $0.isDrivable }) {
             VStack(alignment: .leading, spacing: 8) {
-                Text(command.displayString)
-                    .font(.system(.callout, design: .monospaced))
-                    .textSelection(.enabled)
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+                // Show *every* command that will actually run, in order. For an
+                // adoptable-but-unmanaged app that is both steps (adopt, then
+                // reinstall) — one user action, fully transparent.
+                ForEach(Array(source.commandPlan.enumerated()), id: \.offset) { _, command in
+                    Text(command.displayString)
+                        .font(.system(.callout, design: .monospaced))
+                        .textSelection(.enabled)
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+                }
+
+                if source.homebrewStrategy == .adoptThenReinstall {
+                    Label(
+                        "Diese App wird noch nicht von Homebrew verwaltet. OpenFreshr übernimmt sie zuerst "
+                            + "(install --cask --adopt) und aktualisiert sie dann (reinstall --cask) — zwei Schritte, "
+                            + "eine Aktion. Schlägt die Übernahme fehl, wird der zweite Schritt nicht ausgeführt.",
+                        systemImage: "square.and.arrow.down.on.square"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
 
                 if source.state.isMajor {
                     Label(
@@ -174,40 +191,22 @@ struct AppDetailView: View {
         }
     }
 
-    /// A detected-but-not-drivable Homebrew update: the newer version is real,
-    /// but the cask is not brew-managed, so the only correct next step is
-    /// adoption — never an "Aktualisieren" button that could only fail with
-    /// *"Cask is not installed"* (the Amazon Photos case). Show the version-bound
-    /// reason and, when the app is eligible, a direct button into the existing
-    /// adoption sheet.
+    /// A detected update whose only Homebrew path — taking the app over first — is
+    /// **predicted to abort** (a non-auto-updating cask whose installed version
+    /// differs; the Amazon Photos case). There is no honest one-click action, so
+    /// instead of an "Aktualisieren" button that could only fail, state plainly
+    /// why and point the user at the vendor. Predicted up front so this is shown
+    /// *before* any failed attempt.
     @ViewBuilder
     private func adoptionRequiredNotice(for source: SourceUpdate) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label(
-                source.actionBlocker?.explanation
-                    ?? "Diese App muss zuerst von Homebrew übernommen werden, bevor OpenFreshr sie aktualisieren kann.",
-                systemImage: "square.and.arrow.down.on.square"
-            )
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-
-            if report.eligibility.isEligible {
-                Button {
-                    showingAdoptionSheet = true
-                } label: {
-                    Label("Zum Aktualisieren zuerst übernehmen …", systemImage: "square.and.arrow.down.on.square")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(!viewModel.homebrewAvailable || viewModel.adoptionInFlight.contains(report.app.bundlePath))
-
-                if !viewModel.homebrewAvailable {
-                    Text("Homebrew ist nicht verfügbar — Übernahme ist deaktiviert, der Scan funktioniert weiterhin.")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
-            }
-        }
+        Label(
+            source.actionBlocker?.explanation
+                ?? "Diese App kann nicht automatisch übernommen und aktualisiert werden — bitte über den Hersteller aktualisieren.",
+            systemImage: "exclamationmark.triangle"
+        )
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private func actionLabel(for update: AppUpdateReport, source: SourceUpdate) -> String {
@@ -219,9 +218,13 @@ struct AppDetailView: View {
         return source.state.isMajor ? "Major-Upgrade durchführen" : "Aktualisieren"
     }
 
+    /// A **secondary**, optional take-over: adopting an app into Homebrew even
+    /// when no update is pending. This is no longer a prerequisite for updates —
+    /// an app with an update shows a single "Aktualisieren" button that performs
+    /// the take-over itself. This section only offers the standalone convenience.
     private var verdictSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Adoption")
+            Text("Übernahme durch Homebrew")
                 .font(.headline)
 
             switch report.eligibility {
@@ -232,6 +235,11 @@ struct AppDetailView: View {
                     Text(prediction.explanation)
                         .foregroundStyle(.secondary)
                 }
+                Text("Optional — nur nötig, wenn Homebrew diese App künftig mitverwalten soll. "
+                    + "Für ein anstehendes Update ist keine separate Übernahme erforderlich.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Button {
                     showingAdoptionSheet = true
                 } label: {
@@ -241,7 +249,7 @@ struct AppDetailView: View {
                 .disabled(!viewModel.homebrewAvailable || viewModel.adoptionInFlight.contains(report.app.bundlePath))
 
                 if !viewModel.homebrewAvailable {
-                    Text("Homebrew ist nicht verfügbar — Adoption ist deaktiviert, der Scan funktioniert weiterhin.")
+                    Text("Homebrew ist nicht verfügbar — Übernahme ist deaktiviert, der Scan funktioniert weiterhin.")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
@@ -292,7 +300,7 @@ private struct UpdateSourceRow: View {
     }
 
     private var color: Color {
-        if source.requiresAdoption { return .secondary }
+        if source.adoptionWouldFail { return .secondary }
         switch source.state {
         case .upToDate: return .green
         case .updateAvailable(_, let isMajor): return isMajor ? .orange : .accentColor
@@ -306,7 +314,7 @@ private struct UpdateSourceRow: View {
             return "aktuell"
         case let .updateAvailable(available, isMajor):
             let arrow = isMajor ? "Major → \(available)" : "→ \(available)"
-            return source.requiresAdoption ? "\(arrow) · Übernahme nötig" : arrow
+            return source.adoptionWouldFail ? "\(arrow) · über Hersteller" : arrow
         case let .unknown(reason):
             return reason.explanation
         }

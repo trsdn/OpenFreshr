@@ -151,25 +151,31 @@ public enum UpdateSourceKind: Hashable, Sendable {
 public enum UpdateActionBlocker: Hashable, Sendable {
 
     /// The app is confidently attributed to a cask and a newer version is known,
-    /// but Homebrew does **not** manage that cask yet. `brew upgrade <token>`
-    /// would fail with *"Cask '<token>' is not installed"* (the Amazon Photos
-    /// case), so the app must first be taken over with
-    /// `brew install --cask --adopt <token>`. Only *after* that is it updatable
-    /// through OpenFreshr.
-    case requiresAdoption(caskToken: String)
+    /// but taking the app over with `brew install --cask --adopt -- <token>` is
+    /// **predicted to abort with a `CaskError`**: the cask does not auto-update
+    /// and the installed version differs from the cask version, so Homebrew
+    /// refuses the take-over (it compares `CFBundleShortVersionString` /
+    /// `CFBundleVersion`) rather than mislabel the app. This is a protection and
+    /// must **not** be forced. There is no clean Homebrew path here, so the update
+    /// is shown honestly and the user is pointed at the vendor. Predicted up front
+    /// via ``MatchResolver/predictOutcome(for:cask:)`` so the failure is surfaced
+    /// *before* it is run, never blindly attempted.
+    case adoptionWouldFail(caskToken: String)
 
-    /// The cask token the user must adopt to unblock the update.
+    /// The cask token whose take-over is predicted to fail.
     public var caskToken: String {
         switch self {
-        case let .requiresAdoption(token): return token
+        case let .adoptionWouldFail(token): return token
         }
     }
 
     /// A short, human-facing reason for the UI.
     public var explanation: String {
         switch self {
-        case let .requiresAdoption(token):
-            return "Erfordert zuerst Übernahme — der Cask „\(token)“ wird noch nicht von Homebrew verwaltet."
+        case let .adoptionWouldFail(token):
+            return "Homebrew kann „\(token)“ nicht übernehmen: Die installierte Version weicht von der "
+                + "erwarteten ab und der Cask aktualisiert sich nicht selbst — die Übernahme würde mit "
+                + "einem CaskError abbrechen. Bitte über den Hersteller aktualisieren."
         }
     }
 }
@@ -192,19 +198,31 @@ public struct SourceUpdate: Hashable, Sendable, Identifiable {
 
     /// The resolved command a backend would run, when one is available. `nil`
     /// for Sparkle (no backend), when the backing tool is unavailable, or when
-    /// an ``actionBlocker`` withholds the action (e.g. the cask is not yet
-    /// brew-managed and must be adopted first).
+    /// an ``actionBlocker`` withholds the action (e.g. the take-over is predicted
+    /// to fail). For a multi-step action this is the **first** command of
+    /// ``commandPlan`` (its non-nil presence is what makes the source drivable).
     public var command: ResolvedCommand?
+
+    /// The full ordered list of commands this source runs when driven — the exact
+    /// commands the preview shows and the coordinator executes, in order. One
+    /// entry for an ordinary managed upgrade/reinstall or a MAS/MAU update; **two**
+    /// for an unmanaged-but-adoptable app, where Homebrew must first take the app
+    /// over (`install --cask --adopt`) and then land the disk version
+    /// (`reinstall --cask`). Empty when the source carries no drivable command.
+    /// Invariant: when non-empty, ``command`` equals its first element.
+    public var commandPlan: [ResolvedCommand]
 
     /// Set when a **real** update was detected that OpenFreshr must not drive
     /// as-is. The update stays visible and honest; only the action is withheld,
     /// and this names the prerequisite. `nil` for an ordinary drivable update.
     public var actionBlocker: UpdateActionBlocker?
 
-    /// For a **managed Homebrew** source with a drivable update, which brew verb
-    /// actually repairs it: ``HomebrewUpdateStrategy/upgrade`` for an ordinary
+    /// For a **Homebrew** source with a drivable update, which brew verb(s)
+    /// actually repair it: ``HomebrewUpdateStrategy/upgrade`` for an ordinary
     /// backlog, ``HomebrewUpdateStrategy/reinstall`` when the receipt has drifted
-    /// ahead of the app on disk (see ``isReceiptDrift``). `nil` for every other
+    /// ahead of the app on disk (see ``isReceiptDrift``), or
+    /// ``HomebrewUpdateStrategy/adoptThenReinstall`` when an adoptable-but-unmanaged
+    /// app must be taken over before it can be updated. `nil` for every other
     /// source and whenever no drivable update is offered.
     public var homebrewStrategy: HomebrewUpdateStrategy?
 
@@ -214,12 +232,19 @@ public struct SourceUpdate: Hashable, Sendable, Identifiable {
         state: UpdateState,
         command: ResolvedCommand? = nil,
         actionBlocker: UpdateActionBlocker? = nil,
-        homebrewStrategy: HomebrewUpdateStrategy? = nil
+        homebrewStrategy: HomebrewUpdateStrategy? = nil,
+        commandPlan: [ResolvedCommand]? = nil
     ) {
         self.appBundlePath = appBundlePath
         self.kind = kind
         self.state = state
-        self.command = command
+        // Reconcile the single command and the ordered plan into one truth: an
+        // explicit plan wins; otherwise a lone command becomes a one-step plan.
+        // `command` is always the plan's first step so `isDrivable` and every
+        // single-command call site keep working unchanged.
+        let resolvedPlan = commandPlan ?? command.map { [$0] } ?? []
+        self.commandPlan = resolvedPlan
+        self.command = command ?? resolvedPlan.first
         self.actionBlocker = actionBlocker
         self.homebrewStrategy = homebrewStrategy
     }
@@ -239,16 +264,17 @@ public struct SourceUpdate: Hashable, Sendable, Identifiable {
     ///
     /// A present ``actionBlocker`` always wins: even if a command were attached,
     /// a blocked source is never drivable — the update is real but the action is
-    /// not available until the prerequisite (adoption) is met.
+    /// not available (e.g. the take-over is predicted to fail).
     public var isDrivable: Bool {
         state.hasUpdate && command != nil && actionBlocker == nil
     }
 
-    /// `true` when a real update is known but cannot be driven until the app is
-    /// adopted into Homebrew (its cask is not brew-managed). The information is
-    /// still valid and shown — only the one-click action is withheld.
-    public var requiresAdoption: Bool {
-        if case .requiresAdoption = actionBlocker { return true }
+    /// `true` when a real update is known but the take-over Homebrew would need
+    /// to perform first is **predicted to abort** (a non-auto-updating cask whose
+    /// installed version differs). The information is still valid and shown — only
+    /// the one-click action is withheld, and the user is pointed at the vendor.
+    public var adoptionWouldFail: Bool {
+        if case .adoptionWouldFail = actionBlocker { return true }
         return false
     }
 }
@@ -286,19 +312,20 @@ public struct AppUpdateReport: Sendable, Identifiable {
     /// `true` when no update source was detected at all.
     public var isUnassigned: Bool { sources.isEmpty }
 
-    /// `true` when a real, newer version is known for at least one source but
-    /// OpenFreshr cannot drive it yet because the app must first be adopted into
-    /// Homebrew (the cask is not brew-managed). ``hasUpdate`` stays `true`, so
-    /// the app keeps showing under the "Updates" filter — only the action is
-    /// "erst übernehmen" instead of "aktualisieren".
-    public var requiresAdoptionForUpdate: Bool {
-        sources.contains { $0.requiresAdoption }
+    /// `true` when a real, newer version is known for at least one source but the
+    /// take-over Homebrew would perform first is **predicted to abort** (a
+    /// non-auto-updating cask whose installed version differs). ``hasUpdate`` stays
+    /// `true`, so the app keeps showing under the "Updates" filter — only the
+    /// action is withheld and the user is pointed at the vendor.
+    public var adoptionWouldFailForUpdate: Bool {
+        sources.contains { $0.adoptionWouldFail }
     }
 
-    /// The source that knows of a newer version but is blocked on adoption, if
-    /// any. Lets the UI render the version together with the adoption hint.
+    /// The source that knows of a newer version but whose take-over is predicted
+    /// to fail, if any. Lets the UI render the version together with the honest
+    /// "muss über den Hersteller aktualisiert werden" notice.
     public var adoptionBlockedSource: SourceUpdate? {
-        sources.first { $0.requiresAdoption }
+        sources.first { $0.adoptionWouldFail }
     }
 
     /// `true` when a source could not be determined for a reason worth flagging
@@ -347,11 +374,19 @@ public struct UpdateItem: Sendable, Identifiable, Equatable {
     public var targetVersion: String
     public var isMajor: Bool
 
-    /// For a Homebrew item, the brew verb to run: `.upgrade` normally,
-    /// `.reinstall` to repair a receipt-vs-disk drift. Defaults to `.upgrade` and
-    /// is ignored by the other backends. Carried on the item so the executed
-    /// command always matches the previewed ``command`` exactly.
+    /// For a Homebrew item, the brew verb(s) to run: `.upgrade` normally,
+    /// `.reinstall` to repair a receipt-vs-disk drift, `.adoptThenReinstall` to
+    /// take an unmanaged-but-adoptable app over and then land the update. Defaults
+    /// to `.upgrade` and is ignored by the other backends. Carried on the item so
+    /// the executed command(s) always match the previewed ``commandPlan`` exactly.
     public var homebrewStrategy: HomebrewUpdateStrategy
+
+    /// The full ordered list of commands this item runs — the exact commands the
+    /// preview shows and the coordinator executes, in order. One entry for an
+    /// ordinary managed upgrade/reinstall or a MAS/MAU update; **two** for a
+    /// `.adoptThenReinstall` item (adopt, then reinstall). ``command`` is always
+    /// its first element.
+    public var commandPlan: [ResolvedCommand]
 
     public init(
         app: InstalledApp,
@@ -360,7 +395,8 @@ public struct UpdateItem: Sendable, Identifiable, Equatable {
         command: ResolvedCommand,
         targetVersion: String,
         isMajor: Bool,
-        homebrewStrategy: HomebrewUpdateStrategy = .upgrade
+        homebrewStrategy: HomebrewUpdateStrategy = .upgrade,
+        commandPlan: [ResolvedCommand]? = nil
     ) {
         self.app = app
         self.sourceKind = sourceKind
@@ -369,6 +405,9 @@ public struct UpdateItem: Sendable, Identifiable, Equatable {
         self.targetVersion = targetVersion
         self.isMajor = isMajor
         self.homebrewStrategy = homebrewStrategy
+        // A lone command is a one-step plan; an explicit plan is used verbatim.
+        // Either way `command` remains the plan's first step.
+        self.commandPlan = commandPlan ?? [command]
     }
 
     public var id: String { app.bundlePath }

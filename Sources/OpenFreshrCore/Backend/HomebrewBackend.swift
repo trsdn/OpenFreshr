@@ -13,9 +13,18 @@ import Foundation
 ///   thing. `brew reinstall --cask -- <token>` re-downloads and installs the
 ///   current cask version, so the disk matches again. It is the only verb that
 ///   repairs a receipt-vs-disk drift.
+/// * ``adoptThenReinstall`` — the merged take-over path for an app that is
+///   confidently attributed to a cask Homebrew does **not** manage yet. It runs
+///   two commands in order: `brew install --cask --adopt -- <token>` takes the
+///   existing app over without re-downloading it, which writes the receipt to the
+///   cask version while the old app is still on disk — exactly the drift shape
+///   above. `brew reinstall --cask -- <token>` then lands the current version. The
+///   two are one user action ("Aktualisieren"); adoption is a prerequisite step,
+///   not a separate button.
 public enum HomebrewUpdateStrategy: String, Sendable, Hashable {
     case upgrade
     case reinstall
+    case adoptThenReinstall
 }
 
 /// The Homebrew implementation of ``PackageBackend``.
@@ -156,14 +165,52 @@ public struct HomebrewBackend: AdoptingBackend {
         )
     }
 
-    /// The separated argument vector for a strategy, kept in one place so the
-    /// previewed command and the executed one can never diverge.
+    /// The separated argument vector for a **single-step** strategy, kept in one
+    /// place so the previewed command and the executed one can never diverge. For
+    /// ``HomebrewUpdateStrategy/adoptThenReinstall`` this returns the *effective*
+    /// (second) command — the reinstall that lands the update; the full ordered
+    /// plan, including the adopt pre-step, is produced by ``commandPlan(for:token:)``.
     static func arguments(for strategy: HomebrewUpdateStrategy, token: String) -> [String] {
+        commandPlan(for: strategy, token: token).last ?? []
+    }
+
+    /// The ordered argument vectors a strategy actually runs. A single entry for
+    /// an ordinary ``HomebrewUpdateStrategy/upgrade`` or
+    /// ``HomebrewUpdateStrategy/reinstall``; **two** for
+    /// ``HomebrewUpdateStrategy/adoptThenReinstall``, where Homebrew first takes
+    /// the app over and then lands the disk version. The single source of truth
+    /// for both the preview and the execution of the merged take-over action.
+    static func commandPlan(for strategy: HomebrewUpdateStrategy, token: String) -> [[String]] {
         switch strategy {
         case .upgrade:
-            return ["upgrade", "--cask", "--greedy", "--", token]
+            return [["upgrade", "--cask", "--greedy", "--", token]]
         case .reinstall:
-            return ["reinstall", "--cask", "--", token]
+            return [["reinstall", "--cask", "--", token]]
+        case .adoptThenReinstall:
+            return [adoptArguments(token: token), ["reinstall", "--cask", "--", token]]
+        }
+    }
+
+    /// The separated argument vector that takes an existing app over without
+    /// re-downloading it: `brew install --cask --adopt -- <token>`. `--`
+    /// terminates option parsing so a token can never be read as a flag, and
+    /// `--force` is **never** present. Single source of truth for the previewed
+    /// and the executed adopt command alike.
+    static func adoptArguments(token: String) -> [String] {
+        ["install", "--cask", "--adopt", "--", token]
+    }
+
+    /// Resolve a strategy's full ordered plan into previewable, executable
+    /// ``ResolvedCommand``s — the exact vectors the coordinator runs, in order.
+    /// `nil` when `brew` is absent or the token is invalid, so a source can never
+    /// fabricate a command it could not run.
+    public func resolveCommandPlan(
+        identifier: String, strategy: HomebrewUpdateStrategy
+    ) -> [ResolvedCommand]? {
+        guard let brewURL = brewURL() else { return nil }
+        guard Self.isValidCaskToken(identifier) else { return nil }
+        return Self.commandPlan(for: strategy, token: identifier).map {
+            ResolvedCommand(executablePath: brewURL.path, arguments: $0)
         }
     }
 
@@ -241,8 +288,9 @@ public struct HomebrewBackend: AdoptingBackend {
             result = try processRunner.run(
                 executableURL: brewURL,
                 // `--` terminates option parsing so a token can never be read as
-                // a flag, even if validation were ever loosened.
-                arguments: ["install", "--cask", "--adopt", "--", caskToken]
+                // a flag, even if validation were ever loosened. Same vector the
+                // preview shows via `commandPlan(for: .adoptThenReinstall)`.
+                arguments: Self.adoptArguments(token: caskToken)
             )
         } catch {
             return .failed(reason: .launchFailed(message: String(describing: error)))

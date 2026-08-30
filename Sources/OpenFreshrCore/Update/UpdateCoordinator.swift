@@ -214,11 +214,19 @@ public struct UpdateCoordinator: Sendable {
     ///   instead. The disk version stays the sole authority on *whether* an update
     ///   is due; the receipt only picks *which verb* lands it.
     /// * The token is merely **adoptable** — the fail-closed eligibility gate
-    ///   would adopt it — but not yet managed. The newer version is real and
-    ///   worth reporting, yet `brew upgrade` would fail with *"Cask is not
-    ///   installed"*. So the state is reported with **no command** and an
-    ///   ``UpdateActionBlocker/requiresAdoption`` marker, which keeps the update
-    ///   visible while routing the user to adoption first.
+    ///   would adopt it — but not yet managed, **and a real update is due**. The
+    ///   two former steps (adopt, then update) are merged into one drivable action:
+    ///   the source carries a two-command ``SourceUpdate/commandPlan`` — take the
+    ///   app over with `brew install --cask --adopt`, then land the disk version
+    ///   with `brew reinstall --cask` (after an adopt the receipt sits on the cask
+    ///   version while the disk still holds the old app — exactly the drift shape).
+    ///   The adoption guard has not vanished; it moved one level down (the adopt
+    ///   step must succeed before the reinstall runs). Unless the take-over is
+    ///   **predicted to abort** (``AdoptionOutcomePrediction/abortsWithCaskError`` —
+    ///   a non-auto-updating cask whose installed version differs): then there is
+    ///   no clean Homebrew path, so the source is left non-drivable with an
+    ///   ``UpdateActionBlocker/adoptionWouldFail`` marker instead of running the
+    ///   user into a failure.
     ///
     /// Anything less than a confident association is skipped rather than risk a
     /// wrong-cask comparison producing a phantom update.
@@ -250,23 +258,48 @@ public struct UpdateCoordinator: Sendable {
             )
         }
 
-        // Adoptable but not managed → report the (correct) state, but never a
-        // command: `brew upgrade` cannot act on a cask Homebrew does not manage.
-        // Mark the blocker so the update stays honest and visible while the
-        // offered action becomes "erst übernehmen".
+        // Adoptable but not managed. When a real update is due, merge adoption and
+        // update into one drivable action; otherwise report the plain state (a
+        // pure take-over without an update stays a secondary action elsewhere).
         guard case let .eligible(eligibleToken) = facts.resolver.eligibility(for: app, matches: matches),
               let cask = facts.index.cask(for: eligibleToken) else {
             return nil
         }
         let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
-        let blocker: UpdateActionBlocker? = state.hasUpdate ? .requiresAdoption(caskToken: eligibleToken) : nil
-        return SourceUpdate(
-            appBundlePath: app.bundlePath,
-            kind: .homebrew(token: eligibleToken),
-            state: state,
-            command: nil,
-            actionBlocker: blocker
-        )
+        guard state.hasUpdate else {
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .homebrew(token: eligibleToken),
+                state: state
+            )
+        }
+
+        // A real update on an adoptable-but-unmanaged cask. Predict whether the
+        // `--adopt` take-over would succeed. If so, the app is drivable in two
+        // steps (adopt, then the receipt-drift reinstall that lands the disk
+        // version). If the take-over is predicted to abort with a CaskError — a
+        // non-auto-updating cask whose installed version differs — there is no
+        // clean Homebrew path, so surface it honestly instead of running into the
+        // failure. `.unknown` cannot co-occur with `state.hasUpdate` (both
+        // versions are present here), but is treated as non-drivable defensively.
+        switch facts.resolver.predictOutcome(for: app, cask: cask) {
+        case .succeedsUnconditionally, .succeeds:
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .homebrew(token: eligibleToken),
+                state: state,
+                homebrewStrategy: .adoptThenReinstall,
+                commandPlan: homebrew.resolveCommandPlan(
+                    identifier: eligibleToken, strategy: .adoptThenReinstall) ?? []
+            )
+        case .abortsWithCaskError, .unknown:
+            return SourceUpdate(
+                appBundlePath: app.bundlePath,
+                kind: .homebrew(token: eligibleToken),
+                state: state,
+                actionBlocker: .adoptionWouldFail(caskToken: eligibleToken)
+            )
+        }
     }
 
     /// Whether a managed cask is in **receipt drift**: Homebrew's receipt version
@@ -404,24 +437,44 @@ public struct UpdateCoordinator: Sendable {
             return .failed(item, reason: .invalidIdentifier(""))
         }
 
-        // Execution-site guard against the "adoptable but not brew-managed" trap
-        // that broke Amazon Photos: `brew upgrade <token>` only works when
-        // Homebrew actually manages the cask. An app that is merely adoptable
-        // must be adopted first, so refuse it **here**, before it can reach the
-        // backend. Because a single update, a batch (which calls this per item)
-        // and the major-upgrade path all run through this one method, this one
-        // check covers every route — the confirm-by-rescan contract is untouched
-        // since a refused item never claims success.
+        // Homebrew items split by strategy at the execution site:
         //
-        // A managed cask is then driven with the item's own
-        // ``UpdateItem/homebrewStrategy`` (`upgrade` normally, `reinstall` for a
-        // receipt drift), so the executed verb matches the previewed command
-        // exactly — a drift item never falls back to the no-op `upgrade`.
+        // * `.adoptThenReinstall` — the merged take-over for an adoptable-but-
+        //   unmanaged app. Step 1 adopts the app; **only on its success** does
+        //   step 2 (`reinstall`) run to land the disk version. The old "this app
+        //   may not be updated" guard did not vanish — it moved *into* this action
+        //   as "the take-over must have succeeded before the upgrade". A failed
+        //   adopt is attributed to this app (a version-mismatch reported as a
+        //   `CaskError`) and step 2 is skipped.
+        //
+        // * `.upgrade` / `.reinstall` — a managed cask, driven directly. The
+        //   standing safety net stays: never run `brew upgrade`/`reinstall`
+        //   against a cask Homebrew does not manage (the Amazon-Photos trap), so
+        //   an unmanaged token is refused *here*, before it can reach the backend.
+        //   The item's own strategy is used verbatim so a drift item reinstalls
+        //   rather than falling back to the no-op `upgrade`.
+        //
+        // Because a single update, a batch (which calls this per item) and the
+        // major-upgrade path all run through this one method, these checks cover
+        // every route — and the confirm-by-rescan contract is untouched, since a
+        // refused item never claims success and step 2 is the only thing a rescan
+        // ever confirms.
         if case let .homebrew(token) = item.sourceKind {
-            guard homebrew.managedTokens().contains(token) else {
-                return .failed(item, reason: .requiresAdoption(caskToken: token))
+            switch item.homebrewStrategy {
+            case .adoptThenReinstall:
+                let adopted = homebrew.adopt(app: item.app, caskToken: token)
+                guard adopted.didReportSuccess else {
+                    // Step 2 is skipped; report the adopt failure as-is (a
+                    // version-mismatch surfaces as `.caskError`).
+                    return classify(adopted, for: item)
+                }
+                return classify(homebrew.update(identifier: token, strategy: .reinstall), for: item)
+            case .upgrade, .reinstall:
+                guard homebrew.managedTokens().contains(token) else {
+                    return .failed(item, reason: .requiresAdoption(caskToken: token))
+                }
+                return classify(homebrew.update(identifier: token, strategy: item.homebrewStrategy), for: item)
             }
-            return classify(homebrew.update(identifier: token, strategy: item.homebrewStrategy), for: item)
         }
 
         return classify(backend(for: item.backend).update(identifier: identifier), for: item)
@@ -500,7 +553,8 @@ public struct UpdateCoordinator: Sendable {
             command: command,
             targetVersion: available,
             isMajor: isMajor,
-            homebrewStrategy: source.homebrewStrategy ?? .upgrade
+            homebrewStrategy: source.homebrewStrategy ?? .upgrade,
+            commandPlan: source.commandPlan
         )
     }
 
