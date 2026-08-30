@@ -110,6 +110,21 @@ struct SparkleAppcastTests {
         """.utf8)
     }
 
+    /// A plaintext feed can be rewritten in transit to advertise any version,
+    /// which would steer what the user is told to update. Nothing is fetched.
+    @Test(arguments: [
+        "http://example.com/appcast.xml",
+        "file:///etc/passwd",
+        "ftp://example.com/appcast.xml",
+        "not a url at all",
+    ])
+    func onlyHTTPSFeedsAreEverFetched(_ feed: String) async {
+        let fetcher = FakeHTTPFetcher()
+        let version = await SparkleAppcast.fetchNewestVersion(feedURL: feed, using: fetcher)
+        #expect(version == nil)
+        #expect(fetcher.requestedURLs.isEmpty)
+    }
+
     @Test
     func readsShortVersionFromChildElements() {
         let data = appcast(items: """

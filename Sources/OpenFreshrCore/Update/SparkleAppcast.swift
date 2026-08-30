@@ -21,14 +21,18 @@ import Foundation
 public enum SparkleAppcast {
 
     /// Fetch `feedURL` through `fetcher` and return the newest advertised version,
-    /// or `nil` on any failure. Only `http`/`https` feeds are attempted.
+    /// or `nil` on any failure.
+    ///
+    /// Only `https` feeds are attempted. A plaintext feed could be rewritten in
+    /// transit to advertise any version it likes; that only drives a display
+    /// here rather than an install, but a version claim still steers what the
+    /// user is told to update, so it is not worth accepting.
     public static func fetchNewestVersion(
         feedURL: String,
         using fetcher: any HTTPFetching
     ) async -> String? {
         guard let url = URL(string: feedURL),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "https" || scheme == "http" else {
+              url.scheme?.lowercased() == "https" else {
             return nil
         }
         guard let data = try? await fetcher.data(from: url) else { return nil }

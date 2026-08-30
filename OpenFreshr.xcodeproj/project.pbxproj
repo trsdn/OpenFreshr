@@ -30,7 +30,7 @@
 		129AEEDD192940653B00200B /* OpenFreshr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenFreshr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSheet.swift; sourceTree = "<group>"; };
 		39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdoptionSheet.swift; sourceTree = "<group>"; };
-		434B98C0A1144DE2F32F5FAE /* trsdn-reimagined-invention */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "trsdn-reimagined-invention"; path = .; sourceTree = SOURCE_ROOT; };
+		44135CA17C39F680B0FD05C9 /* openfreshr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = openfreshr; path = .; sourceTree = SOURCE_ROOT; };
 		495E4494497B310FF102B059 /* MenuBarContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContent.swift; sourceTree = "<group>"; };
 		552E98A53FCD657F20E550DD /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
 		6471396C0DA7B650AF5F4558 /* InstallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSheet.swift; sourceTree = "<group>"; };
@@ -111,7 +111,7 @@
 		DD196D9834286FAC0FFB1FDE /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				434B98C0A1144DE2F32F5FAE /* trsdn-reimagined-invention */,
+				44135CA17C39F680B0FD05C9 /* openfreshr */,
 			);
 			name = Packages;
 			sourceTree = "<group>";

@@ -84,11 +84,17 @@ public struct SystemCodeSignatureInspector: CodeSignatureInspecting {
 
     /// Extract the `TeamIdentifier=` value from `codesign -dv` output. Returns
     /// `nil` when absent or literally `not set`.
+    ///
+    /// The key must start the line. `codesign` prints other attacker-influenced
+    /// fields — the signing identifier among them — and accepting the key
+    /// anywhere in a line would let a crafted value smuggle in a team
+    /// identifier, which is the value the trust baseline is compared against.
     static func parseTeamIdentifier(from text: String) -> String? {
+        let key = "TeamIdentifier="
         for rawLine in text.split(whereSeparator: \.isNewline) {
             let line = rawLine.trimmingCharacters(in: .whitespaces)
-            guard let range = line.range(of: "TeamIdentifier=") else { continue }
-            let value = line[range.upperBound...].trimmingCharacters(in: .whitespaces)
+            guard line.hasPrefix(key) else { continue }
+            let value = line.dropFirst(key.count).trimmingCharacters(in: .whitespaces)
             if value.isEmpty || value.caseInsensitiveCompare("not set") == .orderedSame {
                 return nil
             }

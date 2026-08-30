@@ -140,4 +140,25 @@ struct CodeSignatureInspectorTests {
         #expect(SystemCodeSignatureInspector.parseTeamIdentifier(
             from: "no team here\n") == nil)
     }
+
+    /// `codesign` echoes the signing identifier, which the bundle controls. A
+    /// crafted identifier must not be able to smuggle in a team identifier,
+    /// because that value is what the trust baseline is compared against.
+    @Test(arguments: [
+        "Identifier=com.evil.app TeamIdentifier=AAAAAAAAAA\n",
+        "Executable=/tmp/x TeamIdentifier=AAAAAAAAAA\n",
+        "Authority=Developer ID Application: X (TeamIdentifier=AAAAAAAAAA)\n",
+    ])
+    func teamIdentifierIsOnlyReadWhenItStartsTheLine(_ output: String) {
+        #expect(SystemCodeSignatureInspector.parseTeamIdentifier(from: output) == nil)
+    }
+
+    @Test
+    func aRealTeamIdentifierLineIsStillReadAfterASmuggledOne() {
+        let output = """
+        Identifier=com.evil.app TeamIdentifier=AAAAAAAAAA
+        TeamIdentifier=G69Z5BNY97
+        """
+        #expect(SystemCodeSignatureInspector.parseTeamIdentifier(from: output) == "G69Z5BNY97")
+    }
 }
