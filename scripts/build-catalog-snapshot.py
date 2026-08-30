@@ -33,8 +33,9 @@ REPO_ROOT = os.path.abspath(os.path.join(HERE, ".."))
 OUT_PATH = os.path.join(REPO_ROOT, "Sources", "OpenFreshrApp", "Resources", "casks-snapshot.json")
 CASK_API_URL = "https://formulae.brew.sh/api/cask.json"
 
-# Top-level cask fields the production ingestion reads.
-CASK_FIELDS = ("token", "name", "old_tokens", "version", "auto_updates", "homepage")
+# Top-level cask fields the production ingestion reads. `desc` is carried so the
+# catalogue browser can search descriptions offline, not just tokens and names.
+CASK_FIELDS = ("token", "name", "old_tokens", "version", "auto_updates", "homepage", "desc")
 # Artifact keys ingestion reads: the moved/installer kinds, the identity stanzas,
 # and the sibling `target` app/suite install location.
 ARTIFACT_KEYS = ("app", "suite", "pkg", "installer", "binary", "uninstall", "zap", "target")
@@ -72,6 +73,15 @@ def reduce_cask(cask):
 
 
 def has_phase1_signal(cask):
+    """Retained for reference: the original snapshot only carried casks that
+    could take part in detection or adoption.
+
+    The catalogue browser changed the requirement. Discovering an app the user
+    does not have yet is a first-class feature, so a cask that ships only a
+    `pkg` is still worth showing and installing even though it can never be
+    adopted. Filtering by this predicate hid roughly a third of the catalogue,
+    which is why the snapshot now carries every cask.
+    """
     ships_moved = False
     has_identity = False
     for artifact in cask.get("artifacts", []):
@@ -86,7 +96,7 @@ def has_phase1_signal(cask):
 
 def main():
     raw = load_cask_api()
-    kept = [reduce_cask(c) for c in raw if has_phase1_signal(c)]
+    kept = [reduce_cask(c) for c in raw]
     # Deterministic, reviewable order.
     kept.sort(key=lambda c: c["token"])
     with open(OUT_PATH, "w", encoding="utf-8") as handle:

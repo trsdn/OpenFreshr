@@ -8,26 +8,57 @@ struct ContentView: View {
     @Environment(AppViewModel.self) private var viewModel
     @State private var showingUpdateSheet = false
     @State private var showingTrustSheet = false
+    @State private var section: AppSection = .installed
+    @State private var catalogModel = CatalogViewModel()
 
     var body: some View {
         @Bindable var viewModel = viewModel
 
         NavigationSplitView {
-            InstalledListView(selection: $viewModel.selectedReportID)
-                .navigationTitle("OpenFreshr")
-                .navigationSplitViewColumnWidth(min: 280, ideal: 320)
+            Group {
+                switch section {
+                case .installed:
+                    InstalledListView(selection: $viewModel.selectedReportID)
+                case .catalog:
+                    CatalogSidebar(model: catalogModel)
+                }
+            }
+            .navigationTitle("OpenFreshr")
+            .navigationSplitViewColumnWidth(min: 280, ideal: 320)
         } detail: {
-            if let report = viewModel.selectedReport {
-                AppDetailView(report: report)
-            } else {
-                ContentUnavailableView(
-                    "Keine App ausgewählt",
-                    systemImage: "shippingbox",
-                    description: Text("Wähle links eine App, um Quellen, Updates und Adoptionsstatus zu sehen.")
-                )
+            switch section {
+            case .installed:
+                if let report = viewModel.selectedReport {
+                    AppDetailView(report: report)
+                } else {
+                    ContentUnavailableView(
+                        "Keine App ausgewählt",
+                        systemImage: "shippingbox",
+                        description: Text("Wähle links eine App, um Quellen, Updates und Adoptionsstatus zu sehen.")
+                    )
+                }
+            case .catalog:
+                if let result = catalogModel.selectedResult {
+                    CatalogDetailView(result: result, model: catalogModel)
+                } else {
+                    ContentUnavailableView(
+                        "Keine App ausgewählt",
+                        systemImage: "square.grid.2x2",
+                        description: Text("Suche links im Katalog und wähle eine App, um Details und Installation zu sehen.")
+                    )
+                }
             }
         }
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker("Bereich", selection: $section) {
+                    ForEach(AppSection.allCases) { item in
+                        Label(item.label, systemImage: item.symbol).tag(item)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .help("Zwischen installierten Apps und dem Katalog wechseln")
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingUpdateSheet = true
@@ -61,11 +92,47 @@ struct ContentView: View {
         .safeAreaInset(edge: .bottom) {
             StatusBar()
         }
+        .task(id: catalogConfigureID) {
+            await configureCatalog()
+        }
+        .onAppear {
+            catalogModel.onInstalled = { await viewModel.scan() }
+        }
     }
 
     /// The number of apps that offer at least one over-OpenFreshr-drivable update.
     private var updateCount: Int {
         Set(viewModel.allUpdateItems.map(\.app.bundlePath)).count
+    }
+
+    /// A stable identity for the catalog index inputs; when it changes, the
+    /// catalog view model rebuilds its index off the main actor. Derived from the
+    /// loaded catalog plus the installed inventory so that a fresh install (which
+    /// changes the inventory) re-marks the catalog's "installiert" state.
+    private var catalogConfigureID: String {
+        let stamp = viewModel.loadedCatalog.map {
+            "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
+        } ?? "none"
+        var hasher = Hasher()
+        for report in viewModel.reports {
+            hasher.combine(report.app.bundleName)
+            for match in report.matches { hasher.combine(match.caskToken) }
+        }
+        hasher.combine(viewModel.installAnalytics?.count ?? 0)
+        return "\(stamp)-\(hasher.finalize())"
+    }
+
+    /// Hand the catalog view model its data. A no-op until the catalog has loaded.
+    private func configureCatalog() async {
+        guard let catalog = viewModel.loadedCatalog else { return }
+        let installedBundleNames = Set(viewModel.reports.map { $0.app.bundleName })
+        let recognizedTokens = Set(viewModel.reports.flatMap { $0.matches.map(\.caskToken) })
+        await catalogModel.configure(
+            catalog: catalog,
+            analytics: viewModel.installAnalytics,
+            installedBundleNames: installedBundleNames,
+            recognizedTokens: recognizedTokens
+        )
     }
 }
 

@@ -49,6 +49,12 @@ public final class AppViewModel {
     /// fetched and cached now so that phase starts with data already present.
     public private(set) var installAnalytics: CaskInstallAnalytics?
 
+    /// The loaded cask catalog, published so phase 5's catalog view can build a
+    /// search index over it. `nil` until the first load completes; the catalog UI
+    /// shows a loading state until then. Read-only for the UI; still owned and
+    /// mutated only through ``publishCatalog(_:)``.
+    public private(set) var loadedCatalog: CaskCatalog?
+
     /// The row currently selected in the list.
     public var selectedReportID: AppReport.ID?
 
@@ -124,6 +130,75 @@ public final class AppViewModel {
     /// completes the loaded catalog has already been published on the main actor.
     private var catalogLoad: Task<Void, Never>?
 
+    // MARK: Phase 6 — background check scheduling & menu-bar status
+
+    /// Persists the timestamp of the last successful update check across launches.
+    /// Assigned in ``init()``; the same store backs ``backgroundChecker``.
+    private let lastCheckStore: any LastCheckStoring
+
+    /// Gates due-ness and single-flight for scheduled/manual background checks.
+    private let backgroundChecker: BackgroundUpdateCheckCoordinator
+
+    /// The detection task the most recent ``scan()`` launched, tracked so a
+    /// background check can await it rather than racing the fire-and-forget task.
+    private var pendingUpdateCheck: Task<Void, Never>?
+
+    /// The periodic check cadence. Persisted; setting it pushes the new interval to
+    /// the coordinator so the next wake-up honours it. Bound by the Settings scene.
+    public var checkInterval: UpdateCheckInterval = .daily {
+        didSet {
+            guard checkInterval != oldValue else { return }
+            UserDefaults.standard.set(checkInterval.rawValue, forKey: Self.intervalDefaultsKey)
+            backgroundChecker.updateInterval(checkInterval)
+        }
+    }
+
+    /// When the last successful check completed, mirrored from the persisted store
+    /// so the menu bar can show "zuletzt geprüft vor …". `nil` until the first check.
+    public private(set) var lastSuccessfulCheck: Date?
+
+    /// `true` once a detection has completed this session, so the menu bar knows to
+    /// trust the live count over the persisted one.
+    public private(set) var hasCompletedUpdateCheck = false
+
+    /// The available-update count persisted from the last session, shown by the
+    /// menu bar until this session's first detection completes.
+    public private(set) var lastKnownAvailableUpdateCount = 0
+
+    /// Whether the app shows a Dock icon (regular) or runs menu-bar-only
+    /// (accessory). Persisted; the app delegate applies the matching activation
+    /// policy on launch and whenever this changes. The view model stays AppKit-free.
+    public var showsDockIcon: Bool = true {
+        didSet {
+            guard showsDockIcon != oldValue else { return }
+            UserDefaults.standard.set(showsDockIcon, forKey: Self.showsDockIconDefaultsKey)
+            onShowsDockIconChange?(showsDockIcon)
+        }
+    }
+
+    /// Whether a system notification is raised when a background check finds new
+    /// updates. Off by default; delivery degrades silently without permission.
+    public var notifyOnNewUpdates: Bool = false {
+        didSet {
+            guard notifyOnNewUpdates != oldValue else { return }
+            UserDefaults.standard.set(notifyOnNewUpdates, forKey: Self.notifyOnNewUpdatesDefaultsKey)
+        }
+    }
+
+    /// Set by the app delegate to apply the Dock-icon activation policy.
+    public var onShowsDockIconChange: ((Bool) -> Void)?
+
+    /// Set by the app delegate to deliver a "new updates found" notification. The
+    /// `Int` is the new available-update count. Only called when enabled.
+    public var onNewUpdatesDetected: ((Int) -> Void)?
+
+    /// Suppress exactly one automatic window-appear scan. Set at launch when the
+    /// app starts menu-bar-only: the window `WindowGroup` briefly auto-creates is
+    /// dismissed, and we do not want its `.task` to fire a network scan on every
+    /// headless relaunch (that would defeat "a restart does not re-check"). A
+    /// window the *user* later opens still scans normally.
+    public var suppressNextWindowScan = false
+
     public init() {
         let fileSystem = SystemFileSystem()
         let processRunner = SystemProcessRunner()
@@ -187,6 +262,25 @@ public final class AppViewModel {
             trustGate: trustGate
         )
 
+        // Phase 6 — background update-check scheduling and menu-bar status. The
+        // last successful check is persisted so a relaunch does not immediately
+        // re-scan; the coordinator gates due-ness and guarantees a scheduled and a
+        // manual check never overlap. The last known update count is cached
+        // separately so the menu bar can show status before this session's first
+        // scan completes.
+        let lastCheckStore = JSONFileLastCheckStore()
+        let interval = Self.loadCheckInterval()
+        self.lastCheckStore = lastCheckStore
+        self.backgroundChecker = BackgroundUpdateCheckCoordinator(interval: interval, store: lastCheckStore)
+        self.checkInterval = interval
+        self.lastSuccessfulCheck = lastCheckStore.lastSuccessfulCheck()
+        self.lastKnownAvailableUpdateCount = UserDefaults.standard.integer(forKey: Self.lastKnownCountDefaultsKey)
+        self.showsDockIcon = Self.loadShowsDockIcon()
+        self.notifyOnNewUpdates = Self.loadNotifyOnNewUpdates()
+        // Starting menu-bar-only: skip the first (auto-created, immediately
+        // dismissed) window's scan so a headless relaunch stays quiet.
+        self.suppressNextWindowScan = !Self.loadShowsDockIcon()
+
         // Load the best *offline* catalog (cache → snapshot) off the main actor and
         // publish it. This is what the first scan gates on, so it must stay fast —
         // the network refresh below is deliberately fire-and-forget.
@@ -211,6 +305,7 @@ public final class AppViewModel {
     /// takes for the next scan to see the real catalog.
     private func publishCatalog(_ catalog: CaskCatalog) {
         self.catalogAge = catalog.age()
+        self.loadedCatalog = catalog
         self.coordinator = AdoptionCoordinator(
             scanner: scanner,
             backend: backend,
@@ -397,7 +492,9 @@ public final class AppViewModel {
         // Kick off update detection without holding the scan open: it re-scans,
         // probes Sparkle feeds over the network and runs `mas`/`msupdate`, so it
         // streams its results in on its own schedule and never blocks the list.
-        Task { await self.checkForUpdates() }
+        // Tracked so a background check can await its completion (see
+        // ``runScheduledCheckIfDue(now:)``) without racing the fire-and-forget task.
+        self.pendingUpdateCheck = Task { await self.checkForUpdates() }
     }
 
     /// Detect available updates for every app, per source, off the main actor.
@@ -419,6 +516,18 @@ public final class AppViewModel {
         byPath.reserveCapacity(produced.count)
         for report in produced { byPath[report.app.bundlePath] = report }
         self.updateReports = byPath
+
+        // Phase 6: any completed detection — whether triggered by the window, the
+        // menu bar's "Jetzt prüfen", or the background scheduler — advances the
+        // persisted schedule so a relaunch (or a background tick right afterwards)
+        // does not immediately re-scan, and refreshes the status the menu bar caches
+        // for display before this session's first scan.
+        let completedAt = Date()
+        lastCheckStore.recordSuccessfulCheck(at: completedAt)
+        lastSuccessfulCheck = completedAt
+        hasCompletedUpdateCheck = true
+        lastKnownAvailableUpdateCount = availableUpdateCount
+        UserDefaults.standard.set(lastKnownAvailableUpdateCount, forKey: Self.lastKnownCountDefaultsKey)
     }
 
     /// The update report for a given adoption report, if one has been detected.
@@ -640,6 +749,123 @@ public final class AppViewModel {
         let fetchedAt = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
             ?? .distantPast
         return try? CaskCatalogIngestion.decodeCatalog(fromAPIData: data, fetchedAt: fetchedAt)
+    }
+
+    // MARK: - Phase 6: menu-bar status & background update checking
+    //
+    // The menu bar is a *status surface*, not a second execution path: it reports
+    // how many updates are available and drives the schedule, but every actual
+    // replacement still flows through the window's preview/confirmation dialogs so
+    // the trust gate is never bypassed. Nothing here installs anything.
+
+    static let intervalDefaultsKey = "openfreshr.updateCheckInterval"
+    static let showsDockIconDefaultsKey = "openfreshr.showsDockIcon"
+    static let notifyOnNewUpdatesDefaultsKey = "openfreshr.notifyOnNewUpdates"
+    static let lastKnownCountDefaultsKey = "openfreshr.lastKnownAvailableUpdateCount"
+
+    static func loadCheckInterval() -> UpdateCheckInterval {
+        guard let raw = UserDefaults.standard.string(forKey: intervalDefaultsKey),
+              let parsed = UpdateCheckInterval(rawValue: raw) else { return .daily }
+        return parsed
+    }
+
+    static func loadShowsDockIcon() -> Bool {
+        UserDefaults.standard.object(forKey: showsDockIconDefaultsKey) as? Bool ?? true
+    }
+
+    static func loadNotifyOnNewUpdates() -> Bool {
+        UserDefaults.standard.bool(forKey: notifyOnNewUpdatesDefaultsKey)
+    }
+
+    /// The number of apps with an available update. This is the canonical menu-bar
+    /// count and is identical *by construction* to the window's "Updates" filter —
+    /// both derive from the same predicate via ``count(for:)``.
+    public var availableUpdateCount: Int { count(for: .updates) }
+
+    /// The count the menu bar should show. Once a detection has completed this
+    /// session, the live count is authoritative; before that (e.g. a menu-bar-only
+    /// relaunch that was not yet due to re-check) it falls back to the persisted
+    /// last known count so the badge is not misleadingly empty.
+    public var menuBarUpdateCount: Int {
+        hasCompletedUpdateCheck ? availableUpdateCount : lastKnownAvailableUpdateCount
+    }
+
+    /// A value-type snapshot the menu-bar popover renders.
+    public var menuBarStatus: MenuBarStatus {
+        MenuBarStatus(
+            availableUpdateCount: menuBarUpdateCount,
+            lastSuccessfulCheck: lastSuccessfulCheck,
+            interval: checkInterval,
+            isChecking: isScanning || isCheckingUpdates
+        )
+    }
+
+    /// The apps that currently have an available update, name-sorted — the short
+    /// list the popover shows. Read-only: acting on them still happens in the window.
+    public var appsWithAvailableUpdates: [AppUpdateReport] {
+        reports.compactMap { updateReports[$0.app.bundlePath] }
+            .filter(\.hasUpdate)
+            .sorted { $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending }
+    }
+
+    /// The scan a window runs when it appears. It populates the list for a window
+    /// the user is actually looking at, but honours ``suppressNextWindowScan`` so
+    /// the throwaway window a menu-bar-only launch briefly creates does not trigger
+    /// a network scan on every headless relaunch.
+    public func scanOnWindowAppear() async {
+        if suppressNextWindowScan {
+            suppressNextWindowScan = false
+            return
+        }
+        await scan()
+    }
+
+    /// Seconds until the next scheduled check is due, or `nil` when checking is off
+    /// or nothing is scheduled yet. Drives the app delegate's wake-up loop.
+    public func secondsUntilNextScheduledCheck(now: Date = Date()) -> TimeInterval? {
+        backgroundChecker.secondsUntilNextCheck(now: now)
+    }
+
+    /// Change the periodic check interval, persisting it and updating the
+    /// coordinator so the next wake-up honours the new cadence immediately.
+    public func setCheckInterval(_ interval: UpdateCheckInterval) {
+        checkInterval = interval
+    }
+
+    /// Await the update detection kicked off by the most recent ``scan()``.
+    private func awaitPendingUpdateCheck() async {
+        await pendingUpdateCheck?.value
+    }
+
+    /// Run one background check — a full inventory scan plus update detection — to
+    /// completion, honouring single-flight, then optionally notify about newly
+    /// found updates. It **only** re-scans and re-detects; it never installs.
+    private func runTrackedCheck(now: Date, notify: Bool) async {
+        let before = availableUpdateCount
+        await scan()
+        await awaitPendingUpdateCheck()
+        let after = availableUpdateCount
+        backgroundChecker.finishCheck(success: true, at: now)
+        lastSuccessfulCheck = backgroundChecker.lastSuccessfulCheck()
+        if notify, notifyOnNewUpdates, after > before {
+            onNewUpdatesDetected?(after)
+        }
+    }
+
+    /// Run a scheduled check, but only if one is due and none is already running.
+    /// Called by the app delegate's periodic loop and once at launch; a persisted
+    /// recent timestamp makes this a no-op, so a relaunch does not re-scan.
+    public func runScheduledCheckIfDue(now: Date = Date()) async {
+        guard backgroundChecker.beginCheckIfDue(now: now) else { return }
+        await runTrackedCheck(now: now, notify: true)
+    }
+
+    /// The menu bar's "Jetzt prüfen": force a check now regardless of the schedule,
+    /// still single-flight so it can never overlap a scheduled or in-flight check.
+    /// The user is present, so it does not raise a notification.
+    public func checkNow(now: Date = Date()) async {
+        guard backgroundChecker.beginCheckIfDue(now: now, force: true) else { return }
+        await runTrackedCheck(now: now, notify: false)
     }
 }
 

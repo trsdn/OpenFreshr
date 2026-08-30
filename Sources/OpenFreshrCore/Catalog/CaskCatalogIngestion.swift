@@ -103,6 +103,7 @@ public enum CaskCatalogIngestion {
             version: raw["version"] as? String,
             autoUpdates: raw["auto_updates"] as? Bool ?? false,
             homepage: raw["homepage"] as? String,
+            desc: (raw["desc"] as? String).flatMap { $0.isEmpty ? nil : $0 },
             artifacts: artifacts,
             primaryBundleIdentifiers: primary.sorted(),
             cleanupBundleIdentifiers: cleanup.sorted()

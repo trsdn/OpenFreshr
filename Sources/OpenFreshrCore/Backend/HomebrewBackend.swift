@@ -41,7 +41,7 @@ public enum HomebrewUpdateStrategy: String, Sendable, Hashable {
 ///   validated against a strict allowlist before use.
 /// * **A `CaskError` is detected and reported distinctly** from other failures,
 ///   so a version-mismatch hard-fail is never mistaken for "nothing happened".
-public struct HomebrewBackend: AdoptingBackend {
+public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
 
     private let processRunner: any ProcessRunning
     private let fileSystem: any FileSystemReading
@@ -303,6 +303,75 @@ public struct HomebrewBackend: AdoptingBackend {
         // Homebrew prints "Error: ... " to stderr and, for adopt version
         // mismatches, an explicit CaskError. Detect that specific hard-fail so
         // the coordinator can tell it apart from an ordinary failure.
+        let combined = result.standardError + "\n" + result.standardOutput
+        if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
+            return .caskError(message: caskErrorMessage)
+        }
+
+        return .failed(
+            reason: .processFailed(
+                exitCode: result.exitCode,
+                standardError: result.standardError
+            )
+        )
+    }
+
+    /// The separated argument vector for a **fresh install** of a new cask:
+    /// `brew install --cask -- <token>`. No `--adopt` (there is no existing app
+    /// to take over), no `--greedy`, and — as everywhere — **never** `--force`.
+    /// `--` terminates option parsing so an externally sourced token can never be
+    /// read as a flag. Single source of truth for the previewed and executed
+    /// install command alike.
+    static func installArguments(token: String) -> [String] {
+        ["install", "--cask", "--", token]
+    }
+
+    /// Resolve the exact `brew install --cask -- <token>` command for a new cask,
+    /// or `nil` when Homebrew is absent or the token fails validation — so the
+    /// catalog can never offer to install something it could not actually run.
+    public func resolveInstallCommand(identifier: String) -> ResolvedCommand? {
+        guard let brewURL = brewURL() else { return nil }
+        guard Self.isValidCaskToken(identifier) else { return nil }
+        return ResolvedCommand(
+            executablePath: brewURL.path,
+            arguments: Self.installArguments(token: identifier)
+        )
+    }
+
+    /// Install the new cask `caskToken` via `brew install --cask -- <token>`.
+    ///
+    /// Reuses the adopt path's exact safety posture: the token is validated
+    /// against the strict allowlist and refused **before** any process launches,
+    /// the argument vector is separated with a `--` terminator, and a cask-level
+    /// abort is reported distinctly from an ordinary non-zero exit. The reported
+    /// success is only a claim — the coordinator confirms it by rescanning the
+    /// disk (or, for installer-only casks, by re-reading the managed set).
+    public func install(caskToken: String) -> BackendActionResult {
+        guard let brewURL = brewURL() else {
+            return .failed(reason: .homebrewUnavailable)
+        }
+
+        // The token comes from external catalog data. Validate it against a
+        // strict allowlist *before* it is ever placed on a command line, and
+        // hard-fail on any violation — never silently continue.
+        guard Self.isValidCaskToken(caskToken) else {
+            return .failed(reason: .invalidCaskToken(caskToken))
+        }
+
+        let result: ProcessResult
+        do {
+            result = try processRunner.run(
+                executableURL: brewURL,
+                arguments: Self.installArguments(token: caskToken)
+            )
+        } catch {
+            return .failed(reason: .launchFailed(message: String(describing: error)))
+        }
+
+        if result.didSucceed {
+            return .succeeded(standardOutput: result.standardOutput)
+        }
+
         let combined = result.standardError + "\n" + result.standardOutput
         if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
             return .caskError(message: caskErrorMessage)

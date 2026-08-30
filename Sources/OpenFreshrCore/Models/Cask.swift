@@ -46,6 +46,12 @@ public struct Cask: Hashable, Sendable, Codable, Identifiable {
     /// Homepage URL as a string, best-effort, for display only.
     public var homepage: String?
 
+    /// The cask's one-line description (`desc` stanza), best-effort. Present in
+    /// the live Homebrew API and the on-disk cache; the bundled offline snapshot
+    /// predates it and simply carries `nil`, so search degrades to token/name
+    /// there rather than failing. Used for catalog search and the detail view.
+    public var desc: String?
+
     /// All artifact stanzas the cask declares.
     public var artifacts: [CaskArtifact]
 
@@ -62,6 +68,7 @@ public struct Cask: Hashable, Sendable, Codable, Identifiable {
         version: String? = nil,
         autoUpdates: Bool = false,
         homepage: String? = nil,
+        desc: String? = nil,
         artifacts: [CaskArtifact] = [],
         primaryBundleIdentifiers: [String] = [],
         cleanupBundleIdentifiers: [String] = []
@@ -72,6 +79,7 @@ public struct Cask: Hashable, Sendable, Codable, Identifiable {
         self.version = version
         self.autoUpdates = autoUpdates
         self.homepage = homepage
+        self.desc = desc
         self.artifacts = artifacts
         self.primaryBundleIdentifiers = primaryBundleIdentifiers
         self.cleanupBundleIdentifiers = cleanupBundleIdentifiers
