@@ -47,6 +47,10 @@ public enum AdoptionResult: Sendable {
     case failed(reason: BackendFailureReason)
     case notConfirmedByRescan
     case notEligible(reason: IneligibilityReason)
+    /// The trust chain refused the take-over **before** the backend ran: an
+    /// unsigned/invalid bundle, a Gatekeeper rejection, or an unacknowledged
+    /// team-ID change. The app is untouched.
+    case blockedByTrust(TrustBlock)
 
     public var didAdopt: Bool {
         if case .adopted = self { return true }
@@ -56,11 +60,17 @@ public enum AdoptionResult: Sendable {
     /// Whether it is sensible to offer the user a retry.
     public var isRetryable: Bool {
         switch self {
-        case .adopted, .notEligible:
+        case .adopted, .notEligible, .blockedByTrust:
             return false
         case .hardFailedWithCaskError, .failed, .notConfirmedByRescan:
             return true
         }
+    }
+
+    /// The trust block, when the trust chain refused the take-over.
+    public var trustBlock: TrustBlock? {
+        if case let .blockedByTrust(block) = self { return block }
+        return nil
     }
 }
 
@@ -75,17 +85,23 @@ public struct AdoptionCoordinator: Sendable {
     private let backend: any AdoptingBackend
     private let catalog: CaskCatalog
     private let scanDirectories: [String]
+    /// The trust chain consulted before a take-over replaces anything on disk.
+    /// `nil` leaves the coordinator unenforced (the default for detection-focused
+    /// tests); the app injects a real gate.
+    private let trustGate: TrustGate?
 
     public init(
         scanner: InventoryScanner,
         backend: any AdoptingBackend,
         catalog: CaskCatalog,
-        scanDirectories: [String]
+        scanDirectories: [String],
+        trustGate: TrustGate? = nil
     ) {
         self.scanner = scanner
         self.backend = backend
         self.catalog = catalog
         self.scanDirectories = scanDirectories
+        self.trustGate = trustGate
     }
 
     /// Scan, match and classify every installed app into an ``AppReport``.
@@ -164,6 +180,21 @@ public struct AdoptionCoordinator: Sendable {
     /// Homebrew-managed. A backend "success" that the rescan does not corroborate
     /// is reported as ``AdoptionResult/notConfirmedByRescan`` — never as done.
     public func adopt(_ app: InstalledApp) -> AdoptionResult {
+        adopt(app, acknowledgingTeamChange: false)
+    }
+
+    /// Adopt `app`, optionally acknowledging a team-ID change, then confirm with a
+    /// rescan. The trust gate is consulted **before** the backend runs, so an
+    /// unsigned/invalid/Gatekeeper-rejected bundle or an unacknowledged team-ID
+    /// change is stopped while the app on disk is still untouched.
+    public func adopt(_ app: InstalledApp, acknowledgingTeamChange: Bool) -> AdoptionResult {
+        if let trustGate {
+            let decision = trustGate.authorize(app, acknowledgeTeamChange: acknowledgingTeamChange)
+            if let block = decision.block {
+                return .blockedByTrust(block)
+            }
+        }
+
         let index = CaskIndex(casks: catalog.casks)
         let preManaged = backend.managedTokens()
         let resolver = MatchResolver(index: index, managedTokens: preManaged)

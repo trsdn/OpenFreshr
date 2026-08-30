@@ -13,6 +13,7 @@
 		57EDEA00F23E757E9B6458FE /* casks-snapshot.json in Resources */ = {isa = PBXBuildFile; fileRef = E976F7E78EC8563390B65645 /* casks-snapshot.json */; };
 		942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94728C9079084CFCB0F538EC /* ContentView.swift */; };
 		A97E25AD4936A4796231C555 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3606D483F2FD210B870351 /* AppViewModel.swift */; };
+		AB45E9F52DB6154607F2CD2F /* TrustManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */; };
 		B40012D32F5DA2B1C9C9D23B /* UpdateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */; };
 		BF262F867F073F3CE0181255 /* AdoptionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */; };
 		E608ADD44F10BA8D70A3164B /* OpenFreshrCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */; };
@@ -27,6 +28,7 @@
 		7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFreshrApp.swift; sourceTree = "<group>"; };
 		94728C9079084CFCB0F538EC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A50B0D4F75022D7CD4C03CFD /* AppDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDetailView.swift; sourceTree = "<group>"; };
+		BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustManagementView.swift; sourceTree = "<group>"; };
 		C4AB47F2D3C54FE3F23B5D92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E7843FD6418A87AAE4EED965 /* InstalledListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledListView.swift; sourceTree = "<group>"; };
 		E976F7E78EC8563390B65645 /* casks-snapshot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "casks-snapshot.json"; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 				C4AB47F2D3C54FE3F23B5D92 /* Info.plist */,
 				E7843FD6418A87AAE4EED965 /* InstalledListView.swift */,
 				7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */,
+				BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */,
 				3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */,
 				D9AC16429E9C3DA344683E2A /* Resources */,
 			);
@@ -182,6 +185,7 @@
 				942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */,
 				57C3C91826A970090989CE4F /* InstalledListView.swift in Sources */,
 				4212803A02093169EC118FC8 /* OpenFreshrApp.swift in Sources */,
+				AB45E9F52DB6154607F2CD2F /* TrustManagementView.swift in Sources */,
 				B40012D32F5DA2B1C9C9D23B /* UpdateSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

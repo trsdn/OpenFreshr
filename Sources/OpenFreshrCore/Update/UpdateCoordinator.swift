@@ -15,13 +15,19 @@ public enum UpdateOutcome: Sendable {
     case caskError(UpdateItem, message: String)
     /// Any other failure (tool missing, non-zero exit, launch failure).
     case failed(UpdateItem, reason: BackendFailureReason)
+    /// The trust chain refused the replacement **before** any backend ran: an
+    /// unsigned or invalid bundle, a Gatekeeper rejection, or an unacknowledged
+    /// team-ID change. The app is untouched. A team-ID change is resolvable via
+    /// explicit opt-in; the other reasons are hard security stops.
+    case blockedByTrust(UpdateItem, TrustBlock)
 
     public var item: UpdateItem {
         switch self {
         case let .updated(item),
              let .notConfirmedByRescan(item),
              let .caskError(item, _),
-             let .failed(item, _):
+             let .failed(item, _),
+             let .blockedByTrust(item, _):
             return item
         }
     }
@@ -32,7 +38,23 @@ public enum UpdateOutcome: Sendable {
     }
 
     /// Whether offering a retry makes sense (everything but a confirmed update).
-    public var isRetryable: Bool { !didUpdate }
+    /// A trust block is *not* a blind retry candidate — it is resolved by the user
+    /// reviewing the warning and opting in — so a bulk retry skips it to avoid
+    /// re-blocking on every pass.
+    public var isRetryable: Bool {
+        switch self {
+        case .updated, .blockedByTrust:
+            return false
+        case .notConfirmedByRescan, .caskError, .failed:
+            return true
+        }
+    }
+
+    /// The trust block, when the trust chain refused this item.
+    public var trustBlock: TrustBlock? {
+        if case let .blockedByTrust(_, block) = self { return block }
+        return nil
+    }
 }
 
 /// The result of running a whole ``UpdateRelease``.
@@ -80,6 +102,11 @@ public struct UpdateCoordinator: Sendable {
     private let catalog: CaskCatalog
     private let httpFetcher: any HTTPFetching
     private let scanDirectories: [String]
+    /// The trust chain consulted before any replacement. `nil` leaves the
+    /// coordinator unenforced — the default for the many tests that exercise
+    /// detection and execution without a signing story. The app always injects a
+    /// real gate, so production replacements are always gated.
+    private let trustGate: TrustGate?
 
     public init(
         scanner: any Scanning,
@@ -88,7 +115,8 @@ public struct UpdateCoordinator: Sendable {
         microsoftAutoUpdate: MicrosoftAutoUpdateBackend,
         catalog: CaskCatalog,
         httpFetcher: any HTTPFetching,
-        scanDirectories: [String]
+        scanDirectories: [String],
+        trustGate: TrustGate? = nil
     ) {
         self.scanner = scanner
         self.homebrew = homebrew
@@ -97,6 +125,7 @@ public struct UpdateCoordinator: Sendable {
         self.catalog = catalog
         self.httpFetcher = httpFetcher
         self.scanDirectories = scanDirectories
+        self.trustGate = trustGate
     }
 
     // MARK: - Detection
@@ -424,15 +453,49 @@ public struct UpdateCoordinator: Sendable {
     /// mark another app as done. Success is asserted **only** when a fresh scan
     /// no longer reports the update.
     public func perform(_ release: UpdateRelease) async -> UpdateBatchResult {
+        await perform(release, acknowledgingTeamChanges: [])
+    }
+
+    /// Run every item in `release`, honouring per-app team-ID-change opt-ins.
+    ///
+    /// `acknowledgingTeamChanges` holds the `bundlePath`s the user explicitly
+    /// opted in for. The trust gate blocks any *other* app whose team ID changed,
+    /// **before** its backend runs — so a batch or major run can never smuggle an
+    /// unacknowledged publisher change past the check.
+    public func perform(
+        _ release: UpdateRelease,
+        acknowledgingTeamChanges: Set<String>
+    ) async -> UpdateBatchResult {
         var outcomes: [UpdateOutcome] = []
         for item in release.items {
-            outcomes.append(perform(item))
+            outcomes.append(perform(
+                item,
+                acknowledgingTeamChange: acknowledgingTeamChanges.contains(item.app.bundlePath)
+            ))
         }
         return UpdateBatchResult(outcomes: outcomes)
     }
 
     /// Run and confirm a single item.
     public func perform(_ item: UpdateItem) -> UpdateOutcome {
+        perform(item, acknowledgingTeamChange: false)
+    }
+
+    /// Run and confirm a single item, optionally acknowledging a team-ID change.
+    ///
+    /// The trust gate is consulted **first**, before the identifier guard and
+    /// before any backend call, so an unsigned/invalid/Gatekeeper-rejected bundle
+    /// or an unacknowledged team-ID change is stopped while the app on disk is
+    /// still untouched. Because single, batch and major-upgrade paths all funnel
+    /// through this method, the gate covers every replacement route.
+    public func perform(_ item: UpdateItem, acknowledgingTeamChange: Bool) -> UpdateOutcome {
+        if let trustGate {
+            let decision = trustGate.authorize(item.app, acknowledgeTeamChange: acknowledgingTeamChange)
+            if let block = decision.block {
+                return .blockedByTrust(item, block)
+            }
+        }
+
         guard let identifier = item.sourceKind.identifier, !identifier.isEmpty else {
             return .failed(item, reason: .invalidIdentifier(""))
         }

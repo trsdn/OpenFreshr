@@ -29,6 +29,26 @@ public final class AppViewModel {
     /// Age of the loaded cask catalog, for a "catalog is N old" hint.
     public private(set) var catalogAge: TimeInterval?
 
+    /// Where the loaded catalog came from (network / cache / bundled snapshot),
+    /// so the UI can show its provenance.
+    public private(set) var catalogOrigin: CaskCatalogOrigin?
+
+    /// When the catalog was last checked against the server. Differs from the age
+    /// after a `304`: the data is old but was just re-validated.
+    public private(set) var catalogCheckedAt: Date?
+
+    /// When the loaded catalog's data was last fetched fresh, for the provenance
+    /// line. Does not move on a `304`, so the age keeps growing honestly.
+    public private(set) var catalogFetchedAt: Date?
+
+    /// The visible state of the "Katalog aktualisieren" action.
+    public private(set) var catalogStatus: CatalogStatus = .upToDate
+
+    /// The install-popularity table that rides along with a network/cache load.
+    /// Not surfaced yet — it backs phase 5's ranked catalog search — but it is
+    /// fetched and cached now so that phase starts with data already present.
+    public private(set) var installAnalytics: CaskInstallAnalytics?
+
     /// The row currently selected in the list.
     public var selectedReportID: AppReport.ID?
 
@@ -74,6 +94,31 @@ public final class AppViewModel {
     private let microsoftAutoUpdate: MicrosoftAutoUpdateBackend
     private let httpFetcher: any HTTPFetching
 
+    /// Loads the catalog with the network → cache → snapshot order and keeps the
+    /// on-disk cache safe (it is only ever re-ingested through the API form). A
+    /// value type, captured into off-main tasks for the actual load/refresh.
+    private let catalogProvider: CaskCatalogProvider
+
+    /// A refresh in flight, so the manual action and the stale-startup refresh do
+    /// not stack.
+    private var catalogRefresh: Task<Void, Never>?
+
+    /// Catalog older than this at launch triggers a background refresh; a fresher
+    /// one is left as-is so start-up does not re-download ~18 MB every time.
+    private static let catalogRefreshThreshold: TimeInterval = 24 * 3_600
+
+    /// The trust chain consulted before any replacement. Built once over the real
+    /// signature inspector and the on-disk JSON trust store; a value type holding a
+    /// shared store reference, so it survives coordinator rebuilds and both
+    /// coordinators observe the same trust decisions.
+    private let trustGate: TrustGate
+
+    /// Cached per-app trust pictures, keyed by bundle path. Populated lazily and
+    /// off the main actor by ``evaluateTrust(for:)`` because it shells out to
+    /// `codesign`/`spctl`; the UI reads whatever is cached and degrades to "not yet
+    /// evaluated" before then.
+    public private(set) var trustEvaluations: [String: TrustEvaluation] = [:]
+
     /// The one-shot, off-main catalog load. ``scan()`` awaits it so the first scan
     /// never classifies against the empty placeholder catalog; by the time it
     /// completes the loaded catalog has already been published on the main actor.
@@ -99,6 +144,26 @@ public final class AppViewModel {
         self.microsoftAutoUpdate = microsoftAutoUpdate
         self.httpFetcher = httpFetcher
 
+        // The live catalog provider: a real Application-Support cache plus the
+        // bundled snapshot as the offline/first-run floor. The cache is read back
+        // *only* through CaskCatalogIngestion (see the provider), so a tampered
+        // file cannot inject internal identity fields.
+        self.catalogProvider = CaskCatalogProvider(
+            httpFetcher: httpFetcher,
+            cacheStore: FileCatalogCacheStore(),
+            bundledSnapshot: { Self.loadBundledSnapshot() }
+        )
+
+        // The trust chain: real signature inspection over the shared process
+        // runner, persisted to a JSON file in Application Support. Both
+        // coordinators are handed this same gate so a first-use baseline recorded
+        // by one is seen by the other.
+        let trustGate = TrustGate(
+            inspector: SystemCodeSignatureInspector(processRunner: processRunner, fileSystem: fileSystem),
+            store: JSONFileTrustStore()
+        )
+        self.trustGate = trustGate
+
         // Start over an empty catalog so `init` does no heavy work on the main
         // actor and the window can draw its first frame at once. The 2.6 MB
         // snapshot (~5 000 casks, ~91 000 regex evaluations through
@@ -108,7 +173,8 @@ public final class AppViewModel {
             scanner: scanner,
             backend: backend,
             catalog: emptyCatalog,
-            scanDirectories: InventoryScanner.defaultScanDirectories
+            scanDirectories: InventoryScanner.defaultScanDirectories,
+            trustGate: trustGate
         )
         self.updateCoordinator = UpdateCoordinator(
             scanner: scanner,
@@ -117,14 +183,26 @@ public final class AppViewModel {
             microsoftAutoUpdate: microsoftAutoUpdate,
             catalog: emptyCatalog,
             httpFetcher: httpFetcher,
-            scanDirectories: InventoryScanner.defaultScanDirectories
+            scanDirectories: InventoryScanner.defaultScanDirectories,
+            trustGate: trustGate
         )
 
+        // Load the best *offline* catalog (cache → snapshot) off the main actor and
+        // publish it. This is what the first scan gates on, so it must stay fast —
+        // the network refresh below is deliberately fire-and-forget.
         self.catalogLoad = Task { [weak self] in
-            let catalog = await Task.detached(priority: .userInitiated) {
-                Self.loadCatalog()
+            guard let self else { return }
+            let provider = self.catalogProvider
+            let load = await Task.detached(priority: .userInitiated) {
+                provider.loadInitial()
             }.value
-            self?.publishCatalog(catalog)
+            self.publishCatalogLoad(load)
+
+            // If the offline catalog is stale, refresh in the background. This does
+            // not gate the first scan; fresher data swaps in when it lands.
+            if load.catalog.age() > Self.catalogRefreshThreshold {
+                self.refreshCatalog()
+            }
         }
     }
 
@@ -137,7 +215,8 @@ public final class AppViewModel {
             scanner: scanner,
             backend: backend,
             catalog: catalog,
-            scanDirectories: scanDirectories
+            scanDirectories: scanDirectories,
+            trustGate: trustGate
         )
         self.updateCoordinator = UpdateCoordinator(
             scanner: scanner,
@@ -146,8 +225,100 @@ public final class AppViewModel {
             microsoftAutoUpdate: microsoftAutoUpdate,
             catalog: catalog,
             httpFetcher: httpFetcher,
-            scanDirectories: scanDirectories
+            scanDirectories: scanDirectories,
+            trustGate: trustGate
         )
+    }
+
+    /// Publish a full catalog load: swap the catalog into the coordinators (via
+    /// ``publishCatalog``) and surface its provenance, age and refresh state.
+    private func publishCatalogLoad(_ load: CaskCatalogLoad) {
+        publishCatalog(load.catalog)
+        self.catalogOrigin = load.origin
+        self.catalogCheckedAt = load.checkedAt
+        self.catalogFetchedAt = load.catalog.fetchedAt
+        // Keep any analytics we already had if this load carried none (the bundled
+        // snapshot has no analytics, so a snapshot fallback must not drop them).
+        if let analytics = load.analytics {
+            self.installAnalytics = analytics
+        }
+        if let error = load.error {
+            self.catalogStatus = .failed(Self.describeCatalog(error))
+        } else {
+            self.catalogStatus = .upToDate
+        }
+    }
+
+    /// Refresh the catalog from the network in the background. Safe to call from a
+    /// button: it manages its own task and coalesces overlapping requests, and a
+    /// failure keeps the last-known catalog while reporting the reason.
+    public func refreshCatalog() {
+        guard catalogRefresh == nil else { return }
+        catalogStatus = .loading
+        let provider = self.catalogProvider
+        catalogRefresh = Task { [weak self] in
+            let load = await Task.detached(priority: .userInitiated) {
+                await provider.refresh()
+            }.value
+            guard let self else { return }
+            self.catalogRefresh = nil
+            self.publishCatalogLoad(load)
+            // A fresh network catalog can change classifications; reflect it once,
+            // but only when a prior scan already produced reports so we do not race
+            // the very first scan.
+            if load.origin == .network, !self.reports.isEmpty, !self.isScanning {
+                Task { await self.scan() }
+            }
+        }
+    }
+
+    /// Manually invalidate the on-disk cache and refresh. The in-memory catalog
+    /// stays until the refresh replaces it, so the UI never blanks.
+    public func invalidateCatalogCache() {
+        try? catalogProvider.clearCache()
+        refreshCatalog()
+    }
+
+    /// A short German provenance line for the status bar, e.g.
+    /// "Katalog von heute 09:12" or "gebündelter Stand vom 3. Juni 2025".
+    public var catalogProvenanceText: String {
+        guard let origin = catalogOrigin else { return "Katalog wird geladen …" }
+        let when = catalogFetchedAt.map { Self.relativeCatalogDate($0) }
+        switch origin {
+        case .network, .cache:
+            if let when { return "Katalog von \(when)" }
+            return "Katalog geladen"
+        case .bundledSnapshot:
+            if let when { return "gebündelter Stand vom \(when)" }
+            return "gebündelter Katalog"
+        case .empty:
+            return "Katalog wird geladen …"
+        }
+    }
+
+    private static func describeCatalog(_ error: CatalogRefreshError) -> String {
+        switch error.kind {
+        case .network:
+            return "Abruf fehlgeschlagen – letzter Stand bleibt aktiv."
+        case .ingestion:
+            return "Antwort unlesbar – letzter Stand bleibt aktiv."
+        }
+    }
+
+    private static func relativeCatalogDate(
+        _ date: Date,
+        calendar: Calendar = .current
+    ) -> String {
+        let time = DateFormatter()
+        time.locale = Locale(identifier: "de_DE")
+        time.dateFormat = "HH:mm"
+        if calendar.isDateInToday(date) { return "heute \(time.string(from: date))" }
+        if calendar.isDateInYesterday(date) { return "gestern \(time.string(from: date))" }
+        let full = DateFormatter()
+        full.locale = Locale(identifier: "de_DE")
+        full.dateStyle = .long
+        full.timeStyle = .none
+        return full.string(from: date)
     }
 
     /// The currently selected report, if any.
@@ -273,33 +444,53 @@ public final class AppViewModel {
 
     /// Run a single app's update through the coordinator (build → run → confirm
     /// by rescan). Used by the per-app "Aktualisieren" button.
-    public func update(_ report: AppUpdateReport, source: SourceUpdate) async {
+    ///
+    /// `acknowledgeTeamChange` is set only when the user has explicitly opted in to
+    /// a detected publisher (team-ID) change for this app in the confirmation UI.
+    /// Without it, the trust gate blocks the replacement before any backend runs.
+    public func update(
+        _ report: AppUpdateReport,
+        source: SourceUpdate,
+        acknowledgeTeamChange: Bool = false
+    ) async {
         guard let item = UpdateCoordinator.updateItem(for: report, source: source),
               let release = UpdateRelease(items: [item]) else { return }
-        await run(release)
+        await run(
+            release,
+            acknowledgingTeamChanges: acknowledgeTeamChange ? [item.app.bundlePath] : []
+        )
     }
 
     /// Run a batch of already-vetted items as one release. Returns `false` when
     /// the set could not be formed (it mixed major and regular upgrades) — the UI
     /// must keep those apart, so this is a guard, not an expected path.
+    ///
+    /// `acknowledgedTeamChanges` holds the bundle paths the user explicitly opted
+    /// in for; every other item whose team ID changed is blocked before its backend
+    /// runs, so a batch can never wave a publisher change through unnoticed.
     @discardableResult
-    public func performUpdates(_ items: [UpdateItem]) async -> Bool {
+    public func performUpdates(
+        _ items: [UpdateItem],
+        acknowledgedTeamChanges: Set<String> = []
+    ) async -> Bool {
         guard let release = UpdateRelease(items: items) else { return false }
-        await run(release)
+        await run(release, acknowledgingTeamChanges: acknowledgedTeamChanges)
         return true
     }
 
     /// Execute a release, publishing per-app progress and outcomes, then refresh
     /// the affected reports from a fresh detection pass so the list reflects the
     /// rescan-confirmed truth.
-    private func run(_ release: UpdateRelease) async {
+    private func run(_ release: UpdateRelease, acknowledgingTeamChanges: Set<String> = []) async {
         let paths = Set(release.items.map(\.app.bundlePath))
         guard updateInFlight.isDisjoint(with: paths) else { return }
         updateInFlight.formUnion(paths)
         defer { updateInFlight.subtract(paths) }
 
         let coordinator = self.updateCoordinator
-        let result = await Task.detached { await coordinator.perform(release) }.value
+        let result = await Task.detached {
+            await coordinator.perform(release, acknowledgingTeamChanges: acknowledgingTeamChanges)
+        }.value
 
         for outcome in result.outcomes {
             updateOutcomes[outcome.item.app.bundlePath] = Self.message(for: outcome)
@@ -339,18 +530,22 @@ public final class AppViewModel {
             return "Abgebrochen (CaskError): \(message)"
         case let .failed(_, reason):
             return reason.explanation
+        case let .blockedByTrust(_, block):
+            return block.explanation
         }
     }
 
     /// Attempt to adopt `app`, then refresh the affected report from the
     /// coordinator's rescan-confirmed result.
-    public func adopt(_ app: InstalledApp) async {
+    public func adopt(_ app: InstalledApp, acknowledgeTeamChange: Bool = false) async {
         guard !adoptionInFlight.contains(app.bundlePath) else { return }
         adoptionInFlight.insert(app.bundlePath)
         defer { adoptionInFlight.remove(app.bundlePath) }
 
         let coordinator = self.coordinator
-        let result = await Task.detached { coordinator.adopt(app) }.value
+        let result = await Task.detached {
+            coordinator.adopt(app, acknowledgingTeamChange: acknowledgeTeamChange)
+        }.value
 
         switch result {
         case let .adopted(report):
@@ -367,7 +562,49 @@ public final class AppViewModel {
             lastAdoptionMessage = "\(app.displayName): \(reason.explanation)"
         case let .notEligible(reason):
             lastAdoptionMessage = "\(app.displayName) ist nicht adoptierbar: \(reason.explanation)"
+        case let .blockedByTrust(block):
+            lastAdoptionMessage = "\(app.displayName): \(block.explanation)"
         }
+    }
+
+    // MARK: - Trust (phase 4)
+
+    /// The cached trust picture for `app`, if one has been evaluated. Read-only and
+    /// non-blocking; call ``evaluateTrust(for:)`` to populate or refresh it.
+    public func trustEvaluation(for app: InstalledApp) -> TrustEvaluation? {
+        trustEvaluations[app.bundlePath]
+    }
+
+    /// Evaluate (or refresh) the trust picture for `app` off the main actor and
+    /// publish it. Runs `codesign`/`spctl`, so it must not block the UI; the view
+    /// calls this from a `.task` and reads ``trustEvaluation(for:)`` for the result.
+    /// This never mutates the trust store — enforcement records happen only when an
+    /// actual replacement is authorised.
+    public func evaluateTrust(for app: InstalledApp) async {
+        let gate = self.trustGate
+        let evaluation = await Task.detached { gate.evaluate(app) }.value
+        trustEvaluations[app.bundlePath] = evaluation
+    }
+
+    /// Every stored trust decision, newest first, for the management view.
+    public func storedTrustRecords() -> [TrustRecord] {
+        trustGate.storedRecords().sorted { $0.updatedAt > $1.updatedAt }
+    }
+
+    /// Forget the stored baseline for one app. The next replacement treats the app
+    /// as a fresh first observation — a *new* baseline, not implicit trust of the
+    /// old team.
+    public func resetTrust(bundleIdentifier: String) {
+        trustGate.resetTrust(bundleIdentifier: bundleIdentifier)
+        // Drop any cached evaluations that referenced this baseline so the UI
+        // recomputes against the now-empty store on next view.
+        trustEvaluations = trustEvaluations.filter { $0.value.bundleIdentifier != bundleIdentifier }
+    }
+
+    /// Forget every stored trust decision.
+    public func resetAllTrust() {
+        trustGate.resetAllTrust()
+        trustEvaluations = [:]
     }
 
     private func replace(_ report: AppReport) {
@@ -376,33 +613,23 @@ public final class AppViewModel {
         }
     }
 
-    /// Load the cask catalog from the snapshot bundled with the app, falling back
-    /// to an empty catalog only if that resource is somehow missing.
+    /// Ingest the catalog snapshot shipped as an app resource, if present.
     ///
-    /// Phase 1 loads **only** the bundled snapshot. It is deliberately *not*
-    /// backed by an on-disk cache: there is no producer for one in phase 1, so a
-    /// `~/Library/Application Support/OpenFreshr/casks.json` would be pure attack
-    /// surface — any process with the user's write access could hand-craft
-    /// `primaryBundleIdentifiers`/`autoUpdates`/`artifacts` and defeat every
-    /// corroboration and veto check. The snapshot is the real Homebrew cask API
-    /// shape and is ingested by the production ``CaskCatalogIngestion``, so the
-    /// app matches real apps out of the box with no network and no Homebrew.
+    /// The snapshot is the offline/first-run floor beneath the live
+    /// ``CaskCatalogProvider`` (network → cache → snapshot). It is the real
+    /// Homebrew cask API shape and is ingested by the production
+    /// ``CaskCatalogIngestion``, so the app matches real apps out of the box with
+    /// no network and no Homebrew.
     ///
-    /// - Important: When a later phase adds live fetching plus a refresh cache, it
-    ///   **must** ingest that data through ``CaskCatalogIngestion`` (the *API*
-    ///   form), exactly as the snapshot is here — never by decoding external bytes
+    /// - Important: Every catalog source — the live network response **and** the
+    ///   on-disk refresh cache — is ingested through ``CaskCatalogIngestion`` (the
+    ///   *API* form), exactly as this snapshot is, never by decoding external bytes
     ///   straight into the internal ``Cask`` `Codable` form. Only ingestion
     ///   *recovers* identity from stanzas under our own rules; decoding the
-    ///   internal form would let untrusted input set internal safety fields
-    ///   (`primaryBundleIdentifiers`, `autoUpdates`, …) directly.
-    private nonisolated static func loadCatalog() -> CaskCatalog {
-        if let catalog = loadBundledSnapshot() {
-            return catalog
-        }
-        return CaskCatalog(casks: [], fetchedAt: .distantPast)
-    }
-
-    /// Ingest the catalog snapshot shipped as an app resource, if present.
+    ///   internal form would let untrusted input (including a hand-crafted cache
+    ///   file) set internal safety fields (`primaryBundleIdentifiers`,
+    ///   `autoUpdates`, …) directly and defeat every corroboration and veto check.
+    ///   ``CaskCatalogProvider`` and ``FileCatalogCacheStore`` uphold this.
     private nonisolated static func loadBundledSnapshot() -> CaskCatalog? {
         guard let url = Bundle.main.url(forResource: "casks-snapshot", withExtension: "json"),
               let data = try? Data(contentsOf: url) else {
@@ -414,6 +641,17 @@ public final class AppViewModel {
             ?? .distantPast
         return try? CaskCatalogIngestion.decodeCatalog(fromAPIData: data, fetchedAt: fetchedAt)
     }
+}
+
+/// The visible state of the "Katalog aktualisieren" action, mapped to a control
+/// label and symbol by the status bar.
+public enum CatalogStatus: Sendable, Equatable {
+    /// A refresh is in flight.
+    case loading
+    /// The catalog is loaded and current (fresh, cached, or the snapshot floor).
+    case upToDate
+    /// The last refresh failed; the reason is shown and the prior catalog stays.
+    case failed(String)
 }
 
 /// The sidebar filters required by phase 3: the four the spec names, plus the

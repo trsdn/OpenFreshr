@@ -69,9 +69,15 @@ through the **API-shape ingestion** (`CaskCatalogIngestion`), which decides whic
 bucket each id belongs to. It must **never** be decoded straight into the
 internal `Cask` `Codable` form, because that would let an outside source set
 `primaryBundleIdentifiers`, `autoUpdates` and `artifacts` directly and bypass
-every control. In phase 1 there is deliberately **no on-disk cache** for the
-catalog for exactly this reason (`AppViewModel.loadCatalog()` loads only the
-bundled snapshot); a phase-2 live fetch must re-ingest via the API form.
+every control. The **on-disk refresh cache is held to exactly this rule**: it is
+re-ingested through `CaskCatalogIngestion` (the API form) on every read, never
+decoded into the internal `Cask` form, so a hand-crafted cache file is as inert
+as a hostile network response — it cannot set `primaryBundleIdentifiers`,
+`autoUpdates` or `artifacts`. This is the lesson that retired the earlier
+`~/Library/Application Support/OpenFreshr/casks.json` cache, now encoded as an
+invariant across `CaskCatalogProvider`, `FileCatalogCacheStore` and
+`AppViewModel.loadBundledSnapshot()` (all catalog sources — live fetch, cache and
+bundled snapshot — share the one ingestion path).
 
 ## Style
 
