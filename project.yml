@@ -16,11 +16,21 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.1.0"
+    # Single source of truth for the release version. Info.plist references these
+    # via $(MARKETING_VERSION)/$(CURRENT_PROJECT_VERSION), and release scripts read
+    # them straight out of this file (see docs/release/README.md).
+    MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
-    # The app writes to /Applications and shells out to package managers, so it
-    # is not sandboxed. Hardened runtime and notarisation are a later phase.
+    # The app writes to /Applications and shells out to package managers, so it is
+    # deliberately NOT sandboxed — App Store distribution is an explicit non-goal.
     ENABLE_APP_SANDBOX: NO
+    # Direct distribution requires the hardened runtime; notarisation (in the
+    # broker) rejects a Developer ID build without it. The app needs no hardened
+    # runtime exceptions — see Sources/OpenFreshrApp/OpenFreshr.entitlements.
+    ENABLE_HARDENED_RUNTIME: YES
+    # The notarising Developer ID team. Signing itself happens only in the broker
+    # (make run signs locally with the same team for a launchable dev build).
+    DEVELOPMENT_TEAM: G69Z5BNY97
 
 targets:
   OpenFreshr:
@@ -43,13 +53,36 @@ targets:
       path: Sources/OpenFreshrApp/Info.plist
       properties:
         CFBundleDisplayName: OpenFreshr
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        # Expanded from the single source in settings.base at build time, so the
+        # version is defined in exactly one place.
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.utilities
         NSHumanReadableCopyright: "OpenFreshr"
+        # Sparkle self-update configuration. These keys are inert until the Sparkle
+        # framework is linked for a release build (see docs/release/README.md);
+        # they carry no behaviour on their own, so the default make app/run build
+        # stays framework-free and offline-buildable.
+        # The appcast is served by GitHub Pages from docs/ (docs/appcast.xml).
+        SUFeedURL: "https://trsdn.github.io/OpenFreshr/appcast.xml"
+        # Base64 Ed25519 public key. The PRIVATE key never lives in the repo; it is
+        # held only in the broker's release secrets. This placeholder must be
+        # replaced with the real public key before the first Sparkle release —
+        # see docs/release/README.md ("EdDSA signing key").
+        SUPublicEDKey: "REPLACE_WITH_SPARKLE_ED25519_PUBLIC_KEY"
+        # Check on a cadence, but never install without explicit user action, so a
+        # self-update can never surprise a running scan.
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: false
+        SUScheduledCheckInterval: 86400
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.openfreshr.app
         GENERATE_INFOPLIST_FILE: NO
         CODE_SIGN_STYLE: Automatic
+        # Deliberately minimal — an empty entitlements dict. A non-sandboxed
+        # Developer ID app under the hardened runtime needs no entitlement to spawn
+        # brew/mas/msupdate/codesign/spctl, reach the network, register a login
+        # item or post notifications. Each omission is justified in the file.
+        CODE_SIGN_ENTITLEMENTS: Sources/OpenFreshrApp/OpenFreshr.entitlements

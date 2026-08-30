@@ -95,3 +95,71 @@ bundled snapshot — share the one ingestion path).
 - `make test` — `swift test` (core, fixtures only).
 - `make generate` — XcodeGen → `OpenFreshr.xcodeproj`.
 - `make app` — compile the SwiftUI shell (signing disabled).
+
+## Releases are notarized by the broker, never locally
+
+**Do not run `xcrun notarytool`, do not ask for an app-specific password, and do
+not suggest creating a `notarytool` keychain profile.** Apple credentials
+deliberately do not exist on this machine — this is a security decision, not an
+oversight.
+
+Notarization goes through **[trsdn/macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker)**,
+a manual GitHub Actions workflow that builds, signs, notarizes and staples in
+isolated jobs so that source-repository code never touches the signing secrets.
+
+To cut a release:
+
+1. Set `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in `project.yml`, run
+   `make generate`, and **commit** the regenerated `OpenFreshr.xcodeproj` with the
+   source. The broker builds the committed project; it cannot run XcodeGen.
+2. Tag the commit `vX.Y.Z` and push the tag.
+3. From a checkout of the broker: `scripts/request.sh openfreshr vX.Y.Z`
+   (or **Actions → Notarize macOS release → Run workflow** from `main`).
+
+`request.sh` correlates the exact run, downloads only that artifact, and verifies
+`provenance.json` plus the release digests.
+
+### OpenFreshr must first be allowlisted as the `openfreshr` profile
+
+The broker only signs applications listed in its `profiles/apps.json`, and runs a
+per-app build adapter. **Neither exists for OpenFreshr yet.** The full,
+ready-to-paste material — the profile block (real `repository_id`, `team_id`
+`G69Z5BNY97`, `com.openfreshr.app`, arm64, min macOS 14, zip+dmg), the broker-owned
+entitlements plist, and the `openfreshr-xcode` adapter with its three `broker.py`
+edit sites — is prepared in [`docs/release/`](docs/release/README.md), which also
+lists the two remaining one-line edits (`request.sh` allowlist and the
+`notarize.yml` dispatch options). The broker's `CONTRIBUTING.md` requires an
+**issue first** for any profile or script change, then a reviewed PR.
+
+Consequences for this repository:
+
+- `OpenFreshr.xcodeproj` is committed on purpose. The broker's build job uses only
+  the preinstalled runner toolchain, so it cannot fetch `xcodegen`. Regenerate
+  **and commit** the project after changing `project.yml`.
+- The repository must stay readable by the broker workflow, which authenticates
+  with its own `github.token`.
+
+### The app ships hardened, non-sandboxed, with zero entitlements
+
+`ENABLE_HARDENED_RUNTIME=YES`, `ENABLE_APP_SANDBOX=NO`. It is not sandboxed because
+it must write to `/Applications` to replace apps in place; App Store distribution
+is an explicit non-goal. A non-sandboxed hardened app needs **no** entitlement to
+spawn `brew`/`mas`/`msupdate`/`codesign`/`spctl`, reach the network, register a
+login item, or post notifications, so `Sources/OpenFreshrApp/OpenFreshr.entitlements`
+is an empty `<dict/>` with the reasoning spelled out. Keep it in sync with the
+broker copy `docs/release/entitlements/openfreshr.plist`.
+
+### Self-update is Sparkle, deferred at the binary level
+
+OpenFreshr watches other apps' Sparkle feeds and uses the same mechanism for
+itself. The oracle (`SelfUpdateChecker` in `OpenFreshrCore`) and the UI
+(`SelfUpdateController` + the "Nach OpenFreshr-Updates suchen …" items, kept
+distinct from the managed-app "Jetzt prüfen") are wired, but the **Sparkle SwiftPM
+dependency is intentionally not added**: SwiftPM package resolution fails under the
+machine's global `git safe.bareRepository=explicit`, and a broken build is worse
+than a missing self-update. `SelfUpdateController` is guarded with
+`#if canImport(Sparkle)` — NSAlert fallback without the framework, real updater
+with it. The feed is `https://trsdn.github.io/OpenFreshr/appcast.xml`
+(GitHub Pages → `/docs`), empty until a signed release exists; the private EdDSA
+key never enters the repo. See [`docs/release/README.md`](docs/release/README.md)
+for enabling Sparkle and generating the key.

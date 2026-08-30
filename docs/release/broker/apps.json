@@ -1,0 +1,24 @@
+{
+  "openfreshr": {
+    "repository": "trsdn/OpenFreshr",
+    "repository_id": 1350716134,
+    "build_adapter": "openfreshr-xcode",
+    "team_id": "G69Z5BNY97",
+    "bundle_name": "OpenFreshr.app",
+    "bundle_identifier": "com.openfreshr.app",
+    "bundle_display_name": "OpenFreshr",
+    "executable": "OpenFreshr",
+    "package_type": "APPL",
+    "architectures": ["arm64"],
+    "minimum_system_version": "14.0",
+    "entitlements": "entitlements/openfreshr.plist",
+    "dmg_volume_name": "OpenFreshr",
+    "max_archive_bytes": 1073741824,
+    "max_uncompressed_bytes": 2147483648,
+    "max_files": 5000,
+    "artifacts": [
+      {"type": "zip", "name": "OpenFreshr-v{version}-macOS-arm64.zip"},
+      {"type": "dmg", "name": "OpenFreshr-v{version}-macOS-arm64.dmg"}
+    ]
+  }
+}

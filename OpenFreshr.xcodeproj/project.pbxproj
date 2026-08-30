@@ -14,6 +14,7 @@
 		57C3C91826A970090989CE4F /* InstalledListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7843FD6418A87AAE4EED965 /* InstalledListView.swift */; };
 		57EDEA00F23E757E9B6458FE /* casks-snapshot.json in Resources */ = {isa = PBXBuildFile; fileRef = E976F7E78EC8563390B65645 /* casks-snapshot.json */; };
 		59CCBDA95DBD5099C242ED6C /* CatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552E98A53FCD657F20E550DD /* CatalogView.swift */; };
+		6842DF865352B561FEB9F0D2 /* SelfUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B9503C9367732D64567D598 /* SelfUpdateController.swift */; };
 		942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94728C9079084CFCB0F538EC /* ContentView.swift */; };
 		A97E25AD4936A4796231C555 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3606D483F2FD210B870351 /* AppViewModel.swift */; };
 		AB45E9F52DB6154607F2CD2F /* TrustManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B9503C9367732D64567D598 /* SelfUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfUpdateController.swift; sourceTree = "<group>"; };
 		129AEEDD192940653B00200B /* OpenFreshr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenFreshr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSheet.swift; sourceTree = "<group>"; };
 		39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdoptionSheet.swift; sourceTree = "<group>"; };
@@ -41,6 +43,7 @@
 		C4AB47F2D3C54FE3F23B5D92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E7843FD6418A87AAE4EED965 /* InstalledListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledListView.swift; sourceTree = "<group>"; };
 		E976F7E78EC8563390B65645 /* casks-snapshot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "casks-snapshot.json"; sourceTree = "<group>"; };
+		EF5C0BCFCFDE61C32B9077B5 /* OpenFreshr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenFreshr.entitlements; sourceTree = "<group>"; };
 		F4405CAD58EF112ED10920F8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -86,7 +89,9 @@
 				E7843FD6418A87AAE4EED965 /* InstalledListView.swift */,
 				6471396C0DA7B650AF5F4558 /* InstallSheet.swift */,
 				495E4494497B310FF102B059 /* MenuBarContent.swift */,
+				EF5C0BCFCFDE61C32B9077B5 /* OpenFreshr.entitlements */,
 				7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */,
+				0B9503C9367732D64567D598 /* SelfUpdateController.swift */,
 				F4405CAD58EF112ED10920F8 /* SettingsView.swift */,
 				BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */,
 				3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */,
@@ -152,6 +157,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					09E7DA3E1DB174F013609625 = {
+						DevelopmentTeam = G69Z5BNY97;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -204,6 +210,7 @@
 				57C3C91826A970090989CE4F /* InstalledListView.swift in Sources */,
 				06483A992D5F58734C88A2B1 /* MenuBarContent.swift in Sources */,
 				4212803A02093169EC118FC8 /* OpenFreshrApp.swift in Sources */,
+				6842DF865352B561FEB9F0D2 /* SelfUpdateController.swift in Sources */,
 				FE4EDF54EE368646F45C674D /* SettingsView.swift in Sources */,
 				AB45E9F52DB6154607F2CD2F /* TrustManagementView.swift in Sources */,
 				B40012D32F5DA2B1C9C9D23B /* UpdateSheet.swift in Sources */,
@@ -249,7 +256,9 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = G69Z5BNY97;
 				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -267,7 +276,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -284,6 +293,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/OpenFreshrApp/OpenFreshr.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -302,6 +312,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/OpenFreshrApp/OpenFreshr.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -352,7 +363,9 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = G69Z5BNY97;
 				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -364,7 +377,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

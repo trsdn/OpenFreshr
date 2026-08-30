@@ -44,6 +44,7 @@ struct MenuBarLabel: View {
 struct MenuBarContent: View {
 
     @Environment(AppViewModel.self) private var viewModel
+    @Environment(SelfUpdateController.self) private var selfUpdate
     @Environment(\.openWindow) private var openWindow
 
     private static let maxListed = 8
@@ -156,6 +157,18 @@ struct MenuBarContent: View {
                 Label("Einstellungen …", systemImage: "gearshape")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            Divider()
+
+            // OpenFreshr's own update, spelled out with the app name so it is
+            // never mistaken for the managed-app check ("Jetzt prüfen") above.
+            Button {
+                selfUpdate.checkForUpdates()
+            } label: {
+                Label("Nach OpenFreshr-Updates suchen …", systemImage: "sparkles")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .disabled(!selfUpdate.canCheck)
 
             Divider()
 

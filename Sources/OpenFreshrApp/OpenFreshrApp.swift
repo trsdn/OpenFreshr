@@ -29,10 +29,23 @@ struct OpenFreshrApp: App {
                 .task { await appDelegate.viewModel.scanOnWindowAppear() }
         }
         .windowResizability(.contentSize)
+        .commands {
+            // OpenFreshr's *own* update check lives in the app menu, the
+            // conventional home for "Nach Updates suchen …". It is intentionally
+            // apart from the managed-app updates (which live in the window and the
+            // menu-bar counter) so the two are never confused.
+            CommandGroup(after: .appInfo) {
+                Button("Nach OpenFreshr-Updates suchen …") {
+                    appDelegate.selfUpdateController.checkForUpdates()
+                }
+                .disabled(!appDelegate.selfUpdateController.canCheck)
+            }
+        }
 
         MenuBarExtra {
             MenuBarContent()
                 .environment(appDelegate.viewModel)
+                .environment(appDelegate.selfUpdateController)
         } label: {
             MenuBarLabel()
                 .environment(appDelegate.viewModel)
@@ -64,6 +77,7 @@ struct OpenFreshrApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     let viewModel = AppViewModel()
+    let selfUpdateController = SelfUpdateController()
     private var periodicCheck: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
