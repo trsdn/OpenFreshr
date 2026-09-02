@@ -102,6 +102,7 @@ public struct UpdateCoordinator: Sendable {
     private let catalog: CaskCatalog
     private let httpFetcher: any HTTPFetching
     private let scanDirectories: [String]
+    private static let maxConcurrentSparkleFeedRequests = 8
     /// The trust chain consulted before any replacement. `nil` leaves the
     /// coordinator unenforced — the default for the many tests that exercise
     /// detection and execution without a signing story. The app always injects a
@@ -187,15 +188,26 @@ public struct UpdateCoordinator: Sendable {
         guard !feeds.isEmpty else { return [:] }
 
         let fetcher = httpFetcher
+        let maxConcurrentRequests = Self.maxConcurrentSparkleFeedRequests
         return await withTaskGroup(of: (String, SparkleOutcome).self) { group in
-            for entry in feeds {
+            var iterator = feeds.makeIterator()
+
+            func addNextFeedProbe() -> Bool {
+                guard let entry = iterator.next() else { return false }
                 group.addTask {
                     (entry.bundlePath, await Self.probeFeed(entry.feed, using: fetcher))
                 }
+                return true
             }
+
+            for _ in 0..<min(maxConcurrentRequests, feeds.count) {
+                _ = addNextFeedProbe()
+            }
+
             var outcomes: [String: SparkleOutcome] = [:]
-            for await (bundlePath, outcome) in group {
+            while let (bundlePath, outcome) = await group.next() {
                 outcomes[bundlePath] = outcome
+                _ = addNextFeedProbe()
             }
             return outcomes
         }
