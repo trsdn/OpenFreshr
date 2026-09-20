@@ -1,0 +1,6 @@
+// Lint what the repository tracks, not what it ignores. Build output includes the
+// checked-out sources of third-party packages (`.build/checkouts`), whose
+// markdown is not ours to fix and would otherwise fail `scripts/check.sh`.
+{
+  "gitignore": true
+}

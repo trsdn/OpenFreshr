@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  OpenFreshr entitlements — deliberately empty.
+
+  OpenFreshr ships as a direct-distribution Developer ID app under the hardened
+  runtime (ENABLE_HARDENED_RUNTIME=YES) and is NOT sandboxed
+  (ENABLE_APP_SANDBOX=NO), because it must write to /Applications to replace apps
+  in place. App Store distribution is an explicit non-goal.
+
+  A non-sandboxed hardened-runtime app needs NO entitlement for anything
+  OpenFreshr actually does. Every capability below was checked against the code
+  and is intentionally NOT requested:
+
+    * Spawning subprocesses (brew, mas, msupdate, codesign, spctl via
+      Sources/OpenFreshrCore/Platform/ProcessRunning.swift) — the hardened runtime
+      does not gate spawning separate, independently-signed processes.
+    * Outbound network (URLSession in Platform/HTTPFetching.swift) —
+      com.apple.security.network.client is a SANDBOX entitlement and has no effect
+      here; unsandboxed network access needs no entitlement.
+    * Launch-at-login (SMAppService.mainApp in SettingsView.swift) — the modern
+      login-item API needs no entitlement for a non-sandboxed app.
+    * User notifications (UNUserNotificationCenter) — need no entitlement.
+    * Apple events — the app sends none (no NSAppleScript/osascript/AEDetermine),
+      so com.apple.security.automation.apple-events is NOT requested.
+    * Loading third-party code — the app loads no external dylibs or plug-ins, so
+      com.apple.security.cs.disable-library-validation is NOT requested. Sparkle,
+      when linked for a release, ships its framework and XPC services signed by
+      the SAME Developer ID team, so library validation still passes without this
+      exception (Sparkle only needs it for SANDBOXED hosts).
+    * No JIT / no unsigned executable memory / no DYLD env vars — none of the
+      cs.allow-* hardened-runtime exceptions are needed.
+
+  If a future capability genuinely requires an entitlement, add it here WITH a
+  justification comment and mirror it into docs/release/entitlements/openfreshr.plist
+  so the notarization broker signs with the identical set.
+-->
+<plist version="1.0">
+<dict/>
+</plist>

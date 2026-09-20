@@ -1,0 +1,25 @@
+name: Markdown
+
+# The documentation in this repository carries real design rationale, so it is
+# held to the same "warnings are findings" rule the Swift build is. Rules are
+# configured in .markdownlint.jsonc, which mirrors trsdn/.github.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+
+      - name: Lint Markdown
+        run: npx --yes markdownlint-cli2@0.18.1 "**/*.md"

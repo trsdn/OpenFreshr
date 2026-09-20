@@ -1,0 +1,992 @@
+[
+  {
+    "bundlePath": "/Applications/1Blocker.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.khanov.BlockerX",
+    "shortVersion": "6.6.2",
+    "bundleVersion": "6.6.2"
+  },
+  {
+    "bundlePath": "/Applications/1Password for Safari.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.1password.safari",
+    "shortVersion": "8.12.34",
+    "bundleVersion": "8.12.34"
+  },
+  {
+    "bundlePath": "/Applications/1Password.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.1password.1password",
+    "shortVersion": "8.11.22",
+    "bundleVersion": "8.11.22"
+  },
+  {
+    "bundlePath": "/Applications/Alfred 5.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.runningwithcrayons.Alfred",
+    "shortVersion": "5.7.3",
+    "bundleVersion": "5.7.3"
+  },
+  {
+    "bundlePath": "/Applications/AltTab.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.lwouis.alt-tab-macos",
+    "shortVersion": "11.5.0",
+    "bundleVersion": "11.5.0"
+  },
+  {
+    "bundlePath": "/Applications/Amazon Kindle.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.amazon.Lassen",
+    "shortVersion": "7.65",
+    "bundleVersion": "7.65"
+  },
+  {
+    "bundlePath": "/Applications/Amazon Photos.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.amazon.clouddrive.mac",
+    "shortVersion": "10.13.4",
+    "bundleVersion": "10.13.4"
+  },
+  {
+    "bundlePath": "/Applications/AudioBookBinder.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.bluezbox.AudioBookBinder",
+    "shortVersion": "2.4",
+    "bundleVersion": "2.4",
+    "sparkleFeedURL": "https://bluezbox.com/audiobookbinder/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/Azure VPN Client.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.AzureVpnMac",
+    "shortVersion": "3.0.100",
+    "bundleVersion": "3.0.100"
+  },
+  {
+    "bundlePath": "/Applications/BambuStudio.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.bambulab.bambu-studio",
+    "shortVersion": "02.08.02.61",
+    "bundleVersion": "02.08.02.61"
+  },
+  {
+    "bundlePath": "/Applications/Big Mean Folder Machine 2.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "net.publicspace.bmfm2",
+    "shortVersion": "2.43",
+    "bundleVersion": "2.43"
+  },
+  {
+    "bundlePath": "/Applications/ChatGPT Classic.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.openai.chat",
+    "shortVersion": "1.2026.184",
+    "bundleVersion": "1.2026.184"
+  },
+  {
+    "bundlePath": "/Applications/Claude.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.anthropic.claudefordesktop",
+    "shortVersion": "1.37937.3",
+    "bundleVersion": "1.37937.3"
+  },
+  {
+    "bundlePath": "/Applications/Clawpilot.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.microsoft.clawpilot",
+    "shortVersion": "0.22.118",
+    "bundleVersion": "0.22.118"
+  },
+  {
+    "bundlePath": "/Applications/Codex.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": true,
+    "bundleIdentifier": "com.openai.codex",
+    "shortVersion": "26.415.32059",
+    "bundleVersion": "26.415.32059",
+    "sparkleFeedURL": "https://github.com/sohail288/codex-app-intel-repackager/releases/download/codex-intel-latest/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/Company Portal.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.CompanyPortalMac",
+    "shortVersion": "5.2608.0",
+    "bundleVersion": "5.2608.0"
+  },
+  {
+    "bundlePath": "/Applications/Copilot.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.copilot-mac",
+    "shortVersion": "25.7.440822001",
+    "bundleVersion": "25.7.440822001"
+  },
+  {
+    "bundlePath": "/Applications/CotEditor.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.coteditor.CotEditor",
+    "shortVersion": "7.0.8",
+    "bundleVersion": "7.0.8"
+  },
+  {
+    "bundlePath": "/Applications/Cyberduck.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "ch.sudo.cyberduck",
+    "shortVersion": "9.5.4",
+    "bundleVersion": "9.5.4",
+    "sparkleFeedURL": "https://version.cyberduck.io//changelog.rss"
+  },
+  {
+    "bundlePath": "/Applications/DEVONthink 3.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.devon-technologies.think3",
+    "shortVersion": "3.9.18",
+    "bundleVersion": "3.9.18"
+  },
+  {
+    "bundlePath": "/Applications/DEVONthink.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.devon-technologies.think",
+    "shortVersion": "4.4",
+    "bundleVersion": "4.4"
+  },
+  {
+    "bundlePath": "/Applications/Darkroom.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "co.bergen.Darkroom",
+    "shortVersion": "7.3",
+    "bundleVersion": "7.3"
+  },
+  {
+    "bundlePath": "/Applications/Disk Inventory X.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.derlien.DiskInventoryX",
+    "shortVersion": "1.3",
+    "bundleVersion": "1.3"
+  },
+  {
+    "bundlePath": "/Applications/DisplayLink Manager.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.displaylink.DisplayLinkUserAgent",
+    "shortVersion": "15.0.0",
+    "bundleVersion": "15.0.0"
+  },
+  {
+    "bundlePath": "/Applications/DockDoor.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.ethanbills.DockDoor",
+    "shortVersion": "1.39.5",
+    "bundleVersion": "1.39.5",
+    "sparkleFeedURL": "https://dockdoor.kepler.cafe/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/Dropbox.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.getdropbox.dropbox",
+    "shortVersion": "268.4.4072",
+    "bundleVersion": "268.4.4072"
+  },
+  {
+    "bundlePath": "/Applications/Duplicate File Finder.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.nektony.Duplicates-Finder",
+    "shortVersion": "9.2.1",
+    "bundleVersion": "9.2.1"
+  },
+  {
+    "bundlePath": "/Applications/Duplicate Photos Fixer Pro.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.systweak.Duplicate-Photos-Fixer-Pro",
+    "shortVersion": "9.5",
+    "bundleVersion": "9.5"
+  },
+  {
+    "bundlePath": "/Applications/Elgato Control Center.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.corsair.ControlCenter",
+    "shortVersion": "1.9",
+    "bundleVersion": "1.9"
+  },
+  {
+    "bundlePath": "/Applications/Elgato Stream Deck.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.elgato.StreamDeck",
+    "shortVersion": "7.4.2",
+    "bundleVersion": "7.4.2"
+  },
+  {
+    "bundlePath": "/Applications/Finanzblick.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.BuhlData.FinanzblickMac",
+    "shortVersion": "7.4.184",
+    "bundleVersion": "7.4.184"
+  },
+  {
+    "bundlePath": "/Applications/GitHub Copilot.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.github.githubapp",
+    "shortVersion": "1.1.14",
+    "bundleVersion": "1.1.14"
+  },
+  {
+    "bundlePath": "/Applications/GitHub Desktop.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.github.GitHubClient",
+    "shortVersion": "3.5.12",
+    "bundleVersion": "3.5.12"
+  },
+  {
+    "bundlePath": "/Applications/Google Chrome.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.google.Chrome",
+    "shortVersion": "152.0.7977.65",
+    "bundleVersion": "152.0.7977.65"
+  },
+  {
+    "bundlePath": "/Applications/HandBrake.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "fr.handbrake.HandBrake",
+    "shortVersion": "1.11.2",
+    "bundleVersion": "1.11.2",
+    "sparkleFeedURL": "https://handbrake.fr/appcast.arm64.xml"
+  },
+  {
+    "bundlePath": "/Applications/Hermes.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.nousresearch.hermes",
+    "shortVersion": "0.15.1",
+    "bundleVersion": "0.15.1"
+  },
+  {
+    "bundlePath": "/Applications/Home Assistant.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "io.robbie.HomeAssistant",
+    "shortVersion": "2026.7.4",
+    "bundleVersion": "2026.7.4"
+  },
+  {
+    "bundlePath": "/Applications/HomeCam.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.aaronpearce.Homecam",
+    "shortVersion": "2.7",
+    "bundleVersion": "2.7"
+  },
+  {
+    "bundlePath": "/Applications/HomePass.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.aaronpearce.HomePass",
+    "shortVersion": "2.1",
+    "bundleVersion": "2.1"
+  },
+  {
+    "bundlePath": "/Applications/JSON Helper.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.vidblishen.jsonhelper",
+    "shortVersion": "1.20",
+    "bundleVersion": "1.20"
+  },
+  {
+    "bundlePath": "/Applications/Keepa - Price Tracker.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.keepa.webextension",
+    "shortVersion": "4.20",
+    "bundleVersion": "4.20"
+  },
+  {
+    "bundlePath": "/Applications/Keka.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.aone.keka",
+    "shortVersion": "1.6.7",
+    "bundleVersion": "1.6.7",
+    "sparkleFeedURL": "https://u.keka.io"
+  },
+  {
+    "bundlePath": "/Applications/LibreOffice.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "org.libreoffice.script",
+    "shortVersion": "26.8.0.3",
+    "bundleVersion": "26.8.0.3"
+  },
+  {
+    "bundlePath": "/Applications/Lunar.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "fyi.lunar.Lunar",
+    "shortVersion": "6.11.0",
+    "bundleVersion": "6.11.0",
+    "sparkleFeedURL": "https://files.lunar.fyi/appcast2.xml"
+  },
+  {
+    "bundlePath": "/Applications/MacUpdater.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.corecode.MacUpdater",
+    "shortVersion": "3.5.0",
+    "bundleVersion": "3.5.0",
+    "sparkleFeedURL": "https://www.corecode.io/macupdater/macupdater3.xml"
+  },
+  {
+    "bundlePath": "/Applications/MacWhisper.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.goodsnooze.MacWhisper",
+    "shortVersion": "13.23.1",
+    "bundleVersion": "13.23.1",
+    "sparkleFeedURL": "https://macwhisper-site.vercel.app/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/Magnet.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.crowdcafe.windowmagnet",
+    "shortVersion": "3.0.7",
+    "bundleVersion": "3.0.7"
+  },
+  {
+    "bundlePath": "/Applications/Make Social Media Great Again.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "robinmanuelthiel.makesocialmediagreatagain",
+    "shortVersion": "1.3.1",
+    "bundleVersion": "1.3.1"
+  },
+  {
+    "bundlePath": "/Applications/MediathekView.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "org.mediathekview.MediathekView",
+    "shortVersion": "14.4.2",
+    "bundleVersion": "14.4.2"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Defender.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.wdav",
+    "shortVersion": "101.26072.0016",
+    "bundleVersion": "101.26072.0016"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Edge.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.edgemac",
+    "shortVersion": "152.0.4191.53",
+    "bundleVersion": "152.0.4191.53"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Excel.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.Excel",
+    "shortVersion": "16.113",
+    "bundleVersion": "16.113"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft OneNote.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.onenote.mac",
+    "shortVersion": "16.113",
+    "bundleVersion": "16.113"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Outlook.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.Outlook",
+    "shortVersion": "16.113",
+    "bundleVersion": "16.113"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft PowerPoint.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.Powerpoint",
+    "shortVersion": "16.113",
+    "bundleVersion": "16.113"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Remote Desktop Beta 2.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.rdc.osx.beta",
+    "shortVersion": "11.4.1",
+    "bundleVersion": "11.4.1",
+    "sparkleFeedURL": "https://api.appcenter.ms/v0.1/public/sparkle/apps/5e0c1442-89a5-1fca-2d3b-fa39ce7f2b06"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Scout.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.microsoft.clawpilot",
+    "shortVersion": "0.23.578",
+    "bundleVersion": "0.23.578"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Teams.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.teams2",
+    "shortVersion": "26232.2001.5043.6023",
+    "bundleVersion": "26232.2001.5043.6023"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft To Do.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.to-do-mac",
+    "shortVersion": "2.177",
+    "bundleVersion": "2.177"
+  },
+  {
+    "bundlePath": "/Applications/Microsoft Word.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.Word",
+    "shortVersion": "16.113",
+    "bundleVersion": "16.113"
+  },
+  {
+    "bundlePath": "/Applications/MoneyMoney.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.moneymoney-app.retail",
+    "shortVersion": "2.5.1",
+    "bundleVersion": "2.5.1"
+  },
+  {
+    "bundlePath": "/Applications/MonitorControl.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "app.monitorcontrol.MonitorControl",
+    "shortVersion": "4.3.3",
+    "bundleVersion": "4.3.3",
+    "sparkleFeedURL": "https://monitorcontrol.app/appcast2.xml"
+  },
+  {
+    "bundlePath": "/Applications/Mountain Duck.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "io.mountainduck",
+    "shortVersion": "5.3.2",
+    "bundleVersion": "5.3.2"
+  },
+  {
+    "bundlePath": "/Applications/Newsify.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.synsion.Newsify",
+    "shortVersion": "8.0.5",
+    "bundleVersion": "8.0.5"
+  },
+  {
+    "bundlePath": "/Applications/Obsidian.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "md.obsidian",
+    "shortVersion": "1.11.4",
+    "bundleVersion": "1.11.4"
+  },
+  {
+    "bundlePath": "/Applications/OneDrive.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.OneDrive",
+    "shortVersion": "26.103.0531",
+    "bundleVersion": "26.103.0531"
+  },
+  {
+    "bundlePath": "/Applications/OnyX.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false
+  },
+  {
+    "bundlePath": "/Applications/OpenOats Light.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.openoats.light",
+    "shortVersion": "1.24.0",
+    "bundleVersion": "1.24.0",
+    "sparkleFeedURL": "https://raw.githubusercontent.com/trsdn/OpenOats/gh-pages/appcast-light.xml"
+  },
+  {
+    "bundlePath": "/Applications/OpenOats.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.openoats.app",
+    "shortVersion": "1.23.2",
+    "bundleVersion": "1.23.2",
+    "sparkleFeedURL": "https://raw.githubusercontent.com/yazinsai/OpenOats/gh-pages/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/OpenSCAD.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "org.openscad.OpenSCAD",
+    "shortVersion": "2021.01",
+    "bundleVersion": "2021.01",
+    "sparkleFeedURL": "https://files.openscad.org/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/P-touch Editor.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.brother.PtouchEditor",
+    "shortVersion": "5.3.24",
+    "bundleVersion": "5.3.24"
+  },
+  {
+    "bundlePath": "/Applications/PDF Toolkit.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.fxcoudert.pdftools",
+    "shortVersion": "1.8",
+    "bundleVersion": "1.8"
+  },
+  {
+    "bundlePath": "/Applications/Photos Duplicate Cleaner.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.tuneupmymac.PhotosDuplicateCleaner",
+    "shortVersion": "4.2",
+    "bundleVersion": "4.2"
+  },
+  {
+    "bundlePath": "/Applications/Pixelmator Pro.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.pixelmatorteam.pixelmator.x",
+    "shortVersion": "3.8",
+    "bundleVersion": "3.8"
+  },
+  {
+    "bundlePath": "/Applications/PortfolioPerformance.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "name.abuchen.portfolio.distro.product",
+    "shortVersion": "0.84.2",
+    "bundleVersion": "0.84.2"
+  },
+  {
+    "bundlePath": "/Applications/Raspberry Pi Imager.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.raspberrypi.rpi-imager",
+    "shortVersion": "v2.0.3",
+    "bundleVersion": "v2.0.3"
+  },
+  {
+    "bundlePath": "/Applications/Remote Desktop.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.apple.RemoteDesktop",
+    "shortVersion": "3.10",
+    "bundleVersion": "3.10"
+  },
+  {
+    "bundlePath": "/Applications/Safari.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.apple.Safari",
+    "shortVersion": "26.6.2",
+    "bundleVersion": "26.6.2"
+  },
+  {
+    "bundlePath": "/Applications/Save to Reader.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.readwise.Save-to-Reader",
+    "shortVersion": "0.18.0",
+    "bundleVersion": "0.18.0"
+  },
+  {
+    "bundlePath": "/Applications/Setapp.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.setapp.DesktopClient",
+    "shortVersion": "3.53.2",
+    "bundleVersion": "3.53.2"
+  },
+  {
+    "bundlePath": "/Applications/Spark.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.readdle.smartemail-Mac",
+    "shortVersion": "2.11.67",
+    "bundleVersion": "2.11.67"
+  },
+  {
+    "bundlePath": "/Applications/SponsorBlock.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "app.ajay.sponsor.macos",
+    "shortVersion": "6.1.6",
+    "bundleVersion": "6.1.6"
+  },
+  {
+    "bundlePath": "/Applications/Synology Drive Client.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.synology.CloudStation",
+    "shortVersion": "8.0.1",
+    "bundleVersion": "8.0.1"
+  },
+  {
+    "bundlePath": "/Applications/Telegram.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "ru.keepcoder.Telegram",
+    "shortVersion": "12.9",
+    "bundleVersion": "12.9"
+  },
+  {
+    "bundlePath": "/Applications/The Unarchiver.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "cx.c3.theunarchiver",
+    "shortVersion": "4.3.9",
+    "bundleVersion": "4.3.9"
+  },
+  {
+    "bundlePath": "/Applications/Time Stitch.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.dddeev.timestitch",
+    "shortVersion": "1.4",
+    "bundleVersion": "1.4"
+  },
+  {
+    "bundlePath": "/Applications/Todoist.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.todoist.mac.Todoist",
+    "shortVersion": "9.30.0",
+    "bundleVersion": "9.30.0"
+  },
+  {
+    "bundlePath": "/Applications/Transnomino.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.bastiaanverreijt.Transnomino",
+    "shortVersion": "9.5.1",
+    "bundleVersion": "9.5.1"
+  },
+  {
+    "bundlePath": "/Applications/UlyssesMac.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.ulyssesapp.mac",
+    "shortVersion": "40.4",
+    "bundleVersion": "40.4"
+  },
+  {
+    "bundlePath": "/Applications/VLC.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "org.videolan.vlc",
+    "shortVersion": "3.0.23",
+    "bundleVersion": "3.0.23"
+  },
+  {
+    "bundlePath": "/Applications/Visual Studio Code - Insiders.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.microsoft.VSCodeInsiders",
+    "shortVersion": "1.136.0-insider",
+    "bundleVersion": "1.136.0-insider"
+  },
+  {
+    "bundlePath": "/Applications/Visual Studio Code.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.microsoft.VSCode",
+    "shortVersion": "1.135.0",
+    "bundleVersion": "1.135.0"
+  },
+  {
+    "bundlePath": "/Applications/VueScan.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.hamrick.vuescan",
+    "shortVersion": "9.7.48",
+    "bundleVersion": "9.7.48"
+  },
+  {
+    "bundlePath": "/Applications/WhatsApp.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "net.whatsapp.WhatsApp",
+    "shortVersion": "26.33.19",
+    "bundleVersion": "26.33.19"
+  },
+  {
+    "bundlePath": "/Applications/Windows App.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.microsoft.rdc.macos",
+    "shortVersion": "11.4.0",
+    "bundleVersion": "11.4.0"
+  },
+  {
+    "bundlePath": "/Applications/Xcode.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.apple.dt.Xcode",
+    "shortVersion": "26.6",
+    "bundleVersion": "26.6"
+  },
+  {
+    "bundlePath": "/Applications/cmux.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": true,
+    "isElectron": false,
+    "bundleIdentifier": "com.cmuxterm.app",
+    "shortVersion": "0.64.16",
+    "bundleVersion": "0.64.16",
+    "sparkleFeedURL": "https://github.com/manaflow-ai/cmux/releases/latest/download/appcast.xml"
+  },
+  {
+    "bundlePath": "/Applications/draw.io.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.jgraph.drawio.desktop",
+    "shortVersion": "29.0.3",
+    "bundleVersion": "29.0.3"
+  },
+  {
+    "bundlePath": "/Applications/iA Writer.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "pro.writer.mac",
+    "shortVersion": "8.0.6",
+    "bundleVersion": "8.0.6"
+  },
+  {
+    "bundlePath": "/Applications/iNet Network Scanner.app",
+    "hasMacAppStoreReceipt": true,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.bananaglue.mac.inet",
+    "shortVersion": "4.0.4",
+    "bundleVersion": "4.0.4"
+  },
+  {
+    "bundlePath": "/Applications/Authy Desktop.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": true,
+    "bundleIdentifier": "com.authy.authy-mac",
+    "shortVersion": "3.0.0",
+    "bundleVersion": "3.0.0"
+  },
+  {
+    "bundlePath": "/Applications/FileZilla.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "org.filezilla-project.filezilla",
+    "shortVersion": "3.69.1",
+    "bundleVersion": "3.69.1"
+  },
+  {
+    "bundlePath": "/Applications/JDownloader2.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false
+  },
+  {
+    "bundlePath": "/Applications/OpenDeck.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "opendeck",
+    "shortVersion": "2.14.0",
+    "bundleVersion": "2.14.0"
+  },
+  {
+    "bundlePath": "/Applications/RODE Connect.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.rode.rodeconnect",
+    "shortVersion": "1.3.47",
+    "bundleVersion": "1.3.47"
+  },
+  {
+    "bundlePath": "/Applications/Synology Photo Station Uploader.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.synology.PhotoStationUploader",
+    "shortVersion": "1.4.6-098",
+    "bundleVersion": "1.4.6-098"
+  },
+  {
+    "bundlePath": "/Applications/TimeMachineEditor.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.tclementdev.timemachineeditor.application",
+    "shortVersion": "5.2.2",
+    "bundleVersion": "5.2.2"
+  },
+  {
+    "bundlePath": "/Applications/YubiKey Manager.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.yubico.ykman",
+    "shortVersion": "1.2.5",
+    "bundleVersion": "1.2.5"
+  },
+  {
+    "bundlePath": "/Applications/Claude Code URL Handler.app",
+    "hasMacAppStoreReceipt": false,
+    "hasSparkleFramework": false,
+    "isElectron": false,
+    "bundleIdentifier": "com.anthropic.claude-code-url-handler",
+    "shortVersion": "1.0",
+    "bundleVersion": "1.0"
+  }
+]

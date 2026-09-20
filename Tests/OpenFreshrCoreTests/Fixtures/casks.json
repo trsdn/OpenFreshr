@@ -1,0 +1,1686 @@
+[
+  {
+    "token": "1password",
+    "names": [
+      "1Password"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "1Password.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.1password.1password",
+      "com.1password.1password-launcher",
+      "com.1password.browser-helper"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.1password",
+      "com.1password.browser-support",
+      "com.agilebits"
+    ],
+    "version": "8.12.34",
+    "homepage": "https://1password.com/"
+  },
+  {
+    "token": "alfred",
+    "names": [
+      "Alfred"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Alfred 5.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.runningwithcrayons.Alfred"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.runningwithcrayons.Alfred-Preferences"
+    ],
+    "version": "5.7.3,2320",
+    "homepage": "https://www.alfredapp.com/"
+  },
+  {
+    "token": "alt-tab",
+    "names": [
+      "AltTab"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "AltTab.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.lwouis.alt-tab-macos"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.lwouis.alt-tab-macos.license",
+      "com.lwouis.alt-tab-macos.usage",
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "11.5.0",
+    "homepage": "https://alt-tab.app/"
+  },
+  {
+    "token": "amazon-photos",
+    "names": [
+      "Amazon Photos",
+      "Amazon Drive"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Amazon Photos.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.amazon.clouddrive",
+      "com.amazon.clouddrive.mac"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.amazon.clouddrive.mac.installer"
+    ],
+    "version": "11.2.0,27",
+    "homepage": "https://www.amazon.com/Amazon-Photos/b?node=13234696011"
+  },
+  {
+    "token": "bambu-studio",
+    "names": [
+      "Bambu Studio"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "BambuStudio.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.bambulab.bambu-studio"
+    ],
+    "version": "02.08.02.61,20260820225108",
+    "homepage": "https://bambulab.com/en/download/studio"
+  },
+  {
+    "token": "big-mean-folder-machine",
+    "names": [
+      "Big Mean Folder Machine"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Big Mean Folder Machine 2.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "net.publicspace.dist.bmfm"
+    ],
+    "version": "2.43",
+    "homepage": "https://www.publicspace.net/BigMeanFolderMachine/"
+  },
+  {
+    "token": "chatgpt-classic",
+    "names": [
+      "ChatGPT Classic"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "ChatGPT Classic.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.openai.chat",
+      "com.openai.chat-helper"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.openai.chat.Widgets"
+    ],
+    "version": "1.2026.184,1784145287",
+    "homepage": "https://chatgpt.com/"
+  },
+  {
+    "token": "claude",
+    "names": [
+      "Claude"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Claude.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.anthropic.claudefordesktop",
+      "com.anthropic.claudefordesktop.helper"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.anthropic.claudefordesktop.ShipIt"
+    ],
+    "version": "1.40609.0,f65e386db0db64c8f8b39950e25adb11f5f5e3f3",
+    "homepage": "https://claude.com/download"
+  },
+  {
+    "token": "cmux",
+    "names": [
+      "cmux"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "cmux.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.cmuxterm.app"
+    ],
+    "version": "0.64.22",
+    "homepage": "https://www.cmux.dev/"
+  },
+  {
+    "token": "codex-app",
+    "names": [
+      "Codex"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Codex.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.openai.codex"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "26.623.141536",
+    "homepage": "https://openai.com/codex"
+  },
+  {
+    "token": "copilot-money",
+    "names": [
+      "Copilot"
+    ],
+    "oldTokens": [
+      "copilot"
+    ],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Copilot.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.copilot.production"
+    ],
+    "version": "6.4.4,332-80a7fa78",
+    "homepage": "https://copilot.money/"
+  },
+  {
+    "token": "coteditor",
+    "names": [
+      "CotEditor"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "CotEditor.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.coteditor.CotEditor"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.coteditor.CotEditor.help",
+      "com.coteditor.coteditor"
+    ],
+    "version": "7.0.8",
+    "homepage": "https://coteditor.com/"
+  },
+  {
+    "token": "cyberduck",
+    "names": [
+      "Cyberduck"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Cyberduck.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "ch.sudo.cyberduck"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "9.5.4,45528",
+    "homepage": "https://cyberduck.io/"
+  },
+  {
+    "token": "devonthink",
+    "names": [
+      "DEVONthink"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "DEVONthink.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.devon-technologies.think",
+      "com.devontechnologies.devonthink.help"
+    ],
+    "version": "4.4",
+    "homepage": "https://www.devontechnologies.com/apps/devonthink"
+  },
+  {
+    "token": "disk-inventory-x",
+    "names": [
+      "Disk Inventory X"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Disk Inventory X.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.derlien.DiskInventoryX"
+    ],
+    "version": "1.3",
+    "homepage": "https://www.derlien.com/"
+  },
+  {
+    "token": "dockdoor",
+    "names": [
+      "DockDoor"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "DockDoor.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.ethanbills.DockDoor"
+    ],
+    "version": "1.39.5",
+    "homepage": "https://dockdoor.net/"
+  },
+  {
+    "token": "drawio",
+    "names": [
+      "draw.io Desktop"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "draw.io.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.jgraph.drawio.desktop",
+      "com.jgraph.drawio.desktop.PreviewExtension",
+      "com.jgraph.drawio.desktop.ShipIt",
+      "com.jgraph.drawio.desktop.helper",
+      "draw.io",
+      "draw.io-updater"
+    ],
+    "version": "31.3.2",
+    "homepage": "https://www.diagrams.net/"
+  },
+  {
+    "token": "dropbox",
+    "names": [
+      "Dropbox"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Dropbox.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.dropbox.DropboxMacUpdate.agent",
+      "com.dropbox.DropboxUpdater.wake",
+      "com.dropbox.dropboxmacupdate.xpcservice",
+      "com.getdropbox.dropbox"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.dropbox.DropboxMacUpdate",
+      "com.dropbox.DropboxMonitor",
+      "com.dropbox.DropboxUpdater",
+      "com.dropbox.activityprovider",
+      "com.dropbox.alternatenotificationservice",
+      "com.dropbox.client.crashpad",
+      "com.dropbox.foldertagger",
+      "com.dropbox.tungsten.helper",
+      "com.getdropbox.DropboxMetaInstaller",
+      "com.getdropbox.dropbox.TransferExtension",
+      "com.getdropbox.dropbox.dbkextd",
+      "com.getdropbox.dropbox.fileprovider",
+      "com.getdropbox.dropbox.garcon",
+      "com.plausiblelabs.crashreporter.data",
+      "iCloud.com.getdropbox.Dropbox"
+    ],
+    "version": "266.4.3911",
+    "homepage": "https://www.dropbox.com/"
+  },
+  {
+    "token": "elgato-camera-hub",
+    "names": [
+      "Elgato Camera Hub"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.displaylink.DisplayLinkUserAgent",
+      "com.displaylink.XpcService",
+      "com.displaylink.displaylinkloginscreenext",
+      "com.displaylink.displaylinkmanagerapp",
+      "com.displaylink.loginscreen",
+      "com.elgato.CameraHub",
+      "com.elgato.CameraHub.Installer"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "2.3.0.7295",
+    "homepage": "https://www.elgato.com/ww/en/s/downloads"
+  },
+  {
+    "token": "elgato-control-center",
+    "names": [
+      "Elgato Control Center"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Elgato Control Center.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.corsair.ControlCenter"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.corsair.ControlCenterLauncher",
+      "com.corsair.controlcenter",
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "1.9,20829",
+    "homepage": "https://www.elgato.com/ww/en/s/downloads"
+  },
+  {
+    "token": "elgato-stream-deck",
+    "names": [
+      "Elgato Stream Deck"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.elgato.StreamDeck",
+      "com.elgato.StreamDeck.trampoline"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "7.5.1.22901",
+    "homepage": "https://www.elgato.com/ww/en/s/downloads"
+  },
+  {
+    "token": "github",
+    "names": [
+      "GitHub Desktop"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "GitHub Desktop.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.github.GitHubClient",
+      "com.github.GitHubClient.ShipIt",
+      "com.github.GitHubClient.helper"
+    ],
+    "version": "3.6.4-28955b81",
+    "homepage": "https://desktop.github.com/"
+  },
+  {
+    "token": "github-copilot-app",
+    "names": [
+      "GitHub Copilot"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "GitHub Copilot.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.github.githubapp"
+    ],
+    "version": "1.1.14",
+    "homepage": "https://github.com/github/app"
+  },
+  {
+    "token": "google-chrome",
+    "names": [
+      "Google Chrome"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Google Chrome.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.google.keystone.agent",
+      "com.google.keystone.daemon"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.google.Chrome",
+      "com.google.Keystone",
+      "com.google.Keystone.Agent",
+      "com.google.SoftwareUpdate",
+      "com.google.chrome",
+      "com.google.keystone.xpcservice"
+    ],
+    "version": "152.0.7977.65",
+    "homepage": "https://www.google.com/chrome/"
+  },
+  {
+    "token": "handbrake-app",
+    "names": [
+      "HandBrake"
+    ],
+    "oldTokens": [
+      "handbrake"
+    ],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "HandBrake.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "fr.handbrake.HandBrake",
+      "fr.handbrake.handbrake"
+    ],
+    "version": "1.11.2",
+    "homepage": "https://handbrake.fr/"
+  },
+  {
+    "token": "hermes-desktop",
+    "names": [
+      "Hermes Agent Desktop"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Hermes.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.nousresearch.hermes.setup"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.nousresearch.hermes"
+    ],
+    "version": "0.20.6,5fc308a70719",
+    "homepage": "https://hermes-agent.nousresearch.com/desktop"
+  },
+  {
+    "token": "home-assistant",
+    "names": [
+      "Home Assistant"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Home Assistant.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "io.robbie.HomeAssistant"
+    ],
+    "version": "2026.8.0,2026.2805",
+    "homepage": "https://companion.home-assistant.io/"
+  },
+  {
+    "token": "intune-company-portal",
+    "names": [
+      "Company Portal"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.CompanyPortal",
+      "com.microsoft.CompanyPortalMac",
+      "com.microsoft.autoupdate2",
+      "com.microsoft.entraidentitybrokerxpc",
+      "com.microsoft.update.agent"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.CompanyPortalMac.ssoextension",
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "5.2606.0",
+    "homepage": "https://docs.microsoft.com/en-us/mem/intune/user-help/enroll-your-device-in-intune-macos-cp"
+  },
+  {
+    "token": "keka",
+    "names": [
+      "Keka"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Keka.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.aone.keka",
+      "com.aone.keka.KekaFinderIntegration"
+    ],
+    "version": "1.6.7",
+    "homepage": "https://www.keka.io/"
+  },
+  {
+    "token": "libreoffice",
+    "names": [
+      "LibreOffice"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "LibreOffice.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "org.libreoffice.script"
+    ],
+    "version": "26.8.0",
+    "homepage": "https://www.libreoffice.org/"
+  },
+  {
+    "token": "lunar",
+    "names": [
+      "Lunar"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Lunar.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "fyi.lunar.Lunar"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "6.11.0",
+    "homepage": "https://lunar.fyi/"
+  },
+  {
+    "token": "macupdater",
+    "names": [
+      "MacUpdater"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "MacUpdater.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.corecode.MacUpdater",
+      "com.corecode.MacUpdaterLaunchHelper"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "3.5.0",
+    "homepage": "https://www.corecode.io/macupdater/index.html"
+  },
+  {
+    "token": "macwhisper",
+    "names": [
+      "MacWhisper"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "MacWhisper.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.goodsnooze.MacWhisper"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "14.8,1480",
+    "homepage": "https://goodsnooze.gumroad.com/l/macwhisper"
+  },
+  {
+    "token": "mediathekview",
+    "names": [
+      "MediathekView"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "MediathekView.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [],
+    "version": "14.5.0",
+    "homepage": "https://mediathekview.de/"
+  },
+  {
+    "token": "microsoft-edge",
+    "names": [
+      "Microsoft Edge"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Microsoft Edge.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.EdgeUpdater.wake",
+      "com.microsoft.edgemac"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.EdgeUpdater",
+      "com.microsoft.edgemac.wdgExtension"
+    ],
+    "version": "152.0.4191.53,5978bacb-e3c1-46e9-bacf-09e801724fab",
+    "homepage": "https://www.microsoft.com/en-us/edge?form="
+  },
+  {
+    "token": "microsoft-office",
+    "names": [
+      "Microsoft Office"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.OneDrive",
+      "com.microsoft.OneDriveStandaloneUpdater",
+      "com.microsoft.OneDriveStandaloneUpdaterDaemon",
+      "com.microsoft.OneDriveUpdaterDaemon",
+      "com.microsoft.SyncReporter",
+      "com.microsoft.autoupdate2",
+      "com.microsoft.office.licensing.helper",
+      "com.microsoft.office.licensingV2.helper",
+      "com.microsoft.package.DFonts",
+      "com.microsoft.package.Frameworks",
+      "com.microsoft.pkg.licensing",
+      "com.microsoft.wdav",
+      "com.microsoft.wdav.shim"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.Excel",
+      "com.microsoft.Office365ServiceV2",
+      "com.microsoft.OneDrive.FileProvider",
+      "com.microsoft.OneDrive.FinderSync",
+      "com.microsoft.OneDriveLauncher",
+      "com.microsoft.Outlook",
+      "com.microsoft.Powerpoint",
+      "com.microsoft.Word",
+      "com.microsoft.com.microsoft.RMS-XPCService",
+      "com.microsoft.errorreporting",
+      "com.microsoft.excel",
+      "com.microsoft.netlib.shipassertprocess",
+      "com.microsoft.office.setupassistant",
+      "com.microsoft.onenote.mac",
+      "com.microsoft.onenote.mac.shareextension",
+      "com.microsoft.openxml.excel.app",
+      "com.microsoft.outlook.profilemanager",
+      "com.microsoft.powerpoint",
+      "com.microsoft.word",
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "16.112.26082125",
+    "homepage": "https://www.microsoft.com/en-us/microsoft-365/mac/microsoft-365-for-mac/"
+  },
+  {
+    "token": "microsoft-office-businesspro",
+    "names": [
+      "Microsoft Office BusinessPro"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.MSTeamsAudioDevice",
+      "com.microsoft.OneDrive",
+      "com.microsoft.OneDriveStandaloneUpdater",
+      "com.microsoft.OneDriveStandaloneUpdaterDaemon",
+      "com.microsoft.OneDriveUpdaterDaemon",
+      "com.microsoft.SyncReporter",
+      "com.microsoft.autoupdate2",
+      "com.microsoft.m365copilot.shim",
+      "com.microsoft.office.licensing.helper",
+      "com.microsoft.office.licensingV2.helper",
+      "com.microsoft.package.DFonts",
+      "com.microsoft.package.Frameworks",
+      "com.microsoft.pkg.licensing",
+      "com.microsoft.teams",
+      "com.microsoft.teams.TeamsUpdaterDaemon",
+      "com.microsoft.teams2",
+      "com.microsoft.wdav",
+      "com.microsoft.wdav.shim"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.Excel",
+      "com.microsoft.Office365ServiceV2",
+      "com.microsoft.OneDrive.FileProvider",
+      "com.microsoft.OneDrive.FinderSync",
+      "com.microsoft.OneDriveLauncher",
+      "com.microsoft.Outlook",
+      "com.microsoft.Powerpoint",
+      "com.microsoft.Word",
+      "com.microsoft.com.microsoft.RMS-XPCService",
+      "com.microsoft.errorreporting",
+      "com.microsoft.excel",
+      "com.microsoft.netlib.shipassertprocess",
+      "com.microsoft.office.setupassistant",
+      "com.microsoft.onenote.mac",
+      "com.microsoft.onenote.mac.shareextension",
+      "com.microsoft.openxml.excel.app",
+      "com.microsoft.outlook.profilemanager",
+      "com.microsoft.powerpoint",
+      "com.microsoft.word",
+      "com.plausiblelabs.crashreporter.data"
+    ],
+    "version": "16.112.26082125",
+    "homepage": "https://www.microsoft.com/en-us/microsoft-365/mac/microsoft-365-for-mac/"
+  },
+  {
+    "token": "microsoft-remote-desktop",
+    "names": [
+      "Microsoft Remote Desktop"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.autoupdate.fba",
+      "com.microsoft.autoupdate.helper",
+      "com.microsoft.autoupdate2",
+      "com.microsoft.errorreporting",
+      "com.microsoft.rdc.macos",
+      "com.microsoft.update.agent"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.rdc"
+    ],
+    "version": "10.9.10",
+    "homepage": "https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac"
+  },
+  {
+    "token": "moneymoney",
+    "names": [
+      "MoneyMoney"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "MoneyMoney.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.moneymoney-app.retail"
+    ],
+    "version": "2.5.1",
+    "homepage": "https://moneymoney-app.com/"
+  },
+  {
+    "token": "monitorcontrol",
+    "names": [
+      "MonitorControl"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "MonitorControl.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "me.guillaumeb.MonitorControl",
+      "me.guillaumeb.MonitorControlHelper"
+    ],
+    "version": "4.3.3",
+    "homepage": "https://github.com/MonitorControl/MonitorControl"
+  },
+  {
+    "token": "mountain-duck",
+    "names": [
+      "Mountain Duck"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Mountain Duck.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "io.mountainduck.loginitem"
+    ],
+    "cleanupBundleIdentifiers": [
+      "io.mountainduck",
+      "io.mountainduck.fileprovider",
+      "io.mountainduck.findersync"
+    ],
+    "version": "5.3.2,29785",
+    "homepage": "https://mountainduck.io/"
+  },
+  {
+    "token": "obsidian",
+    "names": [
+      "Obsidian"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Obsidian.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "md.obsidian"
+    ],
+    "version": "1.13.7",
+    "homepage": "https://obsidian.md/"
+  },
+  {
+    "token": "onyx",
+    "names": [
+      "OnyX"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "OnyX.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.titanium.OnyX",
+      "com.titanium.OnyX.help",
+      "com.titanium.OnyX.update"
+    ],
+    "version": "5.0.2",
+    "homepage": "https://www.titanium-software.fr/en/onyx.html"
+  },
+  {
+    "token": "openscad@snapshot",
+    "names": [
+      "OpenSCAD"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "OpenSCAD.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "org.openscad.OpenSCAD"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "2026.08.29",
+    "homepage": "https://www.openscad.org/downloads.html#snapshots"
+  },
+  {
+    "token": "portfolioperformance",
+    "names": [
+      "Portfolio Performance"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "PortfolioPerformance.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "name.abuchen.portfolio.distro.product",
+      "name.abuchen.portfolio.product"
+    ],
+    "version": "0.87.0",
+    "homepage": "https://www.portfolio-performance.info/en/"
+  },
+  {
+    "token": "raspberry-pi-imager",
+    "names": [
+      "Raspberry Pi Imager"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Raspberry Pi Imager.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.raspberrypi.imagingutility"
+    ],
+    "version": "2.0.11.1",
+    "homepage": "https://www.raspberrypi.com/software/"
+  },
+  {
+    "token": "setapp",
+    "names": [
+      "Setapp"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Setapp.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.setapp.DesktopClient.SetappAgent",
+      "com.setapp.DesktopClient.SetappAssistant",
+      "com.setapp.DesktopClient.SetappLauncher",
+      "com.setapp.DesktopClient.SetappUpdater"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.setapp.DesktopClient",
+      "com.setapp.DesktopClient.SetappAgent.FinderSyncExt"
+    ],
+    "version": "3.55.0,156,1787228237",
+    "homepage": "https://setapp.com/"
+  },
+  {
+    "token": "spark-app",
+    "names": [
+      "Spark"
+    ],
+    "oldTokens": [
+      "spark"
+    ],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Spark.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [],
+    "version": "3.3.2",
+    "homepage": "https://www.shadowlab.org/softwares/spark.php"
+  },
+  {
+    "token": "synology-drive",
+    "names": [
+      "Synology Drive"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "pkg"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.synology.CloudStation",
+      "com.synology.SynologyDrive.CloudStationUI",
+      "com.synology.SynologyDrive.FinderHelper",
+      "com.synology.SynologyDrive.FinderHelper.FinderSync",
+      "io.com.synology.CloudStationUI"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.synology.CloudStationUI",
+      "com.synology.CloudStationUI.FileProvider",
+      "com.synology.SynologyDrive",
+      "com.synology.synologydrive.finderhelper"
+    ],
+    "version": "4.2.0,20058",
+    "homepage": "https://www.synology.com/"
+  },
+  {
+    "token": "telegram",
+    "names": [
+      "Telegram for macOS"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Telegram.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "ru.keepcoder.Telegram"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.plausiblelabs.crashreporter.data",
+      "ru.keepcoder.Telegram.TelegramShare"
+    ],
+    "version": "12.10,282985",
+    "homepage": "https://macos.telegram.org/"
+  },
+  {
+    "token": "the-unarchiver",
+    "names": [
+      "The Unarchiver"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "The Unarchiver.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "cx.c3.theunarchiver"
+    ],
+    "version": "4.3.9,147,1742287964",
+    "homepage": "https://theunarchiver.com/"
+  },
+  {
+    "token": "todoist-app",
+    "names": [
+      "Todoist"
+    ],
+    "oldTokens": [
+      "todoist"
+    ],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Todoist.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.todoist.mac.Todoist"
+    ],
+    "version": "9.30.0",
+    "homepage": "https://todoist.com/home"
+  },
+  {
+    "token": "transnomino",
+    "names": [
+      "Transnomino"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "Transnomino.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "com.bastiaanverreijt.Transnomino",
+      "com.bastiaanverreijt.Transnomino.help"
+    ],
+    "version": "10.1.0",
+    "homepage": "https://www.transnomino.com/"
+  },
+  {
+    "token": "visual-studio-code",
+    "names": [
+      "Microsoft Visual Studio Code",
+      "VS Code"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Visual Studio Code.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.VSCode",
+      "com.microsoft.VSCode.ShipIt"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.VSCode.helper",
+      "com.microsoft.vscode"
+    ],
+    "version": "1.135.0",
+    "homepage": "https://code.visualstudio.com/"
+  },
+  {
+    "token": "visual-studio-code@insiders",
+    "names": [
+      "Microsoft Visual Studio Code Insiders",
+      "VS Code Insiders"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "Visual Studio Code - Insiders.app"
+      },
+      {
+        "kind": "binary"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.microsoft.VSCodeInsiders",
+      "com.microsoft.VSCodeInsiders.ShipIt"
+    ],
+    "cleanupBundleIdentifiers": [
+      "com.microsoft.VSCodeInsiders.helper",
+      "com.microsoft.vscodeinsiders"
+    ],
+    "version": "1.136.0-insider,1787936893721,d5ceefbe0b296c4d8fbbf3664aff8cad73cd1b5d",
+    "homepage": "https://code.visualstudio.com/insiders/"
+  },
+  {
+    "token": "vlc",
+    "names": [
+      "VLC media player"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "app",
+        "target": "VLC.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [],
+    "cleanupBundleIdentifiers": [
+      "org.videolan.vlc"
+    ],
+    "version": "3.0.23",
+    "homepage": "https://www.videolan.org/vlc/"
+  },
+  {
+    "token": "vuescan",
+    "names": [
+      "VueScan"
+    ],
+    "oldTokens": [],
+    "autoUpdates": false,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "VueScan.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "com.hamrick.vuescan"
+    ],
+    "cleanupBundleIdentifiers": [
+      "vuescan.ini"
+    ],
+    "version": "9.8.57",
+    "homepage": "https://www.hamrick.com/"
+  },
+  {
+    "token": "whatsapp",
+    "names": [
+      "WhatsApp"
+    ],
+    "oldTokens": [],
+    "autoUpdates": true,
+    "artifacts": [
+      {
+        "kind": "uninstall"
+      },
+      {
+        "kind": "app",
+        "target": "WhatsApp.app"
+      },
+      {
+        "kind": "zap"
+      }
+    ],
+    "primaryBundleIdentifiers": [
+      "net.whatsapp.WhatsApp"
+    ],
+    "cleanupBundleIdentifiers": [],
+    "version": "26.34.24",
+    "homepage": "https://www.whatsapp.com/"
+  }
+]

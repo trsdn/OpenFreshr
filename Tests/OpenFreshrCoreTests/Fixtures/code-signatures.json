@@ -1,0 +1,656 @@
+{
+  "/Applications/1Blocker.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "6P9PN587KS",
+    "verification": "verified"
+  },
+  "/Applications/1Password for Safari.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "2BUA8C4S2C",
+    "verification": "verified"
+  },
+  "/Applications/1Password.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "2BUA8C4S2C",
+    "verification": "verified"
+  },
+  "/Applications/Alfred 5.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "XZZXE9SED4",
+    "verification": "verified"
+  },
+  "/Applications/AltTab.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "QXD7GW8FHY",
+    "verification": "verified"
+  },
+  "/Applications/Amazon Kindle.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "94KV3E626L",
+    "verification": "verified"
+  },
+  "/Applications/Amazon Photos.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "94KV3E626L",
+    "verification": "verified"
+  },
+  "/Applications/AudioBookBinder.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "M2VMBCXA6W",
+    "verification": "verified"
+  },
+  "/Applications/Authy Desktop.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "9EVH78F4V4",
+    "verification": "verified"
+  },
+  "/Applications/Azure VPN Client.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/BambuStudio.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "T3UBR9Y3B2",
+    "verification": "verified"
+  },
+  "/Applications/Big Mean Folder Machine 2.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "7Y9KW4ND8W",
+    "verification": "verified"
+  },
+  "/Applications/ChatGPT Classic.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "2DC432GLL2",
+    "verification": "verified"
+  },
+  "/Applications/Claude Code URL Handler.app": {
+    "gatekeeper": "rejected",
+    "present": false,
+    "teamIdentifier": null,
+    "verification": "unsigned"
+  },
+  "/Applications/Claude.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": "Q6L2SF6YDW",
+    "verification": "invalid"
+  },
+  "/Applications/Clawpilot.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Codex.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "verified"
+  },
+  "/Applications/Company Portal.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Copilot.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/CotEditor.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "HT3Z3A72WZ",
+    "verification": "verified"
+  },
+  "/Applications/Cyberduck.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "G69SCX94XU",
+    "verification": "verified"
+  },
+  "/Applications/DEVONthink 3.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "679S2QUWR8",
+    "verification": "verified"
+  },
+  "/Applications/DEVONthink.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "679S2QUWR8",
+    "verification": "invalid"
+  },
+  "/Applications/Darkroom.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "6H6GQ2FPBM",
+    "verification": "verified"
+  },
+  "/Applications/Disk Inventory X.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "unsigned"
+  },
+  "/Applications/DisplayLink Manager.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "73YQY62QM3",
+    "verification": "verified"
+  },
+  "/Applications/DockDoor.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "2Q775S63Q3",
+    "verification": "verified"
+  },
+  "/Applications/Dropbox.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "G7HH3F8CAK",
+    "verification": "invalid"
+  },
+  "/Applications/Duplicate File Finder.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "8DKG4XB37M",
+    "verification": "verified"
+  },
+  "/Applications/Duplicate Photos Fixer Pro.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "423CGBFNJ8",
+    "verification": "verified"
+  },
+  "/Applications/Elgato Control Center.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "Y93VXCB8Q5",
+    "verification": "verified"
+  },
+  "/Applications/Elgato Stream Deck.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "Y93VXCB8Q5",
+    "verification": "verified"
+  },
+  "/Applications/FileZilla.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "5VPGKXL75N",
+    "verification": "verified"
+  },
+  "/Applications/Finanzblick.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "4268WD5D42",
+    "verification": "verified"
+  },
+  "/Applications/GitHub Copilot.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "VEKTX9H2N7",
+    "verification": "verified"
+  },
+  "/Applications/GitHub Desktop.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "VEKTX9H2N7",
+    "verification": "verified"
+  },
+  "/Applications/Google Chrome.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "EQHXZ8M8AV",
+    "verification": "verified"
+  },
+  "/Applications/HandBrake.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "5X9DE89KYV",
+    "verification": "verified"
+  },
+  "/Applications/Hermes.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "verified"
+  },
+  "/Applications/Home Assistant.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "QMQYCKL255",
+    "verification": "verified"
+  },
+  "/Applications/HomeCam.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "24AY64LA78",
+    "verification": "verified"
+  },
+  "/Applications/HomePass.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "24AY64LA78",
+    "verification": "verified"
+  },
+  "/Applications/JDownloader2.app": {
+    "gatekeeper": "rejected",
+    "present": false,
+    "teamIdentifier": null,
+    "verification": "unsigned"
+  },
+  "/Applications/JSON Helper.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "3CT6HUD7ZB",
+    "verification": "verified"
+  },
+  "/Applications/Keepa - Price Tracker.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "63N6CG26VL",
+    "verification": "verified"
+  },
+  "/Applications/Keka.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "4FG648TM2A",
+    "verification": "verified"
+  },
+  "/Applications/LibreOffice.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": "7P5S3ZLCN7",
+    "verification": "invalid"
+  },
+  "/Applications/Lunar.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "RDDXV84A73",
+    "verification": "verified"
+  },
+  "/Applications/MacUpdater.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "9D78DG5ACV",
+    "verification": "verified"
+  },
+  "/Applications/MacWhisper.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "8Q7TMPA46J",
+    "verification": "verified"
+  },
+  "/Applications/Magnet.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "XS72HWH4P4",
+    "verification": "verified"
+  },
+  "/Applications/Make Social Media Great Again.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "5YGF2ZCSP3",
+    "verification": "verified"
+  },
+  "/Applications/MediathekView.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "YSFE2E835K",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Defender.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Edge.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Excel.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft OneNote.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Outlook.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft PowerPoint.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Remote Desktop Beta 2.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Scout.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Teams.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft To Do.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Microsoft Word.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/MoneyMoney.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "9BE2AB75LL",
+    "verification": "verified"
+  },
+  "/Applications/MonitorControl.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "299YSU96J7",
+    "verification": "invalid"
+  },
+  "/Applications/Mountain Duck.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "G69SCX94XU",
+    "verification": "verified"
+  },
+  "/Applications/Newsify.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "9FS97AXPCT",
+    "verification": "verified"
+  },
+  "/Applications/Obsidian.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "6JSW4SJWN9",
+    "verification": "verified"
+  },
+  "/Applications/OneDrive.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/OnyX.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "invalid"
+  },
+  "/Applications/OpenDeck.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "verified"
+  },
+  "/Applications/OpenOats Light.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "G69Z5BNY97",
+    "verification": "verified"
+  },
+  "/Applications/OpenOats.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": "G69Z5BNY97",
+    "verification": "invalid"
+  },
+  "/Applications/OpenSCAD.app": {
+    "gatekeeper": "rejected",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "unsigned"
+  },
+  "/Applications/P-touch Editor.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "5HCL85FLGW",
+    "verification": "verified"
+  },
+  "/Applications/PDF Toolkit.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "6S2Y58EQL4",
+    "verification": "verified"
+  },
+  "/Applications/Photos Duplicate Cleaner.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "423CGBFNJ8",
+    "verification": "verified"
+  },
+  "/Applications/Pixelmator Pro.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "4R6749AYRE",
+    "verification": "verified"
+  },
+  "/Applications/PortfolioPerformance.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "P3N6NZSUQK",
+    "verification": "verified"
+  },
+  "/Applications/RODE Connect.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "Z9T72PWTJA",
+    "verification": "verified"
+  },
+  "/Applications/Raspberry Pi Imager.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "8RDZTRXE62",
+    "verification": "verified"
+  },
+  "/Applications/Remote Desktop.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "K36BKF7T3D",
+    "verification": "verified"
+  },
+  "/Applications/Safari.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": null,
+    "verification": "verified"
+  },
+  "/Applications/Save to Reader.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "QV36BMA4LN",
+    "verification": "verified"
+  },
+  "/Applications/Setapp.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "MEHY5QF425",
+    "verification": "verified"
+  },
+  "/Applications/Spark.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "3L68KQB4HG",
+    "verification": "verified"
+  },
+  "/Applications/SponsorBlock.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "2PCQH7P6MB",
+    "verification": "verified"
+  },
+  "/Applications/Synology Drive Client.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "X85BAK35Y4",
+    "verification": "verified"
+  },
+  "/Applications/Synology Photo Station Uploader.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "X85BAK35Y4",
+    "verification": "verified"
+  },
+  "/Applications/Telegram.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "6N38VWS5BX",
+    "verification": "verified"
+  },
+  "/Applications/The Unarchiver.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "S8EX82NJP6",
+    "verification": "verified"
+  },
+  "/Applications/Time Stitch.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "8C37JMPKG9",
+    "verification": "verified"
+  },
+  "/Applications/TimeMachineEditor.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "68GTH78H6S",
+    "verification": "verified"
+  },
+  "/Applications/Todoist.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "S3DD273774",
+    "verification": "verified"
+  },
+  "/Applications/Transnomino.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "V385DBQU5M",
+    "verification": "verified"
+  },
+  "/Applications/UlyssesMac.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "X5AZV975AG",
+    "verification": "verified"
+  },
+  "/Applications/VLC.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "75GAHG3SZQ",
+    "verification": "verified"
+  },
+  "/Applications/Visual Studio Code - Insiders.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Visual Studio Code.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/VueScan.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "5D5BXT9KP5",
+    "verification": "verified"
+  },
+  "/Applications/WhatsApp.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "57T9237FN3",
+    "verification": "verified"
+  },
+  "/Applications/Windows App.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UBF8T346G9",
+    "verification": "verified"
+  },
+  "/Applications/Xcode.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "59GAB85EFG",
+    "verification": "verified"
+  },
+  "/Applications/YubiKey Manager.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "LQA3CS5MM7",
+    "verification": "verified"
+  },
+  "/Applications/cmux.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "7WLXT3NR37",
+    "verification": "verified"
+  },
+  "/Applications/draw.io.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "UZEUFB4N53",
+    "verification": "verified"
+  },
+  "/Applications/iA Writer.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "27N4MQEA55",
+    "verification": "verified"
+  },
+  "/Applications/iNet Network Scanner.app": {
+    "gatekeeper": "accepted",
+    "present": true,
+    "teamIdentifier": "57846A8DA2",
+    "verification": "verified"
+  }
+}
