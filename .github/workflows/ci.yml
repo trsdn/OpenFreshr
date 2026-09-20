@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test (${{ matrix.runner }})
+    # macos-15 is not redundant with macos-latest: it is the SDK the release is
+    # actually built on. The broker builds every published artifact on macos-15,
+    # and a Swift 6 concurrency error that a newer SDK annotates away is a hard
+    # error there. Testing only macos-latest would hand the broker a tree that
+    # cannot compile, which is the worst place to find out.
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-latest]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+
+      - name: Show toolchain
+        run: swift --version
+
+      # Warnings are failures: a warning is a finding, not noise.
+      - name: Build the core
+        run: swift build -Xswiftc -warnings-as-errors
+
+      - name: Test the core
+        run: swift test
+
+      # The committed Xcode project is what the broker builds. It is generated from
+      # project.yml, so a committed project that has drifted from it would ship
+      # something other than what was reviewed.
+      - name: Check the committed Xcode project matches project.yml
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen generate
+          git diff --exit-code -- OpenFreshr.xcodeproj
+
+      # Catches Info.plist, entitlements and packaging mistakes that a plain
+      # `swift build` cannot see, using the pinned Package.resolved. No
+      # certificate is needed, so the bundle is built unsigned.
+      - name: Build the app bundle
+        run: |
+          xcodebuild -project OpenFreshr.xcodeproj -scheme OpenFreshr \
+            -destination 'platform=macOS' \
+            -onlyUsePackageVersionsFromResolvedFile \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build

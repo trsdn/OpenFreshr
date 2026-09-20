@@ -1,0 +1,19 @@
+# Generated, machine-owned paths. Do not hand-edit anything marked here.
+#
+# The Xcode project is generated from project.yml by XcodeGen and committed only so
+# the notarization broker, which cannot run XcodeGen, can build it. Change
+# project.yml, run `make generate`, and commit the result.
+OpenFreshr.xcodeproj/** linguist-generated=true
+
+# Statistics and badge artifacts are rendered from an authoritative source and
+# committed. Same rule: regenerate, never edit.
+.github/stats/** linguist-generated=true
+.github/badges/** linguist-generated=true
+
+# Keep shell scripts and Swift sources on LF regardless of platform.
+*.sh text eol=lf
+*.swift text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.plist text eol=lf
+*.entitlements text eol=lf

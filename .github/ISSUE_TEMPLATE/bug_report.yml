@@ -1,0 +1,74 @@
+name: Bug report
+description: Something in OpenFreshr behaves differently from what it promises.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. OpenFreshr scans your installed apps, then
+        checks and updates them through Homebrew Cask, the Mac App Store,
+        Microsoft AutoUpdate and Sparkle feeds. A precise report is one I can
+        reproduce without your machine.
+
+        **Security problem?** Do not open a public issue; use the private
+        advisory link on the issue chooser.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Inventory scan / adoption
+        - Update detection
+        - Installing or updating an app
+        - Catalogue search / matching
+        - Menu bar / notifications
+        - OpenFreshr's own self-update
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should have happened.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What happened instead. Paste any error text exactly.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The smallest set of steps that shows it, including which app was involved and where it came from (Homebrew, App Store, its own Sparkle feed).
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: OpenFreshr version
+      description: From the menu bar item or the app menu > About.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac
+      placeholder: macOS 15.4, Apple silicon
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional)
+      description: |
+        `log show --last 10m --predicate 'subsystem == "com.openfreshr.app"'`
+        Review before pasting; it can contain app names.
+      render: shell

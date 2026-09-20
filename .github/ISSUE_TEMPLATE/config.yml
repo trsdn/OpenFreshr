@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/trsdn/OpenFreshr/security/advisories/new
+    about: Report privately through a security advisory. Please do not open a public issue.
+  - name: Release procedure
+    url: https://github.com/trsdn/OpenFreshr/blob/main/docs/release/README.md
+    about: How a distributable, notarized build is produced.
+  - name: Architecture and design constraints
+    url: https://github.com/trsdn/OpenFreshr/blob/main/AGENTS.md
+    about: Why the app is built the way it is, and which constraints are non-negotiable.

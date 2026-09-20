@@ -1,0 +1,14 @@
+// Mirrors the configuration published in trsdn/.github, so markdown here is
+// held to the same rules as every other repository assessed against the
+// Repository Quality Standard.
+{
+  "default": true,
+  // Prose is hard-wrapped by hand at a readable width rather than a fixed one.
+  "MD013": false,
+  // Keep a Changelog repeats "### Added" under each release heading by design.
+  "MD024": {
+    "siblings_only": true
+  },
+  // Inline HTML is needed for the light/dark <picture> element in the README.
+  "MD033": false
+}
