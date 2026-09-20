@@ -1,0 +1,22 @@
+# Repository-scoped configuration for GitHub Copilot agents.
+# Reference: https://docs.github.com/copilot/reference/github-copilot-app-reference/repository-configuration
+#
+# The authoritative instructions live in AGENTS.md at the repository root,
+# which is tool-neutral and read by every agent that works here. Nothing in
+# this file may restate a rule from AGENTS.md; it points at it instead, so the
+# two cannot drift apart.
+
+version: 1
+
+instructions:
+  - path: AGENTS.md
+
+setup:
+  # No dependencies to install for the core: it has none, and everything the
+  # validation command needs ships with macOS.
+  steps: []
+
+validate:
+  # The single command an agent runs before proposing a change.
+  - name: Build and test the core
+    run: make all

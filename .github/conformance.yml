@@ -1,0 +1,142 @@
+# Machine-readable result of assessing this repository against the trsdn
+# Repository Quality Standard. The reasoning behind every result is in
+# docs/self-assessment.md.
+#
+# Do not edit a result here without editing the evidence there. A record that
+# disagrees with its evidence is worse than no record.
+
+standard_version: "1.15.0"
+assessed_on: "2026-09-20"
+state: "Needs work"
+evidence: "docs/self-assessment.md"
+
+criteria:
+  # --- Baseline ---------------------------------------------------------
+  B01: pass
+  B02: partial
+  B03: pass
+  B04: pass
+  B05: pass
+  B06: pass
+  B07: pass
+  B08: pass
+  B09: partial
+  B10: pass
+  B11: pass
+  B12: pass
+  B13: partial
+  B14: na
+  B15: pass
+  B16: fail
+
+  # --- Public Repositories ----------------------------------------------
+  P01: pass
+  P02: pass
+  P03: partial
+  P04: pass
+  P05: partial
+  P06: pass
+  P07: pass
+  P08: fail
+  P09: fail
+  P10: pass
+  P11: pass
+
+  # --- Software Repositories --------------------------------------------
+  S01: pass
+  S02: pass
+  S03: partial
+  S04: pass
+  S05: pass
+  S06: na
+  S07: pass
+  S08: pass
+  S09: fail
+  S10: pass
+  S11: pass
+  S12: pass
+  S13: na
+
+  # --- Deployable Repositories (nothing is deployed) --------------------
+  D01: na
+  D02: na
+  D03: na
+  D04: na
+  D05: na
+  D06: na
+
+  # --- Package And Release Repositories ---------------------------------
+  R01: partial
+  R02: pass
+  R03: na
+  R04: na
+  R05: na
+  R06: na
+  R07: na
+  R08: na
+
+  # --- Product Identity (no release exists) -----------------------------
+  I01: na
+  I02: na
+  I03: na
+  I04: na
+  I05: na
+  I06: na
+
+  # --- Documentation Repositories (the product is an app) ---------------
+  T01: na
+  T02: na
+  T03: na
+  T04: na
+  T05: na
+
+  # --- Published Sites (no site exists) ---------------------------------
+  W01: na
+  W02: na
+  W03: na
+  W04: na
+  W05: na
+  W06: na
+  W07: na
+  W08: na
+  W09: na
+
+  # --- Agent Readiness ---------------------------------------------------
+  G01: pass
+  G02: partial
+  G03: partial
+  G04: pass
+  G05: partial
+  G06: partial
+  G07: fail
+  G08: pass
+
+  # --- Language And Localization ----------------------------------------
+  L01: fail
+  L02: fail
+  L03: fail
+  L04: na
+  L05: pass
+  L06: na
+  L07: partial
+
+  # --- Accessibility -----------------------------------------------------
+  X01: pass
+  X02: partial
+  X03: pass
+  X04: na
+  X05: fail
+
+  # --- Data Protection And Privacy ---------------------------------------
+  Y01: fail
+  Y02: fail
+  Y03: pass
+  Y04: fail
+  Y05: pass
+  Y06: fail
+
+  # --- Archived Repositories (actively developed) ------------------------
+  A01: na
+  A02: na
+  A03: na
+  A04: na

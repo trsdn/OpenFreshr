@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # The app has one dependency, AppUpdater, pinned exactly in project.yml with
+  # Package.resolved committed. An exact pin does not move by itself, so without
+  # this entry a fix or security release upstream would never arrive: the code that
+  # downloads and installs updates is the last thing that should quietly age.
+  # A bump also needs the notarization broker's lock refreshed first
+  # (docs/release/README.md).
+  - package-ecosystem: swift
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    labels:
+      - dependencies
+
+  # The pinned action versions in the workflows also age.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    labels:
+      - dependencies

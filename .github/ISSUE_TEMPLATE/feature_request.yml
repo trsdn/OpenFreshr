@@ -1,0 +1,41 @@
+name: Feature request
+description: Propose something OpenFreshr should do, or do differently.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check `docs/PRD.md` first: what is a deliberate non-goal (for
+        example Mac App Store distribution or replacing an app without a
+        verified signature) will not be accepted, however it is worded.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do and why it is hard today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What OpenFreshr should do about it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: dropdown
+    id: source
+    attributes:
+      label: Which update source does this touch?
+      multiple: true
+      options:
+        - Homebrew Cask
+        - Mac App Store
+        - Microsoft AutoUpdate
+        - Sparkle feeds
+        - None of them

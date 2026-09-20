@@ -12,6 +12,7 @@ import OpenFreshrCore
 struct SettingsView: View {
 
     @Environment(AppViewModel.self) private var viewModel
+    @Environment(SelfUpdateController.self) private var selfUpdate
     @Environment(\.openWindow) private var openWindow
 
     /// Launch-at-login is owned by the system (``SMAppService``), so it is read
@@ -80,6 +81,20 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle(
+                        "OpenFreshr automatisch aktualisieren",
+                        isOn: Binding(
+                            get: { selfUpdate.automaticChecksEnabled },
+                            set: { selfUpdate.automaticChecksEnabled = $0 }
+                        ))
+                    Text("Prüft höchstens einmal täglich auf GitHub, ob es eine neue Version von OpenFreshr gibt. Installiert wird erst nach deiner Bestätigung.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("Selbst-Update")
+                }
+
+                Section {
                     Button {
                         openWindow(id: OpenFreshrScene.trustWindowID)
                     } label: {
@@ -95,7 +110,7 @@ struct SettingsView: View {
             .formStyle(.grouped)
             .tabItem { Label("Allgemein", systemImage: "gearshape") }
         }
-        .frame(width: 460, height: 360)
+        .frame(width: 460, height: 440)
         .onAppear { launchAtLogin = SMAppService.mainApp.status == .enabled }
     }
 

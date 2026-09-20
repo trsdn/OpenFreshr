@@ -11,6 +11,12 @@ options:
 packages:
   OpenFreshrCore:
     path: .
+  # In-app updates from GitHub Releases, the same updater the other apps use.
+  # Pinned exactly: the broker pins the build to a committed Package.resolved, so a
+  # change here needs the broker's lock refreshed first (docs/release/README.md).
+  AppUpdater:
+    url: https://github.com/mxcl/AppUpdater.git
+    exactVersion: 4.1.2
 
 settings:
   base:
@@ -46,9 +52,15 @@ targets:
       # apps out of the box.
       - path: Sources/OpenFreshrApp/Resources
         buildPhase: resources
+      # Licences of the compiled-in third-party code (AppUpdater, Version), which
+      # the bundle has to carry because it redistributes them.
+      - path: THIRD_PARTY_NOTICES.txt
+        buildPhase: resources
     dependencies:
       - package: OpenFreshrCore
         product: OpenFreshrCore
+      - package: AppUpdater
+        product: AppUpdater
     info:
       path: Sources/OpenFreshrApp/Info.plist
       properties:
@@ -60,22 +72,6 @@ targets:
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.utilities
         NSHumanReadableCopyright: "OpenFreshr"
-        # Sparkle self-update configuration. These keys are inert until the Sparkle
-        # framework is linked for a release build (see docs/release/README.md);
-        # they carry no behaviour on their own, so the default make app/run build
-        # stays framework-free and offline-buildable.
-        # The appcast is served by GitHub Pages from docs/ (docs/appcast.xml).
-        SUFeedURL: "https://trsdn.github.io/OpenFreshr/appcast.xml"
-        # Base64 Ed25519 public key. The PRIVATE key never lives in the repo; it is
-        # held only in the broker's release secrets. This placeholder must be
-        # replaced with the real public key before the first Sparkle release —
-        # see docs/release/README.md ("EdDSA signing key").
-        SUPublicEDKey: "REPLACE_WITH_SPARKLE_ED25519_PUBLIC_KEY"
-        # Check on a cadence, but never install without explicit user action, so a
-        # self-update can never surprise a running scan.
-        SUEnableAutomaticChecks: true
-        SUAutomaticallyUpdate: false
-        SUScheduledCheckInterval: 86400
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.openfreshr.app

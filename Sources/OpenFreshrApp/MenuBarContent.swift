@@ -163,7 +163,7 @@ struct MenuBarContent: View {
             // OpenFreshr's own update, spelled out with the app name so it is
             // never mistaken for the managed-app check ("Jetzt prüfen") above.
             Button {
-                selfUpdate.checkForUpdates()
+                selfUpdate.checkFromMenu()
             } label: {
                 Label("Nach OpenFreshr-Updates suchen …", systemImage: "sparkles")
                     .frame(maxWidth: .infinity, alignment: .leading)

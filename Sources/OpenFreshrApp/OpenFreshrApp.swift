@@ -36,7 +36,7 @@ struct OpenFreshrApp: App {
             // menu-bar counter) so the two are never confused.
             CommandGroup(after: .appInfo) {
                 Button("Nach OpenFreshr-Updates suchen …") {
-                    appDelegate.selfUpdateController.checkForUpdates()
+                    appDelegate.selfUpdateController.checkFromMenu()
                 }
                 .disabled(!appDelegate.selfUpdateController.canCheck)
             }
@@ -55,6 +55,7 @@ struct OpenFreshrApp: App {
         Settings {
             SettingsView()
                 .environment(appDelegate.viewModel)
+                .environment(appDelegate.selfUpdateController)
         }
 
         Window("Vertrauensspeicher", id: OpenFreshrScene.trustWindowID) {
@@ -82,6 +83,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         applyActivationPolicy(showsDockIcon: viewModel.showsDockIcon)
+
+        // Stop the managed-app schedule before AppUpdater replaces the bundle, so
+        // no scan or install is cut off half-way by the relaunch.
+        selfUpdateController.onWillInstall = { [weak self] in
+            self?.periodicCheck?.cancel()
+        }
+        selfUpdateController.applyAutomaticChecksSetting()
 
         // The view model stays AppKit-free; it calls back here to apply the Dock
         // policy and to deliver notifications.
