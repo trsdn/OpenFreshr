@@ -32,6 +32,7 @@
 		129AEEDD192940653B00200B /* OpenFreshr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenFreshr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSheet.swift; sourceTree = "<group>"; };
 		39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdoptionSheet.swift; sourceTree = "<group>"; };
+		4734C483DD985926A0DF8CCE /* OpenFreshr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = OpenFreshr; path = .; sourceTree = SOURCE_ROOT; };
 		495E4494497B310FF102B059 /* MenuBarContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContent.swift; sourceTree = "<group>"; };
 		552E98A53FCD657F20E550DD /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
 		6471396C0DA7B650AF5F4558 /* InstallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSheet.swift; sourceTree = "<group>"; };
@@ -47,7 +48,6 @@
 		E976F7E78EC8563390B65645 /* casks-snapshot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "casks-snapshot.json"; sourceTree = "<group>"; };
 		EF5C0BCFCFDE61C32B9077B5 /* OpenFreshr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenFreshr.entitlements; sourceTree = "<group>"; };
 		F4405CAD58EF112ED10920F8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		FAF1D2E83D139F2704F884F3 /* updater */ = {isa = PBXFileReference; lastKnownFileType = folder; name = updater; path = .; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,7 +116,7 @@
 		DD196D9834286FAC0FFB1FDE /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				FAF1D2E83D139F2704F884F3 /* updater */,
+				4734C483DD985926A0DF8CCE /* OpenFreshr */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
