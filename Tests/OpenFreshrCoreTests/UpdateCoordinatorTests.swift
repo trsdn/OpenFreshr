@@ -23,7 +23,7 @@ struct UpdateCoordinatorTests {
         masOutdated: ProcessResult = .init(exitCode: 0, standardOutput: "", standardError: ""),
         msupdateList: ProcessResult = .init(exitCode: 0, standardOutput: "", standardError: ""),
         brewUpgrade: @escaping @Sendable ([String]) -> ProcessResult = { _ in .init(exitCode: 0, standardOutput: "ok", standardError: "") },
-        fetcher: FakeHTTPFetcher = FakeHTTPFetcher()
+        fetcher: any HTTPFetching = FakeHTTPFetcher()
     ) -> UpdateCoordinator {
         var fs = FakeFileSystem()
         if tools.contains(.brew) { fs.addExistingPath("/opt/homebrew/bin/brew") }
@@ -405,6 +405,26 @@ struct UpdateCoordinatorTests {
         #expect(UpdateCoordinator.updateItem(for: report, source: homebrew) != nil)
         #expect(report.isSelfUpdating)
         #expect(report.isDefaultBatchSelectable == false)             // but not by default
+    }
+
+    @Test
+    func sparkleFeedProbingIsConcurrencyLimited() async {
+        let apps = (0..<20).map { index in
+            InstalledApp(
+                bundlePath: "/Applications/Sparkly \(index).app",
+                bundleIdentifier: "com.example.sparkly\(index)",
+                shortVersion: "1.0",
+                sparkleFeedURL: "https://example.com/appcast-\(index).xml"
+            )
+        }
+        let fetcher = ConcurrencyTrackingHTTPFetcher()
+        let coordinator = makeCoordinator(apps: [apps], fetcher: fetcher)
+
+        let reports = await coordinator.makeUpdateReports()
+
+        #expect(reports.count == apps.count)
+        #expect(fetcher.requestCount == apps.count)
+        #expect(fetcher.maxConcurrentRequests <= 8)
     }
 
     // MARK: - Mac App Store & Microsoft AutoUpdate detection
@@ -918,5 +938,47 @@ private final class CallLog: @unchecked Sendable {
     var allCalls: [[String]] {
         lock.lock(); defer { lock.unlock() }
         return calls
+    }
+}
+
+private final class ConcurrencyTrackingHTTPFetcher: HTTPFetching, @unchecked Sendable {
+
+    private let lock = NSLock()
+    private var activeRequests = 0
+    private var observedMaxConcurrentRequests = 0
+    private var observedRequestCount = 0
+
+    var maxConcurrentRequests: Int {
+        lock.lock(); defer { lock.unlock() }
+        return observedMaxConcurrentRequests
+    }
+
+    var requestCount: Int {
+        lock.lock(); defer { lock.unlock() }
+        return observedRequestCount
+    }
+
+    func data(from url: URL) async throws -> Data {
+        beginRequest()
+        defer { endRequest() }
+
+        try await Task.sleep(for: .milliseconds(20))
+        return Data("""
+        <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
+        <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString></item>
+        </channel></rss>
+        """.utf8)
+    }
+
+    private func beginRequest() {
+        lock.lock(); defer { lock.unlock() }
+        activeRequests += 1
+        observedRequestCount += 1
+        observedMaxConcurrentRequests = max(observedMaxConcurrentRequests, activeRequests)
+    }
+
+    private func endRequest() {
+        lock.lock(); defer { lock.unlock() }
+        activeRequests -= 1
     }
 }

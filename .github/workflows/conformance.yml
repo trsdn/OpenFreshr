@@ -1,0 +1,25 @@
+name: Conformance
+
+# Validates .github/conformance.yml against the catalog for the standard
+# version the record names, and fails when the record is incomplete, uses a
+# result outside the vocabulary, or has aged past the review cadence.
+#
+# Like every other workflow here, this uses no secret, no environment, and no
+# write permission.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, so an ageing record turns the check red on its own rather than
+    # waiting for someone to push.
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    uses: trsdn/.github/.github/workflows/conformance.yml@11af7da416e08d9db10571593c845f45f9e754dd # v1.13.0

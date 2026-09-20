@@ -6,7 +6,19 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet.
+### Changed
+
+- **Selbst-Update über AppUpdater statt Sparkle.** OpenFreshr aktualisiert sich wie
+  OpenWritr und OpenSwitchr aus den eigenen GitHub-Releases. Angenommen wird nur
+  `OpenFreshr-<version>.dmg`, dessen App dieselbe Team-ID, Signing-Identifier und
+  Bundle-ID trägt. Es gibt keinen EdDSA-Schlüssel und keinen Appcast mehr.
+- Das Release-Profil für den Notarisierungs-Broker deklariert jetzt die
+  AppUpdater-Sperrdatei und das Ressourcenbündel.
+
+### Added
+
+- Einstellung „OpenFreshr automatisch aktualisieren“; geprüft wird höchstens einmal
+  täglich, installiert wird erst nach Bestätigung.
 
 ## [1.0.0] — 2025-09-01
 

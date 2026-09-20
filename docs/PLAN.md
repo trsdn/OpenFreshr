@@ -332,4 +332,3 @@ Prozessen ansprechen und wäre eine Rechteausweitung mit Root-Rechten.
 - Weitere Katalogquellen und verifizierte Community-Zuordnungen.
 - Optionaler privilegierter Helper, aber nur bei gemessenem, wiederkehrendem Bedarf.
 - Richtlinien für unbeaufsichtigte Updates auf ausdrücklich freigegebenen Apps.
-
