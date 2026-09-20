@@ -26,15 +26,5 @@
 	<string>14.0</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>OpenFreshr</string>
-	<key>SUAutomaticallyUpdate</key>
-	<false/>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://trsdn.github.io/OpenFreshr/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>REPLACE_WITH_SPARKLE_ED25519_PUBLIC_KEY</string>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
 </dict>
 </plist>

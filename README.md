@@ -64,7 +64,7 @@ dann bei jedem Start erneut nach Berechtigungen. Zum Benutzen `make run` verwend
 ## Status
 
 Funktional vollständig, noch nicht veröffentlicht. Für ein Release fehlen die
-Notarisierung über den Broker und der Sparkle-Signierschlüssel.
+Notarisierung über den Broker und der öffentliche Repository-Status.
 
 - [Product Requirements Document](docs/PRD.md)
 - [Implementierungsplan](docs/PLAN.md)

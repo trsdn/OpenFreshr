@@ -149,17 +149,16 @@ login item, or post notifications, so `Sources/OpenFreshrApp/OpenFreshr.entitlem
 is an empty `<dict/>` with the reasoning spelled out. Keep it in sync with the
 broker copy `docs/release/entitlements/openfreshr.plist`.
 
-### Self-update is Sparkle, deferred at the binary level
+### Self-update is AppUpdater, like the other apps
 
-OpenFreshr watches other apps' Sparkle feeds and uses the same mechanism for
-itself. The oracle (`SelfUpdateChecker` in `OpenFreshrCore`) and the UI
-(`SelfUpdateController` + the "Nach OpenFreshr-Updates suchen …" items, kept
-distinct from the managed-app "Jetzt prüfen") are wired, but the **Sparkle SwiftPM
-dependency is intentionally not added**: SwiftPM package resolution fails under the
-machine's global `git safe.bareRepository=explicit`, and a broken build is worse
-than a missing self-update. `SelfUpdateController` is guarded with
-`#if canImport(Sparkle)` — NSAlert fallback without the framework, real updater
-with it. The feed is `https://trsdn.github.io/OpenFreshr/appcast.xml`
-(GitHub Pages → `/docs`), empty until a signed release exists; the private EdDSA
-key never enters the repo. See [`docs/release/README.md`](docs/release/README.md)
-for enabling Sparkle and generating the key.
+OpenFreshr updates itself with mxcl/AppUpdater 4.1.2 from its own GitHub Releases,
+the same as OpenWritr and OpenSwitchr. `SelfUpdateController` (app target) drives
+it; `SelfUpdateState` and `SelfUpdateSchedule` in `OpenFreshrCore` hold the
+testable state and cadence. It is kept distinct from the managed-app "Jetzt
+prüfen" flow: the "Nach OpenFreshr-Updates suchen …" items and the Settings toggle
+only ever affect OpenFreshr. The updater accepts only an asset named
+`OpenFreshr-<semver>.dmg` whose app has the same Team ID, signing identifier and
+bundle identifier. There is no EdDSA key and no appcast. The package is pinned in
+`project.yml` and the committed `Package.resolved`; the broker holds a byte-equal
+lock, so a dependency change needs the broker's lock refreshed first. See
+[`docs/release/README.md`](docs/release/README.md).

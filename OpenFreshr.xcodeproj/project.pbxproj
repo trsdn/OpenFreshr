@@ -16,10 +16,12 @@
 		59CCBDA95DBD5099C242ED6C /* CatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552E98A53FCD657F20E550DD /* CatalogView.swift */; };
 		6842DF865352B561FEB9F0D2 /* SelfUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B9503C9367732D64567D598 /* SelfUpdateController.swift */; };
 		942BCFBB200FAEA8883F4678 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94728C9079084CFCB0F538EC /* ContentView.swift */; };
+		A11A8E4A45F2AA579B57DB11 /* THIRD_PARTY_NOTICES.txt in Resources */ = {isa = PBXBuildFile; fileRef = 993C2A2F2C9686F9A61AD882 /* THIRD_PARTY_NOTICES.txt */; };
 		A97E25AD4936A4796231C555 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3606D483F2FD210B870351 /* AppViewModel.swift */; };
 		AB45E9F52DB6154607F2CD2F /* TrustManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */; };
 		B40012D32F5DA2B1C9C9D23B /* UpdateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */; };
 		BF262F867F073F3CE0181255 /* AdoptionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */; };
+		C4AAF14F5AE84BFBD5545FF0 /* AppUpdater in Frameworks */ = {isa = PBXBuildFile; productRef = 6DA713B37ACE86CAE51FA8E0 /* AppUpdater */; };
 		E608ADD44F10BA8D70A3164B /* OpenFreshrCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */; };
 		EC94EE707E47D9D1EE43F8AF /* CatalogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729233AA7AC115FEF3EE125B /* CatalogViewModel.swift */; };
 		FE4EDF54EE368646F45C674D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4405CAD58EF112ED10920F8 /* SettingsView.swift */; };
@@ -30,7 +32,6 @@
 		129AEEDD192940653B00200B /* OpenFreshr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenFreshr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3424D25590A0D9D13EFA4965 /* UpdateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSheet.swift; sourceTree = "<group>"; };
 		39D38395DFA1462EC5682B17 /* AdoptionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdoptionSheet.swift; sourceTree = "<group>"; };
-		44135CA17C39F680B0FD05C9 /* openfreshr */ = {isa = PBXFileReference; lastKnownFileType = folder; name = openfreshr; path = .; sourceTree = SOURCE_ROOT; };
 		495E4494497B310FF102B059 /* MenuBarContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContent.swift; sourceTree = "<group>"; };
 		552E98A53FCD657F20E550DD /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
 		6471396C0DA7B650AF5F4558 /* InstallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallSheet.swift; sourceTree = "<group>"; };
@@ -38,6 +39,7 @@
 		729233AA7AC115FEF3EE125B /* CatalogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogViewModel.swift; sourceTree = "<group>"; };
 		7E9747EF3C8E72A928101F85 /* OpenFreshrApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFreshrApp.swift; sourceTree = "<group>"; };
 		94728C9079084CFCB0F538EC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		993C2A2F2C9686F9A61AD882 /* THIRD_PARTY_NOTICES.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = THIRD_PARTY_NOTICES.txt; sourceTree = "<group>"; };
 		A50B0D4F75022D7CD4C03CFD /* AppDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDetailView.swift; sourceTree = "<group>"; };
 		BDE60803BAE26E98B2A6F915 /* TrustManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustManagementView.swift; sourceTree = "<group>"; };
 		C4AB47F2D3C54FE3F23B5D92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -45,6 +47,7 @@
 		E976F7E78EC8563390B65645 /* casks-snapshot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "casks-snapshot.json"; sourceTree = "<group>"; };
 		EF5C0BCFCFDE61C32B9077B5 /* OpenFreshr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenFreshr.entitlements; sourceTree = "<group>"; };
 		F4405CAD58EF112ED10920F8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FAF1D2E83D139F2704F884F3 /* updater */ = {isa = PBXFileReference; lastKnownFileType = folder; name = updater; path = .; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +56,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E608ADD44F10BA8D70A3164B /* OpenFreshrCore in Frameworks */,
+				C4AAF14F5AE84BFBD5545FF0 /* AppUpdater in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +74,7 @@
 		784687B06B6C5BF68170D14B = {
 			isa = PBXGroup;
 			children = (
+				993C2A2F2C9686F9A61AD882 /* THIRD_PARTY_NOTICES.txt */,
 				DD196D9834286FAC0FFB1FDE /* Packages */,
 				F9CA9BDFB910F4E6AF2965D1 /* Sources */,
 				05C5B5CF2EFBDB8ABA0D4EDE /* Products */,
@@ -111,7 +116,7 @@
 		DD196D9834286FAC0FFB1FDE /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				44135CA17C39F680B0FD05C9 /* openfreshr */,
+				FAF1D2E83D139F2704F884F3 /* updater */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -142,6 +147,7 @@
 			name = OpenFreshr;
 			packageProductDependencies = (
 				9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */,
+				6DA713B37ACE86CAE51FA8E0 /* AppUpdater */,
 			);
 			productName = OpenFreshr;
 			productReference = 129AEEDD192940653B00200B /* OpenFreshr.app */;
@@ -172,6 +178,7 @@
 			mainGroup = 784687B06B6C5BF68170D14B;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				42A7E66C843196513F4EB8DE /* XCRemoteSwiftPackageReference "AppUpdater" */,
 				A2E42E8ABF5D01DF16432D97 /* XCLocalSwiftPackageReference "." */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -189,6 +196,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11A8E4A45F2AA579B57DB11 /* THIRD_PARTY_NOTICES.txt in Resources */,
 				57EDEA00F23E757E9B6458FE /* casks-snapshot.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,7 +427,23 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		42A7E66C843196513F4EB8DE /* XCRemoteSwiftPackageReference "AppUpdater" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mxcl/AppUpdater.git";
+			requirement = {
+				kind = exactVersion;
+				version = 4.1.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		6DA713B37ACE86CAE51FA8E0 /* AppUpdater */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42A7E66C843196513F4EB8DE /* XCRemoteSwiftPackageReference "AppUpdater" */;
+			productName = AppUpdater;
+		};
 		9F58BBBA3C9C25D1289464DA /* OpenFreshrCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = OpenFreshrCore;

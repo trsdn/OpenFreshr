@@ -24,23 +24,28 @@ isolated jobs so that source-repository code never touches the signing secrets.
    `OpenFreshr.xcodeproj` together with the source. (The broker builds the
    committed project; it cannot run XcodeGen — see below.)
 2. Tag that commit `vX.Y.Z` and push the tag:
+
    ```bash
    git tag v1.0.0 && git push origin v1.0.0
    ```
+
 3. From a checkout of the broker:
+
    ```bash
    scripts/request.sh openfreshr v1.0.0
    ```
+
    (or **Actions → Notarize macOS release → Run workflow** from `main`, with
    `app = openfreshr`, `tag = v1.0.0`).
 
-`request.sh` correlates the exact run, downloads only that artifact, and verifies
-`provenance.json` plus the release digests. It emits
-`OpenFreshr-vX.Y.Z-macOS-arm64.zip` and `…-arm64.dmg`.
+   `request.sh` correlates the exact run, downloads only that artifact, and verifies
+   `provenance.json` plus the release digests. It emits
+   `OpenFreshr-vX.Y.Z-macOS-arm64.zip`, `…-arm64.dmg` and `OpenFreshr-X.Y.Z.dmg`
+   (a copy of the DMG under the exact name the in-app updater accepts).
 
-4. Attach the notarized `.zip` and `.dmg` to the GitHub release for the tag.
-5. Update `docs/appcast.xml` with an `<item>` for the release (see
-   [§ Appcast & self-update](#appcast--self-update)).
+4. Attach the broker's artifacts to the GitHub release for the tag. Do not upload
+   anything built locally. Installed copies find the release through
+   [§ Self-update](#self-update).
 
 ---
 
@@ -54,7 +59,7 @@ Per the broker's `CONTRIBUTING.md`, **open an issue first** for any profile or
 script change, then a reviewed PR. Never attach Apple credentials or certificates
 to the issue/PR.
 
-The PR makes **five** edits. Everything needed is prepared in this directory:
+The PR makes **six** edits. Everything needed is prepared in this directory:
 
 | # | Broker file | Change | Prepared here |
 |---|-------------|--------|---------------|
@@ -63,6 +68,7 @@ The PR makes **five** edits. Everything needed is prepared in this directory:
 | 3 | `scripts/broker.py` | Add the `openfreshr-xcode` adapter (3 sub-edits). | [`broker/adapter-openfreshr.py`](broker/adapter-openfreshr.py) — the function + the two list edits. |
 | 4 | `scripts/request.sh` | Add `openfreshr` to the `case "$app" in …` allowlist. | one word. |
 | 5 | `.github/workflows/notarize.yml` | Add `- openfreshr` to the `workflow_dispatch` `app` `options:`. | one line. |
+| 6 | `profiles/locks/openfreshr-Package.resolved` | Byte-for-byte copy of this repo's `OpenFreshr.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` (pins AppUpdater 4.1.2). | the file itself; the profile's `dependency_lock` points at it. |
 
 Notes that make the review easy:
 
@@ -78,14 +84,19 @@ Notes that make the review easy:
   the committed `OpenFreshr.xcodeproj` directly with `xcodebuild -scheme OpenFreshr`
   — exactly like the existing `openlens-xcode` adapter. Regenerate **and commit**
   the project after any `project.yml` change.
-- **The repo must stay readable by the broker workflow** (it authenticates with its
-  own `github.token`). `trsdn/OpenFreshr` is currently private; grant the broker
-  read access before dispatching, or the checkout step fails.
-- **No `nested_executables` today.** The current app is a single Mach-O
-  (`Contents/MacOS/OpenFreshr`); the Debug-only `*.debug.dylib`/`__preview.dylib`
-  do not appear in the Release build the broker makes. The broker's preflight
-  rejects any *undeclared* nested Mach-O or bundle — so this changes the day
-  Sparkle is embedded (see below).
+- **The repo must be public** (or readable by the broker workflow, which
+  authenticates with its own `github.token`). The in-app updater also reads the
+  repository's Releases without a token, so a private repo could not update
+  itself either.
+- **`dependency_lock` and `nested_resource_bundles`.** The app links AppUpdater,
+  which SwiftPM builds as a data-only `Contents/Resources/AppUpdater_AppUpdater.bundle`;
+  the profile declares it because the broker's preflight rejects any undeclared
+  bundle. There is still no `nested_executables`: the app is a single Mach-O
+  (`Contents/MacOS/OpenFreshr`), and the Debug-only `*.debug.dylib` /
+  `__preview.dylib` do not appear in the Release build the broker makes.
+- **The lock is tied to `project.yml`.** Its `originHash` covers the package
+  section, so any change to the dependencies needs the broker's lock refreshed
+  first, or the release fails.
 
 `xcodebuild_settings()` in the broker already forces `ENABLE_HARDENED_RUNTIME=YES`
 and `CODE_SIGNING_ALLOWED=NO` for every xcode adapter, so the hardened runtime is
@@ -107,7 +118,7 @@ entitlement for anything it does:
 | Launch-at-login (`SMAppService.mainApp`) | The modern login-item API needs no entitlement for a non-sandboxed app. |
 | User notifications | None required. |
 | Apple events | The app sends none, so `…automation.apple-events` is deliberately **not** requested. |
-| Loading third-party code | The app loads no external dylibs/plug-ins. Sparkle (when linked) ships its framework and XPC services signed by the **same** Developer ID team, so library validation passes **without** `cs.disable-library-validation` (that exception is only for *sandboxed* Sparkle hosts). |
+| Loading third-party code | The app loads no external dylibs/plug-ins. AppUpdater is compiled into the executable and its only resource is a data bundle, so nothing extra is loaded and library validation needs no exception. |
 
 The shipping entitlements file is an empty `<dict/>` with these justifications as
 comments: [`Sources/OpenFreshrApp/OpenFreshr.entitlements`](../../Sources/OpenFreshrApp/OpenFreshr.entitlements).
@@ -119,93 +130,37 @@ with a justification comment in the same release cycle.
 
 ---
 
-## Appcast & self-update
+## Self-update
 
-OpenFreshr watches other apps' Sparkle feeds; it uses the same mechanism for
-itself (honest dogfooding).
+OpenFreshr updates itself the way OpenWritr and OpenSwitchr do: with
+[AppUpdater](https://github.com/mxcl/AppUpdater) 4.1.2, pinned in `project.yml`
+and in the committed `Package.resolved`. It reads OpenFreshr's own GitHub Releases
+and accepts only:
 
-- **Feed URL** (baked into `Info.plist` as `SUFeedURL`):
-  `https://trsdn.github.io/OpenFreshr/appcast.xml`
-- **Serving it:** GitHub Pages, *Settings → Pages → Deploy from a branch →
-  `main` / `/docs`*. The feed file lives at [`docs/appcast.xml`](../appcast.xml)
-  and is **empty until a signed release exists** — it must only ever advertise a
-  correctly signed build.
-- After a release is notarized, generate the EdDSA signature for the exact `.zip`
-  and add an `<item>` (template is in `docs/appcast.xml`).
+- a release asset named exactly `OpenFreshr-<semver>.dmg` (the broker publishes
+  it as a copy of the notarized DMG), and
+- an app inside it that carries the **same Team ID, signing identifier and bundle
+  identifier** as the running one, so a swapped asset does not install.
 
-### EdDSA signing key (Sparkle)
+There is no key to generate and no appcast to maintain: the trust anchor is the
+Developer ID signature the broker applies. GitHub artifact attestation is
+deliberately not required. The broker builds a release in its own repository, so
+there is no provenance from `trsdn/OpenFreshr` to check, and AppUpdater's Sigstore
+trust roots come from SwiftPM's `Bundle.module`, which an app bundle does not
+carry.
 
-Sparkle authenticates updates with an Ed25519 key pair, **separate** from Apple
-code-signing.
+Things that follow from this and are worth knowing before a release:
 
-- **The private key must never enter this repository.** Generate it once with
-  Sparkle's tool and store the private half in the broker's Actions secrets (or a
-  password manager), the same trust boundary as the Apple secrets:
-  ```bash
-  # from a Sparkle checkout / the Sparkle release's bin/
-  ./generate_keys                 # prints the public key; stores private in Keychain
-  ./generate_keys -x private.pem  # export to move it into a secret store, then delete
-  ```
-- Put **only the public key** into `Info.plist` → `SUPublicEDKey`
-  (in `project.yml` under the target's `info.properties`). It currently holds the
-  placeholder `REPLACE_WITH_SPARKLE_ED25519_PUBLIC_KEY`.
-- Sign each release artifact and paste the output into the appcast `<item>`:
-  ```bash
-  ./sign_update OpenFreshr-vX.Y.Z-macOS-arm64.zip
-  ```
+1. **The signature must stay stable across updates.** Every release is signed by
+   the broker under Team ID `G69Z5BNY97`; a different identity would be refused by
+   the updater on installed copies.
+2. **The updater refuses an app whose path contains a symlink**, such as one run
+   from `/tmp`. Test an update from a normal folder such as `/Applications`.
+3. **Builds from before the first updater release have no updater**, so anyone
+   still running one installs a newer release by hand once.
+4. **OpenFreshr's own updates are separate from the managed-app updates.** The
+   menu item "Nach OpenFreshr-Updates suchen …" and the Settings toggle only ever
+   affect OpenFreshr; the managed apps go through the window's trust gate.
 
-If you cannot generate the key without creating a secret on this machine, **stop**
-and hand the step to whoever owns the broker secrets. Do not invent a key.
-
----
-
-## Enabling Sparkle in the build (deferred)
-
-The self-update **logic and UI are already wired** (`SelfUpdateChecker` in the
-core, `SelfUpdateController` + the "Nach OpenFreshr-Updates suchen …" menu items),
-but the **Sparkle binary dependency is intentionally not yet added**, because on
-this machine SwiftPM package resolution fails during `xcodebuild`:
-
-```
-fatal: cannot use bare repository '…/SourcePackages/repositories/Sparkle-…'
-(safe.bareRepository is 'explicit')
-```
-
-The global git hardening `safe.bareRepository=explicit` blocks SwiftPM's bare-repo
-clone. Working around it would mean mutating a deliberate global git security
-setting, so the dependency is deferred rather than forced — **a broken build is
-worse than a missing self-update**. `SelfUpdateController` is guarded with
-`#if canImport(Sparkle)`: without the framework it falls back to an `NSAlert` that
-checks the feed and links to the releases page; with the framework linked it drives
-the real `SPUStandardUpdaterController`.
-
-To finish it (on a machine/runner without that git restriction, or with
-`git config --global safe.bareRepository all` for the resolve step only):
-
-1. In `project.yml`, add the package and the target dependency:
-   ```yaml
-   packages:
-     Sparkle:
-       url: https://github.com/sparkle-project/Sparkle
-       from: 2.6.0
-   targets:
-     OpenFreshr:
-       dependencies:
-         - package: Sparkle
-   ```
-2. `make generate`, build, then **commit** `OpenFreshr.xcodeproj` **and** the
-   generated `…/xcshareddata/swiftpm/Package.resolved`.
-3. Replace the `SUPublicEDKey` placeholder with the real public key.
-4. In the broker: add `dependency_lock: locks/openfreshr-Package.resolved`, commit
-   that resolved file, switch `build_openfreshr` to the Sparkle variant in
-   [`broker/adapter-openfreshr.py`](broker/adapter-openfreshr.py), and declare
-   **every** nested Sparkle Mach-O in the profile's `nested_executables`
-   (Autoupdate, `Updater.app` [APPL], the Downloader/Installer XPC services, and
-   the `Sparkle.framework` binary) — the preflight rejects any undeclared one.
-   Enumerate them from a local Release build:
-   ```bash
-   find OpenFreshr.app \( -name '*.xpc' -o -name '*.framework' -o -perm -111 \) -print
-   ```
-
-Until then, `make build`, `make test`, `make app` and `make run` all stay green
-and the app self-checks via the fallback path.
+`OpenFreshrCore` still reads *other* apps' Sparkle appcasts to find their updates
+(`SparkleAppcast`); that is unrelated to how OpenFreshr updates itself.

@@ -46,15 +46,41 @@ def build_openfreshr(
     # CODE_SIGNING_ALLOWED=NO and injects DEVELOPMENT_TEAM from the profile's
     # team_id, so the produced bundle is hardened and ad-hoc-signed; the broker's
     # later stage re-signs it with the real Developer ID in an isolated job.
+    #
+    # The one third-party dependency, AppUpdater, is pinned to the broker-held
+    # lock (`dependency_lock`), which must equal OpenFreshr's committed
+    # Package.resolved. The untrusted job therefore resolves exactly the reviewed
+    # revision every time, and `-onlyUsePackageVersionsFromResolvedFile` refuses to
+    # move it. The lock's originHash is tied to project.yml's package section, so a
+    # dependency change needs the lock refreshed here first.
     ensure_source_file(source, "OpenFreshr.xcodeproj/project.pbxproj")
+    lock = safe_profile_path(profile["dependency_lock"])
+    workspace_lock = (
+        source
+        / "OpenFreshr.xcodeproj"
+        / "project.xcworkspace"
+        / "xcshareddata"
+        / "swiftpm"
+        / "Package.resolved"
+    )
+    workspace_lock.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(lock, workspace_lock)
     derived_data = work / "DerivedData"
+    packages = work / "SourcePackages"
+    common = [
+        "xcodebuild",
+        "-project",
+        "OpenFreshr.xcodeproj",
+        "-scheme",
+        "OpenFreshr",
+        "-clonedSourcePackagesDirPath",
+        str(packages),
+        "-onlyUsePackageVersionsFromResolvedFile",
+    ]
+    run(common + ["-resolvePackageDependencies"], cwd=source)
     run(
-        [
-            "xcodebuild",
-            "-project",
-            "OpenFreshr.xcodeproj",
-            "-scheme",
-            "OpenFreshr",
+        common
+        + [
             "-configuration",
             "Release",
             "-destination",
@@ -68,47 +94,3 @@ def build_openfreshr(
         cwd=source,
     )
     return derived_data / "Build" / "Products" / "Release" / profile["bundle_name"]
-
-
-# ---------------------------------------------------------------------------
-# SPARKLE VARIANT — use THIS body instead, once OpenFreshr embeds Sparkle.
-#
-# When the app gains the Sparkle SwiftPM dependency (see ../README.md §"Enabling
-# Sparkle"), the build must be pinned to a committed Package.resolved so the
-# untrusted job resolves the exact same Sparkle commit every time — the pattern
-# already used by build_md2loop. Steps that change:
-#
-#   1. Add `"dependency_lock": "locks/openfreshr-Package.resolved"` to the profile,
-#      and commit that resolved file into the broker under profiles/locks/.
-#   2. Declare EVERY nested Sparkle Mach-O in the profile's `nested_executables`
-#      (Autoupdate, Updater.app [APPL], Downloader.xpc + Installer.xpc, and the
-#      Sparkle.framework binary) — the broker's preflight REJECTS any undeclared
-#      nested bundle or Mach-O. Enumerate them from a local Release build with:
-#        find OpenFreshr.app -type f -perm -111 -o -name '*.xpc' -o -name '*.framework'
-#   3. Swap the function body for:
-#
-#     def build_openfreshr(source, work, profile, version, build_number):
-#         ensure_source_file(source, "OpenFreshr.xcodeproj/project.pbxproj")
-#         lock = safe_profile_path(profile["dependency_lock"])
-#         workspace_lock = (
-#             source / "OpenFreshr.xcodeproj" / "project.xcworkspace"
-#             / "xcshareddata" / "swiftpm" / "Package.resolved"
-#         )
-#         workspace_lock.parent.mkdir(parents=True, exist_ok=True)
-#         shutil.copy2(lock, workspace_lock)
-#         derived_data = work / "DerivedData"
-#         packages = work / "SourcePackages"
-#         common = [
-#             "xcodebuild", "-project", "OpenFreshr.xcodeproj", "-scheme", "OpenFreshr",
-#             "-clonedSourcePackagesDirPath", str(packages),
-#             "-onlyUsePackageVersionsFromResolvedFile",
-#         ]
-#         run(common + ["-resolvePackageDependencies"], cwd=source)
-#         run(
-#             common + ["-configuration", "Release", "-destination", "platform=macOS",
-#                       "-derivedDataPath", str(derived_data), "clean", "build"]
-#             + xcodebuild_settings(profile, version, build_number),
-#             cwd=source,
-#         )
-#         return derived_data / "Build" / "Products" / "Release" / profile["bundle_name"]
-# ---------------------------------------------------------------------------

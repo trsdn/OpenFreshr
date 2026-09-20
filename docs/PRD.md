@@ -600,4 +600,3 @@ Sicherheitsdurchsetzung, Kataloginstallation, zusätzliche Komfortfunktionen und
 schließlich den gehärteten Direktvertrieb.
 
 Details stehen in [PLAN.md](PLAN.md).
-
