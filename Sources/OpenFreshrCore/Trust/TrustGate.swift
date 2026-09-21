@@ -36,15 +36,22 @@ public enum TrustBlock: Sendable, Hashable {
     public var explanation: String {
         switch self {
         case .unsigned:
-            return String(localized: "The app bundle is not signed. OpenFreshr does not replace an unsigned app automatically.")
+            return String(
+                localized: "The app bundle is not signed. OpenFreshr does not replace an unsigned app automatically.")
         case let .signatureInvalid(message):
             return String(localized: "The signature check failed (\(message)). The replacement is blocked.")
         case let .gatekeeperRejected(message):
             return String(localized: "Gatekeeper rejected the bundle (\(message)). The replacement is blocked.")
         case .identityUnreadable:
-            return String(localized: "The bundle identity is unreadable. Without a clear identity nothing is replaced automatically — please check manually.")
+            return String(
+                localized:
+                    "The bundle identity is unreadable. Without a clear identity nothing is replaced automatically — please check manually."
+            )
         case let .teamIdentifierChanged(change):
-            return String(localized: "The team ID changed (was \(change.previousTeamIdentifier), now \(change.newTeamIdentifier), bundle \(change.bundleIdentifier)). This can be a legitimate takeover by the vendor — or a takeover of the update channel. Requires your explicit confirmation.")
+            return String(
+                localized:
+                    "The team ID changed (was \(change.previousTeamIdentifier), now \(change.newTeamIdentifier), bundle \(change.bundleIdentifier)). This can be a legitimate takeover by the vendor — or a takeover of the update channel. Requires your explicit confirmation."
+            )
         }
     }
 }
@@ -102,7 +109,7 @@ public struct TrustEvaluation: Sendable, Hashable {
     public var wouldBlockAutomaticReplacement: Bool {
         switch status {
         case .blockedUnsigned, .blockedSignatureInvalid, .blockedGatekeeperRejected,
-             .identityUnreadable, .teamChangePending:
+            .identityUnreadable, .teamChangePending:
             return true
         case .verifiedTrusted, .firstUse, .degraded:
             return false
@@ -229,13 +236,14 @@ public struct TrustGate: Sendable {
             // verified bundle with no readable team (Apple's own apps) is allowed
             // but leaves nothing to compare against later.
             if let bundleID, let teamIdentifier {
-                store.save(TrustRecord(
-                    bundleIdentifier: bundleID,
-                    teamIdentifier: teamIdentifier,
-                    firstObservedAt: now,
-                    updatedAt: now,
-                    origin: .firstUse
-                ))
+                store.save(
+                    TrustRecord(
+                        bundleIdentifier: bundleID,
+                        teamIdentifier: teamIdentifier,
+                        firstObservedAt: now,
+                        updatedAt: now,
+                        origin: .firstUse
+                    ))
             }
             return .allowed
 
@@ -248,14 +256,15 @@ public struct TrustGate: Sendable {
                     newTeamIdentifier: change.newTeamIdentifier,
                     confirmedAt: now
                 )
-                store.save(TrustRecord(
-                    bundleIdentifier: bundleID,
-                    teamIdentifier: change.newTeamIdentifier,
-                    firstObservedAt: existing?.firstObservedAt ?? now,
-                    updatedAt: now,
-                    origin: .userConfirmedChange,
-                    confirmedChanges: (existing?.confirmedChanges ?? []) + [confirmed]
-                ))
+                store.save(
+                    TrustRecord(
+                        bundleIdentifier: bundleID,
+                        teamIdentifier: change.newTeamIdentifier,
+                        firstObservedAt: existing?.firstObservedAt ?? now,
+                        updatedAt: now,
+                        origin: .userConfirmedChange,
+                        confirmedChanges: (existing?.confirmedChanges ?? []) + [confirmed]
+                    ))
             }
             return .allowed
 
@@ -326,17 +335,19 @@ public struct TrustGate: Sendable {
         if observed == baseline.teamIdentifier {
             return .verifiedTrusted(teamIdentifier: observed)
         }
-        return .teamChangePending(TeamIdentifierChange(
-            bundleIdentifier: bundleIdentifier,
-            previousTeamIdentifier: baseline.teamIdentifier,
-            newTeamIdentifier: observed
-        ))
+        return .teamChangePending(
+            TeamIdentifierChange(
+                bundleIdentifier: bundleIdentifier,
+                previousTeamIdentifier: baseline.teamIdentifier,
+                newTeamIdentifier: observed
+            ))
     }
 
     /// Normalise a bundle identifier for use as a case-insensitive trust key.
     static func normalizedBundleIdentifier(_ bundleIdentifier: String?) -> String? {
         guard let trimmed = bundleIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !trimmed.isEmpty else {
+            !trimmed.isEmpty
+        else {
             return nil
         }
         return trimmed.lowercased()

@@ -219,7 +219,7 @@ public final class CatalogViewModel {
                 ? String(localized: "Installation failed (code \(exitCode)).")
                 : detail
         case .homebrewUnavailable, .toolUnavailable, .launchFailed,
-             .invalidCaskToken, .invalidIdentifier, .requiresAdoption:
+            .invalidCaskToken, .invalidIdentifier, .requiresAdoption:
             return reason.explanation
         }
     }

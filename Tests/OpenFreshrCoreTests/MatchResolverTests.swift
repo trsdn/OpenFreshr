@@ -1,4 +1,5 @@
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The security core of OpenFreshr: matching, the veto rule and adoption
@@ -29,15 +30,19 @@ struct MatchResolverTests {
     static let mismatches: [MismatchCase] = [
         // Strong artifact match (Copilot.app == copilot-money's `Copilot.app`),
         // neutralised only by the veto rule.
-        MismatchCase(appBundleName: "Copilot.app", wrongToken: "copilot-money",
-                     strongArtifactButVetoed: true),
+        MismatchCase(
+            appBundleName: "Copilot.app", wrongToken: "copilot-money",
+            strongArtifactButVetoed: true),
         // Weak cleanup-stanza suggestions from a suite/agent cask.
-        MismatchCase(appBundleName: "Microsoft Defender.app", wrongToken: "microsoft-office",
-                     strongArtifactButVetoed: false),
-        MismatchCase(appBundleName: "OneDrive.app", wrongToken: "microsoft-office",
-                     strongArtifactButVetoed: false),
-        MismatchCase(appBundleName: "DisplayLink Manager.app", wrongToken: "elgato-camera-hub",
-                     strongArtifactButVetoed: false),
+        MismatchCase(
+            appBundleName: "Microsoft Defender.app", wrongToken: "microsoft-office",
+            strongArtifactButVetoed: false),
+        MismatchCase(
+            appBundleName: "OneDrive.app", wrongToken: "microsoft-office",
+            strongArtifactButVetoed: false),
+        MismatchCase(
+            appBundleName: "DisplayLink Manager.app", wrongToken: "elgato-camera-hub",
+            strongArtifactButVetoed: false),
     ]
 
     @Test(arguments: mismatches)
@@ -59,13 +64,15 @@ struct MatchResolverTests {
         if testCase.strongArtifactButVetoed {
             // The dangerous case: a real app-artifact match, demoted by the veto.
             #expect(wrong.vetoed == true)
-            if case .appArtifact = wrong.reason {} else {
+            if case .appArtifact = wrong.reason {
+            } else {
                 Issue.record("expected an appArtifact reason for \(testCase.appBundleName)")
             }
         } else {
             // The suite-cleanup case: a weak bundle-id suggestion, no veto needed.
             #expect(wrong.vetoed == false)
-            if case .bundleIdentifierInStanza = wrong.reason {} else {
+            if case .bundleIdentifierInStanza = wrong.reason {
+            } else {
                 Issue.record("expected a bundleIdentifierInStanza reason for \(testCase.appBundleName)")
             }
         }

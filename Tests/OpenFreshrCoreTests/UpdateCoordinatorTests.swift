@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Behavioural tests for the update coordinator — the update-side analogue of
@@ -22,7 +23,9 @@ struct UpdateCoordinatorTests {
         brewVersions: String = "",
         masOutdated: ProcessResult = .init(exitCode: 0, standardOutput: "", standardError: ""),
         msupdateList: ProcessResult = .init(exitCode: 0, standardOutput: "", standardError: ""),
-        brewUpgrade: @escaping @Sendable ([String]) -> ProcessResult = { _ in .init(exitCode: 0, standardOutput: "ok", standardError: "") },
+        brewUpgrade: @escaping @Sendable ([String]) -> ProcessResult = { _ in
+            .init(exitCode: 0, standardOutput: "ok", standardError: "")
+        },
         fetcher: any HTTPFetching = FakeHTTPFetcher()
     ) -> UpdateCoordinator {
         var fs = FakeFileSystem()
@@ -67,8 +70,9 @@ struct UpdateCoordinatorTests {
 
     @Test
     func homebrewUpdateIsDetectedDrivableAndBatchSelectable() async throws {
-        let figma = InstalledApp(bundlePath: "/Applications/Figma.app",
-                                 bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")
+        let figma = InstalledApp(
+            bundlePath: "/Applications/Figma.app",
+            bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")
         let coordinator = makeCoordinator(
             apps: [[figma]],
             casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
@@ -101,8 +105,9 @@ struct UpdateCoordinatorTests {
         // auto_updates casks). `brew upgrade` would compare receipt to cask, see a
         // match and no-op — so the effective command must be `reinstall`, which
         // actually re-lays the app onto the disk.
-        let app = InstalledApp(bundlePath: "/Applications/Transnomino.app",
-                               bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Transnomino.app",
+            bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "transnomino", names: ["Transnomino"], version: "10.1.0", autoUpdates: true)],
@@ -130,8 +135,9 @@ struct UpdateCoordinatorTests {
         // The receipt trails the cask exactly like the disk does: a plain backlog,
         // where `brew upgrade` is the correct verb. The receipt reaching the cask
         // is what distinguishes drift, so this must NOT be a reinstall.
-        let app = InstalledApp(bundlePath: "/Applications/Figma.app",
-                               bundleIdentifier: "com.figma.Desktop", shortVersion: "1.0.0")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Figma.app",
+            bundleIdentifier: "com.figma.Desktop", shortVersion: "1.0.0")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
@@ -156,8 +162,9 @@ struct UpdateCoordinatorTests {
         // finely versioned than the cask — it is not behind, so there is no update
         // and emphatically no reinstall. This is the false-alarm the spec calls out
         // by name: a finer disk version must never be mistaken for drift.
-        let app = InstalledApp(bundlePath: "/Applications/LibreOffice.app",
-                               bundleIdentifier: "org.libreoffice.script", shortVersion: "26.8.0.3")
+        let app = InstalledApp(
+            bundlePath: "/Applications/LibreOffice.app",
+            bundleIdentifier: "org.libreoffice.script", shortVersion: "26.8.0.3")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "libreoffice", names: ["LibreOffice"], version: "26.8.0", autoUpdates: true)],
@@ -180,8 +187,9 @@ struct UpdateCoordinatorTests {
         // carries an unparseable qualifier the comparator refuses. "Im Zweifel
         // nicht handeln": an inconclusive receipt cannot prove it reached the cask,
         // so this falls back to a plain upgrade rather than a reinstall.
-        let app = InstalledApp(bundlePath: "/Applications/Thing.app",
-                               bundleIdentifier: "com.thing.App", shortVersion: "1.0.0")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Thing.app",
+            bundleIdentifier: "com.thing.App", shortVersion: "1.0.0")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "thing", names: ["Thing"], version: "1.2.4")],
@@ -205,8 +213,13 @@ struct UpdateCoordinatorTests {
         // no-op `brew upgrade` must never appear. The rescan then confirms the disk.
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Transnomino.app",
-                                 bundleIdentifier: "com.transnomino.app", shortVersion: "10.1.0")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Transnomino.app",
+                        bundleIdentifier: "com.transnomino.app", shortVersion: "10.1.0")
+                ]
+            ],
             casks: [Cask(token: "transnomino", names: ["Transnomino"], version: "10.1.0", autoUpdates: true)],
             tools: [.brew],
             brewList: "transnomino\n",
@@ -235,11 +248,16 @@ struct UpdateCoordinatorTests {
         // reinstall even when the item claims a reinstall strategy.
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Transnomino.app",
-                                 bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Transnomino.app",
+                        bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1")
+                ]
+            ],
             casks: [Cask(token: "transnomino", names: ["Transnomino"], version: "10.1.0", autoUpdates: true)],
             tools: [.brew],
-            brewList: "", // NOT managed
+            brewList: "",  // NOT managed
             brewUpgrade: { args in
                 log.record(args)
                 return ProcessResult(exitCode: 99, standardOutput: "", standardError: "MUST-NOT-RUN")
@@ -270,12 +288,15 @@ struct UpdateCoordinatorTests {
         //   whatsapp     disk 26.33.19  cask 26.34.24  receipt 26.34.24 → reinstall
         //   libreoffice  disk 26.8.0.3  cask 26.8.0    receipt 26.8.0   → nothing
         let apps = [
-            InstalledApp(bundlePath: "/Applications/Transnomino.app",
-                         bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1"),
-            InstalledApp(bundlePath: "/Applications/WhatsApp.app",
-                         bundleIdentifier: "net.whatsapp.WhatsApp", shortVersion: "26.33.19"),
-            InstalledApp(bundlePath: "/Applications/LibreOffice.app",
-                         bundleIdentifier: "org.libreoffice.script", shortVersion: "26.8.0.3"),
+            InstalledApp(
+                bundlePath: "/Applications/Transnomino.app",
+                bundleIdentifier: "com.transnomino.app", shortVersion: "9.5.1"),
+            InstalledApp(
+                bundlePath: "/Applications/WhatsApp.app",
+                bundleIdentifier: "net.whatsapp.WhatsApp", shortVersion: "26.33.19"),
+            InstalledApp(
+                bundlePath: "/Applications/LibreOffice.app",
+                bundleIdentifier: "org.libreoffice.script", shortVersion: "26.8.0.3"),
         ]
         let coordinator = makeCoordinator(
             apps: [apps],
@@ -293,7 +314,8 @@ struct UpdateCoordinatorTests {
         func strategy(_ name: String) throws -> HomebrewUpdateStrategy? {
             let report = try report(reports, named: name)
             guard let source = report.sources.first(where: { $0.backend == .homebrew }),
-                  let item = UpdateCoordinator.updateItem(for: report, source: source) else { return nil }
+                let item = UpdateCoordinator.updateItem(for: report, source: source)
+            else { return nil }
             return item.homebrewStrategy
         }
 
@@ -303,12 +325,13 @@ struct UpdateCoordinatorTests {
 
         #expect(transnomino == .reinstall)
         #expect(whatsapp == .reinstall)
-        #expect(libreoffice == nil) // up to date → no drivable item at all
+        #expect(libreoffice == nil)  // up to date → no drivable item at all
 
         let drift = [("transnomino", transnomino), ("whatsapp", whatsapp), ("libreoffice", libreoffice)]
             .filter { $0.1 == .reinstall }
-        print("[receipt-drift] drift=\(drift.count)/3 reinstall=\(drift.map(\.0)) "
-            + "libreoffice=\(libreoffice.map(String.init(describing:)) ?? "none")")
+        print(
+            "[receipt-drift] drift=\(drift.count)/3 reinstall=\(drift.map(\.0)) "
+                + "libreoffice=\(libreoffice.map(String.init(describing:)) ?? "none")")
         #expect(drift.count == 2)
     }
 
@@ -316,8 +339,9 @@ struct UpdateCoordinatorTests {
     func incomparableHomebrewVersionsAreUnknownNeverAnUpdate() async throws {
         // Installed carries a pre-release qualifier on a marketing tie: the
         // comparator declines, so this must be `unbekannt`, not an update.
-        let app = InstalledApp(bundlePath: "/Applications/Thing.app",
-                               bundleIdentifier: "com.thing.App", shortVersion: "1.2.3-beta")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Thing.app",
+            bundleIdentifier: "com.thing.App", shortVersion: "1.2.3-beta")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "thing", names: ["Thing"], version: "1.2.3")],
@@ -337,8 +361,9 @@ struct UpdateCoordinatorTests {
     func aConfidentlyUpToDateHomebrewAppOffersNothing() async throws {
         // The real `alfred` shape: installed "5.7.3" vs cask "5.7.3,2320" is up to
         // date, and a revision on one side alone must not manufacture an update.
-        let app = InstalledApp(bundlePath: "/Applications/Alfred.app",
-                               bundleIdentifier: "com.runningwithcrayons.Alfred", shortVersion: "5.7.3")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Alfred.app",
+            bundleIdentifier: "com.runningwithcrayons.Alfred", shortVersion: "5.7.3")
         let coordinator = makeCoordinator(
             apps: [[app]],
             casks: [Cask(token: "alfred", names: ["Alfred"], version: "5.7.3,2320")],
@@ -355,15 +380,17 @@ struct UpdateCoordinatorTests {
     @Test
     func sparkleAppIsNeverAutoDrivenAndCarriesNoCommand() async throws {
         let feed = "https://example.com/appcast.xml"
-        let app = InstalledApp(bundlePath: "/Applications/Sparkly.app",
-                               bundleIdentifier: "com.example.Sparkly", shortVersion: "1.0",
-                               sparkleFeedURL: feed)
+        let app = InstalledApp(
+            bundlePath: "/Applications/Sparkly.app",
+            bundleIdentifier: "com.example.Sparkly", shortVersion: "1.0",
+            sparkleFeedURL: feed)
         let fetcher = FakeHTTPFetcher()
-        fetcher.setBody("""
-        <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
-        <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString></item>
-        </channel></rss>
-        """, for: feed)
+        fetcher.setBody(
+            """
+            <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
+            <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString></item>
+            </channel></rss>
+            """, for: feed)
 
         let coordinator = makeCoordinator(apps: [[app]], fetcher: fetcher)
         let report = try report(await coordinator.makeUpdateReports(), named: "Sparkly.app")
@@ -385,11 +412,12 @@ struct UpdateCoordinatorTests {
         // source is drivable, so the user may opt in per app — but because the app
         // self-updates, it stays out of the *default* batch selection.
         let feed = "https://example.com/appcast.xml"
-        let app = InstalledApp(bundlePath: "/Applications/Dual.app",
-                               bundleIdentifier: "com.example.Dual", shortVersion: "1.0",
-                               sparkleFeedURL: feed)
+        let app = InstalledApp(
+            bundlePath: "/Applications/Dual.app",
+            bundleIdentifier: "com.example.Dual", shortVersion: "1.0",
+            sparkleFeedURL: feed)
         let fetcher = FakeHTTPFetcher()
-        fetcher.setFailure("offline", for: feed) // feed state is irrelevant to the point
+        fetcher.setFailure("offline", for: feed)  // feed state is irrelevant to the point
 
         let coordinator = makeCoordinator(
             apps: [[app]],
@@ -401,10 +429,10 @@ struct UpdateCoordinatorTests {
         let report = try report(await coordinator.makeUpdateReports(), named: "Dual.app")
 
         let homebrew = try #require(report.sources.first { $0.backend == .homebrew })
-        #expect(homebrew.isDrivable)                                   // opt-in is possible
+        #expect(homebrew.isDrivable)  // opt-in is possible
         #expect(UpdateCoordinator.updateItem(for: report, source: homebrew) != nil)
         #expect(report.isSelfUpdating)
-        #expect(report.isDefaultBatchSelectable == false)             // but not by default
+        #expect(report.isDefaultBatchSelectable == false)  // but not by default
     }
 
     @Test
@@ -431,9 +459,10 @@ struct UpdateCoordinatorTests {
 
     @Test
     func macAppStoreOutdatedEntryBecomesADrivableUpdate() async throws {
-        let app = InstalledApp(bundlePath: "/Applications/Xcode.app",
-                               bundleIdentifier: "com.apple.dt.Xcode", shortVersion: "14.0",
-                               hasMacAppStoreReceipt: true)
+        let app = InstalledApp(
+            bundlePath: "/Applications/Xcode.app",
+            bundleIdentifier: "com.apple.dt.Xcode", shortVersion: "14.0",
+            hasMacAppStoreReceipt: true)
         let coordinator = makeCoordinator(
             apps: [[app]],
             tools: [.mas],
@@ -450,9 +479,10 @@ struct UpdateCoordinatorTests {
 
     @Test
     func macAppStoreDegradesToUnknownWhenMasIsAbsent() async throws {
-        let app = InstalledApp(bundlePath: "/Applications/Xcode.app",
-                               bundleIdentifier: "com.apple.dt.Xcode", shortVersion: "14.0",
-                               hasMacAppStoreReceipt: true)
+        let app = InstalledApp(
+            bundlePath: "/Applications/Xcode.app",
+            bundleIdentifier: "com.apple.dt.Xcode", shortVersion: "14.0",
+            hasMacAppStoreReceipt: true)
         let coordinator = makeCoordinator(apps: [[app]], tools: [])
         let report = try report(await coordinator.makeUpdateReports(), named: "Xcode.app")
         let source = try #require(report.sources.first { $0.backend == .macAppStore })
@@ -462,8 +492,9 @@ struct UpdateCoordinatorTests {
 
     @Test
     func microsoftAutoUpdateEntryBecomesADrivableUpdateAndIsBatchSelectable() async throws {
-        let app = InstalledApp(bundlePath: "/Applications/Microsoft Word.app",
-                               bundleIdentifier: "com.microsoft.Word", shortVersion: "16.77")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Microsoft Word.app",
+            bundleIdentifier: "com.microsoft.Word", shortVersion: "16.77")
         let coordinator = makeCoordinator(
             apps: [[app]],
             tools: [.msupdate],
@@ -484,12 +515,14 @@ struct UpdateCoordinatorTests {
     func microsoftAutoUpdateStaysUnknownWhenTheListedVersionCannotBeParsed() async throws {
         // Listed but without a parseable version: conservative → unbekannt, never
         // an invented update.
-        let app = InstalledApp(bundlePath: "/Applications/Microsoft Word.app",
-                               bundleIdentifier: "com.microsoft.Word", shortVersion: "16.77")
+        let app = InstalledApp(
+            bundlePath: "/Applications/Microsoft Word.app",
+            bundleIdentifier: "com.microsoft.Word", shortVersion: "16.77")
         let coordinator = makeCoordinator(
             apps: [[app]],
             tools: [.msupdate],
-            msupdateList: .init(exitCode: 0, standardOutput: "Microsoft Word (MSWD2019) up to date\n", standardError: "")
+            msupdateList: .init(
+                exitCode: 0, standardOutput: "Microsoft Word (MSWD2019) up to date\n", standardError: "")
         )
         let report = try report(await coordinator.makeUpdateReports(), named: "Microsoft Word.app")
         let source = try #require(report.sources.first { $0.backend == .microsoftAutoUpdate })
@@ -501,10 +534,12 @@ struct UpdateCoordinatorTests {
 
     @Test
     func aMajorUpgradeNeverSharesAReleaseWithARegularOne() async throws {
-        let regular = InstalledApp(bundlePath: "/Applications/Figma.app",
-                                   bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")
-        let major = InstalledApp(bundlePath: "/Applications/Bigapp.app",
-                                 bundleIdentifier: "com.example.Bigapp", shortVersion: "1.9.9")
+        let regular = InstalledApp(
+            bundlePath: "/Applications/Figma.app",
+            bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")
+        let major = InstalledApp(
+            bundlePath: "/Applications/Bigapp.app",
+            bundleIdentifier: "com.example.Bigapp", shortVersion: "1.9.9")
         let coordinator = makeCoordinator(
             apps: [[regular, major]],
             casks: [
@@ -542,10 +577,16 @@ struct UpdateCoordinatorTests {
         // figma upgrades cleanly; slack's process fails. The post-update disk shows
         // figma at its new version and slack unchanged.
         let coordinator = makeCoordinator(
-            apps: [[
-                InstalledApp(bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.4"),
-                InstalledApp(bundlePath: "/Applications/Slack.app", bundleIdentifier: "com.tinyspeck.slackmacgap", shortVersion: "3.0"),
-            ]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop",
+                        shortVersion: "1.2.4"),
+                    InstalledApp(
+                        bundlePath: "/Applications/Slack.app", bundleIdentifier: "com.tinyspeck.slackmacgap",
+                        shortVersion: "3.0"),
+                ]
+            ],
             casks: [
                 Cask(token: "figma", names: ["Figma"], version: "1.2.4"),
                 Cask(token: "slack", names: ["Slack"], version: "3.1"),
@@ -560,8 +601,10 @@ struct UpdateCoordinatorTests {
             }
         )
 
-        let figmaItem = Self.homebrewItem(bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
-        let slackItem = Self.homebrewItem(bundlePath: "/Applications/Slack.app", name: "Slack.app", token: "slack", target: "3.1")
+        let figmaItem = Self.homebrewItem(
+            bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
+        let slackItem = Self.homebrewItem(
+            bundlePath: "/Applications/Slack.app", name: "Slack.app", token: "slack", target: "3.1")
         let release = try #require(UpdateRelease(items: [figmaItem, slackItem]))
 
         let result = await coordinator.perform(release)
@@ -578,20 +621,26 @@ struct UpdateCoordinatorTests {
         // The backend "succeeds", but the rescan still shows the old version — so
         // success is refused. This is the "never optimistic" rule.
         let coordinator = makeCoordinator(
-            apps: [[
-                InstalledApp(bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3"),
-            ]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop",
+                        shortVersion: "1.2.3")
+                ]
+            ],
             casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
             tools: [.brew],
             brewList: "figma\n",
             brewUpgrade: { _ in ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "") }
         )
-        let item = Self.homebrewItem(bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
+        let item = Self.homebrewItem(
+            bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
         let outcome = coordinator.perform(item)
 
         #expect(outcome.didUpdate == false)
         #expect(outcome.isRetryable)
-        if case .notConfirmedByRescan = outcome {} else {
+        if case .notConfirmedByRescan = outcome {
+        } else {
             Issue.record("expected .notConfirmedByRescan, got \(outcome)")
         }
     }
@@ -599,14 +648,19 @@ struct UpdateCoordinatorTests {
     @Test
     func aConfirmedUpdateIsReportedOnlyAfterTheRescanAgrees() async throws {
         let coordinator = makeCoordinator(
-            apps: [[
-                InstalledApp(bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.4"),
-            ]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Figma.app", bundleIdentifier: "com.figma.Desktop",
+                        shortVersion: "1.2.4")
+                ]
+            ],
             casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
             tools: [.brew],
             brewList: "figma\n"
         )
-        let item = Self.homebrewItem(bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
+        let item = Self.homebrewItem(
+            bundlePath: "/Applications/Figma.app", name: "Figma.app", token: "figma", target: "1.2.4")
         let outcome = coordinator.perform(item)
         #expect(outcome.didUpdate)
     }
@@ -633,16 +687,18 @@ struct UpdateCoordinatorTests {
         )
         let coordinator = makeCoordinator(
             apps: [[amazonPhotos]],
-            casks: [Cask(
-                token: "amazon-photos",
-                names: ["Amazon Photos"],
-                version: "2.0.0", // a major bump over 1.0.0 — the pressed path
-                autoUpdates: false,
-                artifacts: [CaskArtifact(kind: .app, target: "Amazon Photos.app")],
-                primaryBundleIdentifiers: []
-            )],
+            casks: [
+                Cask(
+                    token: "amazon-photos",
+                    names: ["Amazon Photos"],
+                    version: "2.0.0",  // a major bump over 1.0.0 — the pressed path
+                    autoUpdates: false,
+                    artifacts: [CaskArtifact(kind: .app, target: "Amazon Photos.app")],
+                    primaryBundleIdentifiers: []
+                )
+            ],
             tools: [.brew],
-            brewList: "" // nothing managed — mirrors the reference system
+            brewList: ""  // nothing managed — mirrors the reference system
         )
 
         let report = try report(await coordinator.makeUpdateReports(), named: "Amazon Photos.app")
@@ -672,11 +728,16 @@ struct UpdateCoordinatorTests {
         // runs — `brewUpgrade` is wired to a sentinel that must never be called.
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Amazon Photos.app",
-                                 bundleIdentifier: "com.amazon.clouddrive.photos", shortVersion: "1.0.0")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Amazon Photos.app",
+                        bundleIdentifier: "com.amazon.clouddrive.photos", shortVersion: "1.0.0")
+                ]
+            ],
             casks: [Cask(token: "amazon-photos", names: ["Amazon Photos"], version: "2.0.0", autoUpdates: false)],
             tools: [.brew],
-            brewList: "", // amazon-photos is NOT managed
+            brewList: "",  // amazon-photos is NOT managed
             brewUpgrade: { args in
                 log.record(args)
                 return ProcessResult(exitCode: 99, standardOutput: "", standardError: "MUST-NOT-RUN")
@@ -705,11 +766,16 @@ struct UpdateCoordinatorTests {
         // The guard lets it through, the backend runs, and the rescan confirms it.
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Figma.app",
-                                 bundleIdentifier: "com.figma.Desktop", shortVersion: "2.0.0")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Figma.app",
+                        bundleIdentifier: "com.figma.Desktop", shortVersion: "2.0.0")
+                ]
+            ],
             casks: [Cask(token: "figma", names: ["Figma"], version: "2.0.0")],
             tools: [.brew],
-            brewList: "figma\n", // managed → drivable
+            brewList: "figma\n",  // managed → drivable
             brewUpgrade: { args in
                 log.record(args)
                 return ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "")
@@ -744,14 +810,16 @@ struct UpdateCoordinatorTests {
         )
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[widget], [widgetUpdated]], // scan #1 reports; scan #2 confirms
-            casks: [Cask(
-                token: "widget", names: ["Widget"], version: "1.1.0", autoUpdates: true,
-                artifacts: [CaskArtifact(kind: .app, target: "Widget.app")],
-                primaryBundleIdentifiers: ["com.example.widget"]
-            )],
+            apps: [[widget], [widgetUpdated]],  // scan #1 reports; scan #2 confirms
+            casks: [
+                Cask(
+                    token: "widget", names: ["Widget"], version: "1.1.0", autoUpdates: true,
+                    artifacts: [CaskArtifact(kind: .app, target: "Widget.app")],
+                    primaryBundleIdentifiers: ["com.example.widget"]
+                )
+            ],
             tools: [.brew],
-            brewList: "", // NOT managed — the whole point
+            brewList: "",  // NOT managed — the whole point
             brewUpgrade: { args in
                 log.record(args)
                 return ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "")
@@ -766,21 +834,24 @@ struct UpdateCoordinatorTests {
         #expect(source.isDrivable)
         #expect(source.adoptionWouldFail == false)
         #expect(source.homebrewStrategy == .adoptThenReinstall)
-        #expect(source.commandPlan.map(\.arguments) == [
-            ["install", "--cask", "--adopt", "--", "widget"],
-            ["reinstall", "--cask", "--", "widget"],
-        ])
+        #expect(
+            source.commandPlan.map(\.arguments) == [
+                ["install", "--cask", "--adopt", "--", "widget"],
+                ["reinstall", "--cask", "--", "widget"],
+            ])
 
         let item = try #require(UpdateCoordinator.updateItem(for: report, source: source))
         let outcome = coordinator.perform(item)
 
         #expect(outcome.didUpdate)
-        #expect(log.allCalls == [
-            ["install", "--cask", "--adopt", "--", "widget"],
-            ["reinstall", "--cask", "--", "widget"],
-        ])
-        #expect(log.allCalls.allSatisfy { !$0.contains("--force") },
-                "the adopt-then-update chain must never pass --force")
+        #expect(
+            log.allCalls == [
+                ["install", "--cask", "--adopt", "--", "widget"],
+                ["reinstall", "--cask", "--", "widget"],
+            ])
+        #expect(
+            log.allCalls.allSatisfy { !$0.contains("--force") },
+            "the adopt-then-update chain must never pass --force")
     }
 
     @Test
@@ -790,16 +861,22 @@ struct UpdateCoordinatorTests {
         // attributed to this app — never a false success.
         let log = CallLog()
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Widget.app",
-                                 bundleIdentifier: "com.example.widget", shortVersion: "1.0.0")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Widget.app",
+                        bundleIdentifier: "com.example.widget", shortVersion: "1.0.0")
+                ]
+            ],
             casks: [Cask(token: "widget", names: ["Widget"], version: "1.1.0", autoUpdates: true)],
             tools: [.brew],
             brewList: "",
             brewUpgrade: { args in
                 log.record(args)
                 if args.first == "install" {
-                    return ProcessResult(exitCode: 1, standardOutput: "",
-                                         standardError: "Error: CaskError: version mismatch, refusing to adopt")
+                    return ProcessResult(
+                        exitCode: 1, standardOutput: "",
+                        standardError: "Error: CaskError: version mismatch, refusing to adopt")
                 }
                 return ProcessResult(exitCode: 0, standardOutput: "ok", standardError: "")
             }
@@ -815,7 +892,8 @@ struct UpdateCoordinatorTests {
         #expect(log.installCalls == [["install", "--cask", "--adopt", "--", "widget"]])
         #expect(log.reinstallCalls.isEmpty, "step 2 must not run after a failed adopt")
         #expect(outcome.didUpdate == false)
-        if case .caskError = outcome {} else {
+        if case .caskError = outcome {
+        } else {
             Issue.record("expected .caskError from a refused adopt, got \(outcome)")
         }
     }
@@ -825,8 +903,13 @@ struct UpdateCoordinatorTests {
         // Counter-proof: an app Homebrew already manages keeps the single-step
         // upgrade — the merge adds a second command only for unmanaged apps.
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Figma.app",
-                                 bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")]],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Figma.app",
+                        bundleIdentifier: "com.figma.Desktop", shortVersion: "1.2.3")
+                ]
+            ],
             casks: [Cask(token: "figma", names: ["Figma"], version: "1.2.4")],
             tools: [.brew],
             brewList: "figma\n"
@@ -845,15 +928,22 @@ struct UpdateCoordinatorTests {
         // refusal. The prediction logic flags it up-front: the update stays visible
         // and honestly named, but no command is attached and nothing can run.
         let coordinator = makeCoordinator(
-            apps: [[InstalledApp(bundlePath: "/Applications/Amazon Photos.app",
-                                 bundleIdentifier: "com.amazon.clouddrive.photos",
-                                 shortVersion: "1.0.0", bundleVersion: "1.0.0")]],
-            casks: [Cask(
-                token: "amazon-photos", names: ["Amazon Photos"], version: "2.0.0",
-                autoUpdates: false,
-                artifacts: [CaskArtifact(kind: .app, target: "Amazon Photos.app")],
-                primaryBundleIdentifiers: []
-            )],
+            apps: [
+                [
+                    InstalledApp(
+                        bundlePath: "/Applications/Amazon Photos.app",
+                        bundleIdentifier: "com.amazon.clouddrive.photos",
+                        shortVersion: "1.0.0", bundleVersion: "1.0.0")
+                ]
+            ],
+            casks: [
+                Cask(
+                    token: "amazon-photos", names: ["Amazon Photos"], version: "2.0.0",
+                    autoUpdates: false,
+                    artifacts: [CaskArtifact(kind: .app, target: "Amazon Photos.app")],
+                    primaryBundleIdentifiers: []
+                )
+            ],
             tools: [.brew],
             brewList: ""
         )
@@ -963,11 +1053,12 @@ private final class ConcurrencyTrackingHTTPFetcher: HTTPFetching, @unchecked Sen
         defer { endRequest() }
 
         try await Task.sleep(for: .milliseconds(20))
-        return Data("""
-        <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
-        <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString></item>
-        </channel></rss>
-        """.utf8)
+        return Data(
+            """
+            <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
+            <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString></item>
+            </channel></rss>
+            """.utf8)
     }
 
     private func beginRequest() {

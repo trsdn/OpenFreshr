@@ -44,11 +44,15 @@ public enum IneligibilityReason: Hashable, Sendable, Codable {
         case .onlyWeakMatches:
             return String(localized: "Only weak matches (bundle ID/name) — no safe candidate")
         case let .strongMatchVetoed(token):
-            return String(localized: "Artifact match \(token) invalidated by veto (bundle ID contradicts the cask identity)")
+            return String(
+                localized: "Artifact match \(token) invalidated by veto (bundle ID contradicts the cask identity)")
         case let .caskIsInstallerOnly(token):
             return String(localized: "Cask \(token) installs via pkg/installer — cannot be adopted losslessly")
         case let .identityNotConfirmed(token):
-            return String(localized: "Identity not confirmed: bundle ID is not in the cask identity of \(token) and the cask updates itself — adoption too risky")
+            return String(
+                localized:
+                    "Identity not confirmed: bundle ID is not in the cask identity of \(token) and the cask updates itself — adoption too risky"
+            )
         case .managedByMacAppStore:
             return String(localized: "Already managed through the Mac App Store")
         case let .alreadyHomebrewManaged(token):

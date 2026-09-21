@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// A programmable ``AdoptingBackend`` for coordinator tests.

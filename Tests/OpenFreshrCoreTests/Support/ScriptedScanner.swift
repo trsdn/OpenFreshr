@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// A ``Scanning`` that replays scripted inventories, one per scan call.

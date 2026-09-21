@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// A programmable ``HTTPFetching`` for Sparkle-feed *and* catalog-refresh tests.

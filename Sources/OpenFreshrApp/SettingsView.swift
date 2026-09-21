@@ -1,7 +1,7 @@
-import SwiftUI
-import ServiceManagement
-import UserNotifications
 import OpenFreshrCore
+import ServiceManagement
+import SwiftUI
+import UserNotifications
 
 /// The Settings scene.
 ///
@@ -32,9 +32,11 @@ struct SettingsView: View {
                             Text(interval.label).tag(interval)
                         }
                     }
-                    Text("OpenFreshr only checks for updates in the background — nothing is ever installed automatically. Every update goes through the preview and confirmation in the window.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        "OpenFreshr only checks for updates in the background — nothing is ever installed automatically. Every update goes through the preview and confirmation in the window."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 } header: {
                     Text("Background Check")
                 }
@@ -59,9 +61,11 @@ struct SettingsView: View {
             Form {
                 Section {
                     Toggle("Show icon in the Dock", isOn: $viewModel.showsDockIcon)
-                    Text("Off: OpenFreshr runs only in the menu bar, without a Dock icon. Closing the window does not quit the app — it keeps running in the menu bar.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        "Off: OpenFreshr runs only in the menu bar, without a Dock icon. Closing the window does not quit the app — it keeps running in the menu bar."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 } header: {
                     Text("Appearance")
                 }
@@ -87,9 +91,11 @@ struct SettingsView: View {
                             get: { selfUpdate.automaticChecksEnabled },
                             set: { selfUpdate.automaticChecksEnabled = $0 }
                         ))
-                    Text("Checks GitHub at most once a day for a new version of OpenFreshr. Nothing is installed until you confirm.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        "Checks GitHub at most once a day for a new version of OpenFreshr. Nothing is installed until you confirm."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 } header: {
                     Text("Self-Update")
                 }
@@ -151,12 +157,15 @@ enum UpdateNotifier {
         guard count > 0 else { return }
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
-            guard settings.authorizationStatus == .authorized
-                    || settings.authorizationStatus == .provisional else { return }
+            guard
+                settings.authorizationStatus == .authorized
+                    || settings.authorizationStatus == .provisional
+            else { return }
 
             let content = UNMutableNotificationContent()
             content.title = String(localized: "Updates available")
-            content.body = count == 1
+            content.body =
+                count == 1
                 ? String(localized: "1 app can be updated.")
                 : String(localized: "\(count) apps can be updated.")
 

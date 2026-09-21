@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Unit coverage for the ingestion path that finally *populates* the two bundle
@@ -118,13 +119,17 @@ struct CaskCatalogIngestionTests {
             "token": "example",
             "artifacts": [
                 ["app": ["Example.app"], "target": "Example.app"],
-                ["zap": [
-                    ["trash": [
-                        "~/Library/Containers/com.example.app",
-                        "~/Library/Saved Application State/com.example.app.savedState",
-                        "~/Library/Preferences/com.example.helper.plist",
-                    ]],
-                ]],
+                [
+                    "zap": [
+                        [
+                            "trash": [
+                                "~/Library/Containers/com.example.app",
+                                "~/Library/Saved Application State/com.example.app.savedState",
+                                "~/Library/Preferences/com.example.helper.plist",
+                            ]
+                        ]
+                    ]
+                ],
             ],
         ])
 
@@ -143,10 +148,16 @@ struct CaskCatalogIngestionTests {
             "artifacts": [
                 ["app": ["Example.app"], "target": "Example.app"],
                 ["uninstall": [["quit": "com.example.app"]]],
-                ["zap": [["trash": [
-                    "~/Library/Containers/com.example.app",
-                    "~/Library/Containers/com.foreign.debris",
-                ]]]],
+                [
+                    "zap": [
+                        [
+                            "trash": [
+                                "~/Library/Containers/com.example.app",
+                                "~/Library/Containers/com.foreign.debris",
+                            ]
+                        ]
+                    ]
+                ],
             ],
         ])
 
@@ -194,10 +205,16 @@ struct CaskCatalogIngestionTests {
             "token": "example",
             "artifacts": [
                 ["app": ["Example.app"], "target": "Example.app"],
-                ["zap": [["trash": [
-                    "~/Library/Preferences/com.apple.LaunchServices.plist",
-                    "~/Library/Preferences/com.example.app.plist",
-                ]]]],
+                [
+                    "zap": [
+                        [
+                            "trash": [
+                                "~/Library/Preferences/com.apple.LaunchServices.plist",
+                                "~/Library/Preferences/com.example.app.plist",
+                            ]
+                        ]
+                    ]
+                ],
             ],
         ])
 

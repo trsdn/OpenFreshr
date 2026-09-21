@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The coordinator that gates *when* a check may start and guarantees only one

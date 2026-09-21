@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Coverage for the live catalog refresh: the strict **network → cache →
@@ -24,14 +25,16 @@ struct CaskCatalogProviderTests {
     /// A one-cask API document whose `uninstall.quit` gives it a *strong* identity,
     /// so a correct ingestion is observable via `primaryBundleIdentifiers`.
     private func caskWithStrongIdentity(token: String, helper: String) throws -> Data {
-        try caskAPIData([[
-            "token": token,
-            "version": "1.0",
-            "artifacts": [
-                ["app": ["\(token).app"], "target": "\(token).app"],
-                ["uninstall": [["quit": helper]]],
-            ],
-        ]])
+        try caskAPIData([
+            [
+                "token": token,
+                "version": "1.0",
+                "artifacts": [
+                    ["app": ["\(token).app"], "target": "\(token).app"],
+                    ["uninstall": [["quit": helper]]],
+                ],
+            ]
+        ])
     }
 
     /// The bundled-snapshot stand-in: a single, recognisably "snapshot" cask.
@@ -73,10 +76,12 @@ struct CaskCatalogProviderTests {
         let store = FakeCatalogCacheStore()
 
         let fresh = try caskWithStrongIdentity(token: "fresh-app", helper: "com.fresh.helper")
-        fetcher.setConditionalModified(fresh, validators: CatalogValidators(etag: "v-fresh"), for: caskURL.absoluteString)
+        fetcher.setConditionalModified(
+            fresh, validators: CatalogValidators(etag: "v-fresh"), for: caskURL.absoluteString)
         // Analytics arrives alongside and should be cached too.
         let analytics = Data(#"{"items":[{"cask":"fresh-app","count":"1,234"}]}"#.utf8)
-        fetcher.setConditionalModified(analytics, validators: CatalogValidators(etag: "a1"), for: analyticsURL.absoluteString)
+        fetcher.setConditionalModified(
+            analytics, validators: CatalogValidators(etag: "a1"), for: analyticsURL.absoluteString)
 
         let provider = makeProvider(fetcher: fetcher, store: store)
         let load = await provider.refresh(now: now)
@@ -102,19 +107,20 @@ struct CaskCatalogProviderTests {
 
     @Test
     func notModifiedKeepsCacheAndAdvancesOnlyCheckedAt() async throws {
-        let t0 = Date(timeIntervalSince1970: 1_000_000)          // fetched
-        let t1 = t0.addingTimeInterval(48 * 3_600)               // checked, 48h later
+        let t0 = Date(timeIntervalSince1970: 1_000_000)  // fetched
+        let t1 = t0.addingTimeInterval(48 * 3_600)  // checked, 48h later
         let fetcher = FakeHTTPFetcher()
 
         let cachedData = try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper")
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: cachedData,
-            analyticsAPIData: nil,
-            caskValidators: CatalogValidators(etag: "v1"),
-            analyticsValidators: CatalogValidators(),
-            fetchedAt: t0,
-            checkedAt: t0
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: cachedData,
+                analyticsAPIData: nil,
+                caskValidators: CatalogValidators(etag: "v1"),
+                analyticsValidators: CatalogValidators(),
+                fetchedAt: t0,
+                checkedAt: t0
+            ))
         fetcher.setConditionalNotModified(for: caskURL.absoluteString)
 
         let provider = makeProvider(fetcher: fetcher, store: store)
@@ -144,12 +150,13 @@ struct CaskCatalogProviderTests {
         let fetcher = FakeHTTPFetcher()
 
         let cachedData = try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper")
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: cachedData,
-            caskValidators: CatalogValidators(etag: "v1"),
-            fetchedAt: t0,
-            checkedAt: t0
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: cachedData,
+                caskValidators: CatalogValidators(etag: "v1"),
+                fetchedAt: t0,
+                checkedAt: t0
+            ))
         fetcher.setConditionalFailure("offline", for: caskURL.absoluteString)
 
         let provider = makeProvider(fetcher: fetcher, store: store)
@@ -184,11 +191,12 @@ struct CaskCatalogProviderTests {
 
     @Test
     func corruptCacheFallsBackToSnapshotOnInitialLoad() {
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: Data("this is not a cask.json array".utf8),
-            fetchedAt: Date(timeIntervalSince1970: 500),
-            checkedAt: Date(timeIntervalSince1970: 500)
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: Data("this is not a cask.json array".utf8),
+                fetchedAt: Date(timeIntervalSince1970: 500),
+                checkedAt: Date(timeIntervalSince1970: 500)
+            ))
         let provider = makeProvider(fetcher: FakeHTTPFetcher(), store: store)
 
         let load = provider.loadInitial()
@@ -202,11 +210,12 @@ struct CaskCatalogProviderTests {
     func validCacheIsPreferredOnInitialLoad() throws {
         let t0 = Date(timeIntervalSince1970: 1_500_000)
         let cachedData = try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper")
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: cachedData,
-            fetchedAt: t0,
-            checkedAt: t0
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: cachedData,
+                fetchedAt: t0,
+                checkedAt: t0
+            ))
         let provider = makeProvider(fetcher: FakeHTTPFetcher(), store: store)
 
         let load = provider.loadInitial()
@@ -224,22 +233,25 @@ struct CaskCatalogProviderTests {
         // could set the internal safety fields directly. Ingestion never reads
         // those; it recomputes the buckets from the stanzas. The injected primary
         // id must vanish, and only the *path*-derived id must appear in cleanup.
-        let hostile = try caskAPIData([[
-            "token": "victim",
-            "version": "1.0",
-            "primaryBundleIdentifiers": ["com.attacker.injected"],
-            "cleanupBundleIdentifiers": ["com.attacker.injected"],
-            "auto_updates": false,
-            "artifacts": [
-                ["app": ["Victim.app"], "target": "Victim.app"],
-                ["zap": [["trash": "~/Library/Containers/com.real.debris"]]],
-            ],
-        ]])
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: hostile,
-            fetchedAt: Date(timeIntervalSince1970: 10),
-            checkedAt: Date(timeIntervalSince1970: 10)
-        ))
+        let hostile = try caskAPIData([
+            [
+                "token": "victim",
+                "version": "1.0",
+                "primaryBundleIdentifiers": ["com.attacker.injected"],
+                "cleanupBundleIdentifiers": ["com.attacker.injected"],
+                "auto_updates": false,
+                "artifacts": [
+                    ["app": ["Victim.app"], "target": "Victim.app"],
+                    ["zap": [["trash": "~/Library/Containers/com.real.debris"]]],
+                ],
+            ]
+        ])
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: hostile,
+                fetchedAt: Date(timeIntervalSince1970: 10),
+                checkedAt: Date(timeIntervalSince1970: 10)
+            ))
         let provider = makeProvider(fetcher: FakeHTTPFetcher(), store: store)
 
         let load = provider.loadInitial()
@@ -258,15 +270,16 @@ struct CaskCatalogProviderTests {
     @Test
     func cacheAgeIsComputedFromFetchDate() throws {
         let now = Date(timeIntervalSince1970: 2_000_000)
-        let fetchedAt = now.addingTimeInterval(-3_600)   // one hour old
-        let checkedAt = now.addingTimeInterval(-60)       // checked a minute ago
+        let fetchedAt = now.addingTimeInterval(-3_600)  // one hour old
+        let checkedAt = now.addingTimeInterval(-60)  // checked a minute ago
         let cachedData = try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper")
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: cachedData,
-            caskValidators: CatalogValidators(etag: "v1"),
-            fetchedAt: fetchedAt,
-            checkedAt: checkedAt
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: cachedData,
+                caskValidators: CatalogValidators(etag: "v1"),
+                fetchedAt: fetchedAt,
+                checkedAt: checkedAt
+            ))
         let provider = makeProvider(fetcher: FakeHTTPFetcher(), store: store)
 
         let load = provider.loadInitial()
@@ -283,14 +296,16 @@ struct CaskCatalogProviderTests {
         let t1 = t0.addingTimeInterval(3_600)
         let fetcher = FakeHTTPFetcher()
         let cachedData = try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper")
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: cachedData,
-            caskValidators: CatalogValidators(etag: "v1"),
-            fetchedAt: t0,
-            checkedAt: t0
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: cachedData,
+                caskValidators: CatalogValidators(etag: "v1"),
+                fetchedAt: t0,
+                checkedAt: t0
+            ))
         // Server says "modified" but the body is not a cask.json array.
-        fetcher.setConditionalModified(Data("{}".utf8), validators: CatalogValidators(etag: "v2"), for: caskURL.absoluteString)
+        fetcher.setConditionalModified(
+            Data("{}".utf8), validators: CatalogValidators(etag: "v2"), for: caskURL.absoluteString)
 
         let provider = makeProvider(fetcher: fetcher, store: store)
         let load = await provider.refresh(now: t1)
@@ -307,11 +322,12 @@ struct CaskCatalogProviderTests {
 
     @Test
     func clearCacheEmptiesTheStore() throws {
-        let store = FakeCatalogCacheStore(initial: CachedCatalog(
-            caskAPIData: try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper"),
-            fetchedAt: Date(timeIntervalSince1970: 10),
-            checkedAt: Date(timeIntervalSince1970: 10)
-        ))
+        let store = FakeCatalogCacheStore(
+            initial: CachedCatalog(
+                caskAPIData: try caskWithStrongIdentity(token: "cached-app", helper: "com.cached.helper"),
+                fetchedAt: Date(timeIntervalSince1970: 10),
+                checkedAt: Date(timeIntervalSince1970: 10)
+            ))
         let provider = makeProvider(fetcher: FakeHTTPFetcher(), store: store)
 
         try provider.clearCache()

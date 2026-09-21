@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The Homebrew **install** path (Phase 5): a fresh `brew install --cask -- <token>`
@@ -130,7 +131,8 @@ struct HomebrewBackendInstallTests {
             ProcessResult(
                 exitCode: 1,
                 standardOutput: "",
-                standardError: "Error: It seems there is already an App at '/Applications/Example.app'; run with --adopt to gain control."
+                standardError:
+                    "Error: It seems there is already an App at '/Applications/Example.app'; run with --adopt to gain control."
             )
         }
         let backend = HomebrewBackend(
@@ -159,7 +161,8 @@ struct HomebrewBackendInstallTests {
         )
 
         guard case let .failed(reason) = backend.install(caskToken: "example"),
-              case .processFailed = reason else {
+            case .processFailed = reason
+        else {
             Issue.record("a plain non-zero exit must be a process failure, not a CaskError")
             return
         }

@@ -41,11 +41,12 @@ public enum MasOutdatedParser {
     static func parseLine(_ line: String) -> MasOutdatedEntry? {
         let range = NSRange(line.startIndex..<line.endIndex, in: line)
         guard let match = lineRegex.firstMatch(in: line, range: range),
-              match.numberOfRanges == 5,
-              let idRange = Range(match.range(at: 1), in: line),
-              let nameRange = Range(match.range(at: 2), in: line),
-              let oldRange = Range(match.range(at: 3), in: line),
-              let newRange = Range(match.range(at: 4), in: line) else {
+            match.numberOfRanges == 5,
+            let idRange = Range(match.range(at: 1), in: line),
+            let nameRange = Range(match.range(at: 2), in: line),
+            let oldRange = Range(match.range(at: 3), in: line),
+            let newRange = Range(match.range(at: 4), in: line)
+        else {
             return nil
         }
         let name = String(line[nameRange]).trimmingCharacters(in: .whitespaces)

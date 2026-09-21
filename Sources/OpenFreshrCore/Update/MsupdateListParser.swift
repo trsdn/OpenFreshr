@@ -44,20 +44,23 @@ public enum MsupdateListParser {
     static func parseLine(_ line: String) -> MsupdateAppEntry? {
         let fullRange = NSRange(line.startIndex..<line.endIndex, in: line)
         guard let idMatch = appIDRegex.firstMatch(in: line, range: fullRange),
-              let idRange = Range(idMatch.range(at: 1), in: line),
-              let bracketRange = Range(idMatch.range, in: line) else {
+            let idRange = Range(idMatch.range(at: 1), in: line),
+            let bracketRange = Range(idMatch.range, in: line)
+        else {
             return nil
         }
         let appID = String(line[idRange])
 
         // Title: whatever precedes the bracket, stripped of list bullets.
         let titleRaw = String(line[line.startIndex..<bracketRange.lowerBound])
-        let title = titleRaw
+        let title =
+            titleRaw
             .trimmingCharacters(in: CharacterSet(charactersIn: " \t-*•·:").union(.whitespaces))
 
         // Version: first dotted-numeric token after the bracket, else anywhere.
         let afterRange = NSRange(bracketRange.upperBound..<line.endIndex, in: line)
-        let version = firstVersion(in: line, range: afterRange)
+        let version =
+            firstVersion(in: line, range: afterRange)
             ?? firstVersion(in: line, range: fullRange)
 
         return MsupdateAppEntry(appID: appID, title: title, availableVersion: version)
@@ -65,7 +68,8 @@ public enum MsupdateListParser {
 
     private static func firstVersion(in line: String, range: NSRange) -> String? {
         guard let match = versionRegex.firstMatch(in: line, range: range),
-              let versionRange = Range(match.range(at: 1), in: line) else {
+            let versionRange = Range(match.range(at: 1), in: line)
+        else {
             return nil
         }
         return String(line[versionRange])

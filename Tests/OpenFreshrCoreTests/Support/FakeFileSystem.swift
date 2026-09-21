@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// An in-memory ``FileSystemReading`` built from ``InstalledApp`` values.
@@ -55,7 +56,8 @@ struct FakeFileSystem: FileSystemReading {
             existingPaths.insert((contents as NSString).appendingPathComponent("Frameworks/Sparkle.framework"))
         }
         if app.isElectron {
-            existingPaths.insert((contents as NSString).appendingPathComponent("Frameworks/Electron Framework.framework"))
+            existingPaths.insert(
+                (contents as NSString).appendingPathComponent("Frameworks/Electron Framework.framework"))
         }
     }
 

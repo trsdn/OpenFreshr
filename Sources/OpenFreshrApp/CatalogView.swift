@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// Which main area the window shows: the installed inventory (phases 1–4) or the
 /// catalog of installable apps (phase 5). A plain, additive switch so the two
@@ -280,7 +280,10 @@ struct CatalogDetailView: View {
         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
             fact("Version", cask.version ?? String(localized: "unknown"))
             fact("Type", artifactLabel)
-            fact("Popularity", result.installCount.map { String(localized: "\($0.formatted()) installs/year") } ?? String(localized: "unknown"))
+            fact(
+                "Popularity",
+                result.installCount.map { String(localized: "\($0.formatted()) installs/year") }
+                    ?? String(localized: "unknown"))
             if let homepage = cask.homepage, let url = URL(string: homepage) {
                 GridRow {
                     Text("Homepage").foregroundStyle(.secondary)

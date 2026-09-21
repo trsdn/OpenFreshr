@@ -1,4 +1,5 @@
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Exhaustive tests for the version comparator — the component the whole

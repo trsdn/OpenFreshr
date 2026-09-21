@@ -64,7 +64,8 @@ public struct CatalogSearchIndex: Sendable {
             let installedBundleName = cask.movedArtifactTargets.first {
                 installedLowercased.contains($0.lowercased())
             }
-            let isInstalled = installedBundleName != nil
+            let isInstalled =
+                installedBundleName != nil
                 || recognizedTokens.contains(cask.token)
 
             let installCount = analytics?.installs(for: cask.token)
@@ -106,7 +107,8 @@ public struct CatalogSearchIndex: Sendable {
     ///
     /// - Parameter limit: optional cap on the number of results returned.
     public func search(_ rawQuery: String, limit: Int? = nil) -> [CatalogSearchResult] {
-        let terms = rawQuery
+        let terms =
+            rawQuery
             .lowercased()
             .split(whereSeparator: { $0.isWhitespace })
             .map(String.init)
@@ -140,7 +142,7 @@ public struct CatalogSearchIndex: Sendable {
     private static func haystack(for cask: Cask) -> String {
         var parts: [String] = [
             cask.token,
-            cask.token.replacingOccurrences(of: "-", with: " ")
+            cask.token.replacingOccurrences(of: "-", with: " "),
         ]
         parts.append(contentsOf: cask.oldTokens)
         parts.append(contentsOf: cask.names)

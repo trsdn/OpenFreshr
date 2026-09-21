@@ -1,5 +1,5 @@
-import SwiftUI
 import AppKit
+import SwiftUI
 
 /// Stable scene identifiers, shared by the scenes and the actions that open them
 /// (the menu bar's "Open Window", Settings' "Open Trust Store").

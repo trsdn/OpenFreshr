@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// An in-memory ``CatalogCacheStoring`` so the refresh flow is exercised with no

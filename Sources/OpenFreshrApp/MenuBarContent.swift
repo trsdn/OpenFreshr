@@ -1,6 +1,6 @@
-import SwiftUI
 import AppKit
 import OpenFreshrCore
+import SwiftUI
 
 /// The menu-bar icon.
 ///

@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// A ``ProcessRunning`` that records every invocation and returns a programmed
@@ -19,9 +20,11 @@ final class RecordingProcessRunner: ProcessRunning, @unchecked Sendable {
 
     /// - Parameter handler: Produces the result for a given executable/arguments
     ///   pair. Defaults to a generic success.
-    init(handler: @escaping @Sendable (URL, [String]) -> ProcessResult = { _, _ in
-        ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
-    }) {
+    init(
+        handler: @escaping @Sendable (URL, [String]) -> ProcessResult = { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+    ) {
         self.handler = handler
     }
 

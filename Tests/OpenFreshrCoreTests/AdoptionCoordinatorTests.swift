@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The end-to-end phase 1 sequence **scan → match → adopt → rescan → confirm**,
@@ -61,8 +62,9 @@ struct AdoptionCoordinatorTests {
         let onePassword = try #require(Fixture.app(named: "1Password.app", in: apps))
         // A successful adopt that flips the token into the managed set — the
         // rescan will corroborate it.
-        let backend = FakeBackend(adoptResult: .succeeded(standardOutput: "ok"),
-                                  adoptBecomesManaged: true)
+        let backend = FakeBackend(
+            adoptResult: .succeeded(standardOutput: "ok"),
+            adoptBecomesManaged: true)
 
         let result = try coordinator(apps: apps, backend: backend).adopt(onePassword)
 
@@ -81,8 +83,9 @@ struct AdoptionCoordinatorTests {
         let apps = try Fixture.installedApps()
         let onePassword = try #require(Fixture.app(named: "1Password.app", in: apps))
         // The backend claims success but the token never appears in `brew list`.
-        let backend = FakeBackend(adoptResult: .succeeded(standardOutput: "ok"),
-                                  adoptBecomesManaged: false)
+        let backend = FakeBackend(
+            adoptResult: .succeeded(standardOutput: "ok"),
+            adoptBecomesManaged: false)
 
         let result = try coordinator(apps: apps, backend: backend).adopt(onePassword)
 
@@ -101,8 +104,9 @@ struct AdoptionCoordinatorTests {
     func caskErrorIsReportedDistinctlyAndIsRetryable() throws {
         let apps = try Fixture.installedApps()
         let onePassword = try #require(Fixture.app(named: "1Password.app", in: apps))
-        let backend = FakeBackend(adoptResult: .caskError(message: "CaskError: version mismatch"),
-                                  adoptBecomesManaged: false)
+        let backend = FakeBackend(
+            adoptResult: .caskError(message: "CaskError: version mismatch"),
+            adoptBecomesManaged: false)
 
         let result = try coordinator(apps: apps, backend: backend).adopt(onePassword)
 

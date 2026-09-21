@@ -116,7 +116,8 @@ public struct SystemHTTPFetcher: HTTPFetching {
     public func data(from url: URL) async throws -> Data {
         let (data, response) = try await session.data(for: request(for: url, validators: CatalogValidators()))
         if let http = response as? HTTPURLResponse,
-           !(200...299).contains(http.statusCode) {
+            !(200...299).contains(http.statusCode)
+        {
             throw HTTPStatusError(statusCode: http.statusCode)
         }
         try enforceBodyLimit(data)

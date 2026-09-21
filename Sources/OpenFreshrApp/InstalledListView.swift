@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The sidebar: a filter control over every scanned app as a selectable row.
 struct InstalledListView: View {
@@ -76,8 +76,11 @@ private struct InstalledRow: View {
                     .font(.body)
                     .lineLimit(1)
                 HStack(spacing: 6) {
-                    Text(report.app.displayVersion.map { String(localized: "Version \($0)") } ?? String(localized: "Version unknown"))
-                        .foregroundStyle(.secondary)
+                    Text(
+                        report.app.displayVersion.map { String(localized: "Version \($0)") }
+                            ?? String(localized: "Version unknown")
+                    )
+                    .foregroundStyle(.secondary)
                     if let available = availableVersion {
                         Image(systemName: "arrow.right")
                             .accessibilityHidden(true)

@@ -33,15 +33,17 @@ public struct CaskInstallAnalytics: Sendable, Equatable {
     /// table rather than throwing — popularity is a nicety, never load-critical.
     public static func parse(fromAPIData data: Data) -> CaskInstallAnalytics {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let items = root["items"] as? [Any] else {
+            let items = root["items"] as? [Any]
+        else {
             return CaskInstallAnalytics(installCountsByToken: [:])
         }
         var counts: [String: Int] = [:]
         counts.reserveCapacity(items.count)
         for element in items {
             guard let item = element as? [String: Any],
-                  let token = item["cask"] as? String,
-                  let installs = installCount(item["count"]) else { continue }
+                let token = item["cask"] as? String,
+                let installs = installCount(item["count"])
+            else { continue }
             // Keep the largest count if a token somehow appears twice.
             counts[token] = max(counts[token] ?? 0, installs)
         }

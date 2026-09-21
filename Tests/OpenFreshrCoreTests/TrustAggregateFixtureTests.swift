@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Trust-layer aggregate over the **real** captured signing facts of the
@@ -24,7 +25,9 @@ struct TrustAggregateFixtureTests {
         let verified = records.values.filter { $0.verification == "verified" }.count
 
         // Surfaced the same way the other aggregates print their head-line.
-        print("[trust-aggregate] apps=\(records.count) present=\(present) readableTeamID=\(readableTeam) verified=\(verified)")
+        print(
+            "[trust-aggregate] apps=\(records.count) present=\(present) readableTeamID=\(readableTeam) verified=\(verified)"
+        )
 
         #expect(records.count == 109)
         #expect(present == 107)
@@ -47,10 +50,10 @@ struct TrustAggregateFixtureTests {
         var anchoredIDs = Set<String>()
         for app in apps {
             guard let record = records[app.bundlePath], record.present,
-                  let info = infos[app.bundlePath],
-                  info.isVerified,
-                  info.teamIdentifier != nil,
-                  let bundleID = app.bundleIdentifier, !bundleID.isEmpty
+                let info = infos[app.bundlePath],
+                info.isVerified,
+                info.teamIdentifier != nil,
+                let bundleID = app.bundleIdentifier, !bundleID.isEmpty
             else { continue }
 
             // First replacement: allowed, and it anchors the observed team ID.
@@ -62,7 +65,8 @@ struct TrustAggregateFixtureTests {
             // acknowledgement required.
             let steady = gate.evaluate(app)
             #expect(steady.wouldBlockAutomaticReplacement == false)
-            if case .verifiedTrusted = steady.status {} else {
+            if case .verifiedTrusted = steady.status {
+            } else {
                 Issue.record("expected verifiedTrusted for \(app.bundlePath), got \(steady.status)")
             }
         }
@@ -89,9 +93,14 @@ struct TrustAggregateFixtureTests {
         var blocked = 0
         for app in apps {
             guard let record = records[app.bundlePath], record.present,
-                  let info = infos[app.bundlePath] else { continue }
-            let isUnsigned: Bool = { if case .unsigned = info.verification { return true }; return false }()
-            let isInvalid: Bool = { if case .invalid = info.verification { return true }; return false }()
+                let info = infos[app.bundlePath]
+            else { continue }
+            let isUnsigned: Bool = {
+                if case .unsigned = info.verification { return true }; return false
+            }()
+            let isInvalid: Bool = {
+                if case .invalid = info.verification { return true }; return false
+            }()
             guard isUnsigned || isInvalid else { continue }
 
             #expect(gate.authorize(app).isAllowed == false)

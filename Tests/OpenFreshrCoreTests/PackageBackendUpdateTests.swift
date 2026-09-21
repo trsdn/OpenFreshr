@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Command-shape tests for the three update backends. These pin the *exact*
@@ -30,10 +31,12 @@ struct PackageBackendUpdateTests {
 
         let result = backend.update(identifier: "figma")
         #expect(result.didReportSuccess)
-        #expect(runner.invocations == [
-            .init(executablePath: "/opt/homebrew/bin/brew",
-                  arguments: ["upgrade", "--cask", "--greedy", "--", "figma"])
-        ])
+        #expect(
+            runner.invocations == [
+                .init(
+                    executablePath: "/opt/homebrew/bin/brew",
+                    arguments: ["upgrade", "--cask", "--greedy", "--", "figma"])
+            ])
     }
 
     @Test
@@ -53,7 +56,8 @@ struct PackageBackendUpdateTests {
 
         #expect(backend.resolveUpdateCommand(identifier: "figma") == nil)
         let result = backend.update(identifier: "figma")
-        if case .failed(.homebrewUnavailable) = result {} else {
+        if case .failed(.homebrewUnavailable) = result {
+        } else {
             Issue.record("expected .homebrewUnavailable, got \(result)")
         }
         #expect(runner.invocations.isEmpty)
@@ -68,7 +72,8 @@ struct PackageBackendUpdateTests {
         )
         #expect(backend.resolveUpdateCommand(identifier: "--force") == nil)
         let result = backend.update(identifier: "--force")
-        if case .failed(.invalidCaskToken) = result {} else {
+        if case .failed(.invalidCaskToken) = result {
+        } else {
             Issue.record("expected .invalidCaskToken, got \(result)")
         }
         #expect(runner.invocations.isEmpty)
@@ -89,9 +94,10 @@ struct PackageBackendUpdateTests {
         #expect(command?.arguments == ["upgrade", "497799835"])
 
         _ = backend.update(identifier: "497799835")
-        #expect(runner.invocations == [
-            .init(executablePath: "/opt/homebrew/bin/mas", arguments: ["upgrade", "497799835"])
-        ])
+        #expect(
+            runner.invocations == [
+                .init(executablePath: "/opt/homebrew/bin/mas", arguments: ["upgrade", "497799835"])
+            ])
     }
 
     @Test
@@ -103,7 +109,8 @@ struct PackageBackendUpdateTests {
         )
         #expect(backend.resolveUpdateCommand(identifier: "com.foo.bar") == nil)
         let result = backend.update(identifier: "com.foo.bar")
-        if case .failed(.invalidIdentifier) = result {} else {
+        if case .failed(.invalidIdentifier) = result {
+        } else {
             Issue.record("expected .invalidIdentifier, got \(result)")
         }
         #expect(runner.invocations.isEmpty)
@@ -129,9 +136,10 @@ struct PackageBackendUpdateTests {
         let entries = backend.outdated()
         #expect(entries?.count == 1)
         #expect(entries?.first?.identifier == "497799835")
-        #expect(runner.invocations == [
-            .init(executablePath: "/opt/homebrew/bin/mas", arguments: ["outdated"])
-        ])
+        #expect(
+            runner.invocations == [
+                .init(executablePath: "/opt/homebrew/bin/mas", arguments: ["outdated"])
+            ])
     }
 
     // MARK: - Microsoft AutoUpdate
@@ -152,10 +160,12 @@ struct PackageBackendUpdateTests {
         #expect(command?.arguments == ["--install", "--apps", "MSWD"])
 
         _ = backend.update(identifier: "MSWD")
-        #expect(runner.invocations == [
-            .init(executablePath: MicrosoftAutoUpdateBackend.defaultMsupdatePath,
-                  arguments: ["--install", "--apps", "MSWD"])
-        ])
+        #expect(
+            runner.invocations == [
+                .init(
+                    executablePath: MicrosoftAutoUpdateBackend.defaultMsupdatePath,
+                    arguments: ["--install", "--apps", "MSWD"])
+            ])
     }
 
     @Test
@@ -190,8 +200,9 @@ struct PackageBackendUpdateTests {
         let entries = backend.list()
         #expect(entries?.count == 1)
         #expect(entries?.first?.appID == "MSWD2019")
-        #expect(runner.invocations == [
-            .init(executablePath: MicrosoftAutoUpdateBackend.defaultMsupdatePath, arguments: ["--list"])
-        ])
+        #expect(
+            runner.invocations == [
+                .init(executablePath: MicrosoftAutoUpdateBackend.defaultMsupdatePath, arguments: ["--list"])
+            ])
     }
 }

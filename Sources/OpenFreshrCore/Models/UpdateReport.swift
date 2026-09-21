@@ -173,7 +173,10 @@ public enum UpdateActionBlocker: Hashable, Sendable {
     public var explanation: String {
         switch self {
         case let .adoptionWouldFail(token):
-            return String(localized: "Homebrew cannot adopt “\(token)”: the installed version differs from the expected one and the cask does not update itself — the adoption would abort with a CaskError. Please update via the vendor.")
+            return String(
+                localized:
+                    "Homebrew cannot adopt “\(token)”: the installed version differs from the expected one and the cask does not update itself — the adoption would abort with a CaskError. Please update via the vendor."
+            )
         }
     }
 }

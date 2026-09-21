@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The "Alle Updates" preview: a per-app, checkbox-driven confirmation modelled
 /// on ``AdoptionSheet``.
@@ -70,9 +70,11 @@ struct UpdateSheet: View {
         VStack(alignment: .leading, spacing: 6) {
             Label("No Executable Updates", systemImage: "checkmark.circle")
                 .font(.headline)
-            Text("No update that OpenFreshr can execute was detected for any app. Self-updating apps only appear here if a backend can drive them.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            Text(
+                "No update that OpenFreshr can execute was detected for any app. Self-updating apps only appear here if a backend can drive them."
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
     }
 

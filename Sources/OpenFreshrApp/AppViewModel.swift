@@ -489,7 +489,9 @@ public final class AppViewModel {
         let reports = await Task.detached { coordinator.makeReports() }.value
         let available = await Task.detached { backend.isAvailable() }.value
 
-        self.reports = reports.sorted { $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending }
+        self.reports = reports.sorted {
+            $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending
+        }
         self.homebrewAvailable = available
 
         // Kick off update detection without holding the scan open: it re-scans,
@@ -566,7 +568,8 @@ public final class AppViewModel {
         acknowledgeTeamChange: Bool = false
     ) async {
         guard let item = UpdateCoordinator.updateItem(for: report, source: source),
-              let release = UpdateRelease(items: [item]) else { return }
+            let release = UpdateRelease(items: [item])
+        else { return }
         await run(
             release,
             acknowledgingTeamChanges: acknowledgeTeamChange ? [item.app.bundlePath] : []
@@ -610,7 +613,8 @@ public final class AppViewModel {
         let updated = result.updatedItems.count
         let failed = result.retryableItems.count
         if failed == 0 {
-            lastUpdateMessage = updated == 1
+            lastUpdateMessage =
+                updated == 1
                 ? String(localized: "1 app updated.")
                 : String(localized: "\(updated) apps updated.")
         } else {
@@ -632,7 +636,10 @@ public final class AppViewModel {
             // a take-over) has a *nameable* cause, so say it instead of leaving
             // the user stranded.
             if item.homebrewStrategy == .reinstall || item.homebrewStrategy == .adoptThenReinstall {
-                return String(localized: "Homebrew lists this app as up to date, but an older version is on disk. The reinstall reported success, but the scan does not confirm it — the app probably brings its own version (auto_updates). Please launch it manually once and let it update; then check again.")
+                return String(
+                    localized:
+                        "Homebrew lists this app as up to date, but an older version is on disk. The reinstall reported success, but the scan does not confirm it — the app probably brings its own version (auto_updates). Please launch it manually once and let it update; then check again."
+                )
             }
             return String(localized: "The tool reported success, but the renewed scan does not confirm it.")
         case let .caskError(_, message):
@@ -666,7 +673,8 @@ public final class AppViewModel {
         case let .hardFailedWithCaskError(message):
             lastAdoptionMessage = String(localized: "Adoption aborted (CaskError): \(message)")
         case .notConfirmedByRescan:
-            lastAdoptionMessage = String(localized: "\(app.displayName): Homebrew reported success, but the renewed scan does not confirm it.")
+            lastAdoptionMessage = String(
+                localized: "\(app.displayName): Homebrew reported success, but the renewed scan does not confirm it.")
         case let .failed(reason):
             lastAdoptionMessage = String(localized: "\(app.displayName): \(reason.explanation)")
         case let .notEligible(reason):
@@ -741,12 +749,14 @@ public final class AppViewModel {
     ///   ``CaskCatalogProvider`` and ``FileCatalogCacheStore`` uphold this.
     private nonisolated static func loadBundledSnapshot() -> CaskCatalog? {
         guard let url = Bundle.main.url(forResource: "casks-snapshot", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
+            let data = try? Data(contentsOf: url)
+        else {
             return nil
         }
         // Date the snapshot by its bundled file so the "catalog is N old" hint is
         // honest about how stale the shipped data is.
-        let fetchedAt = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
+        let fetchedAt =
+            (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
             ?? .distantPast
         return try? CaskCatalogIngestion.decodeCatalog(fromAPIData: data, fetchedAt: fetchedAt)
     }
@@ -765,7 +775,8 @@ public final class AppViewModel {
 
     static func loadCheckInterval() -> UpdateCheckInterval {
         guard let raw = UserDefaults.standard.string(forKey: intervalDefaultsKey),
-              let parsed = UpdateCheckInterval(rawValue: raw) else { return .daily }
+            let parsed = UpdateCheckInterval(rawValue: raw)
+        else { return .daily }
         return parsed
     }
 

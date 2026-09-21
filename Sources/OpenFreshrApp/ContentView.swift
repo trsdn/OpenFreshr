@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The top-level layout: a list of installed apps on the left, the selected
 /// app's provenance, update state and adoption verdict on the right.
@@ -44,7 +44,8 @@ struct ContentView: View {
                     ContentUnavailableView(
                         "No App Selected",
                         systemImage: "square.grid.2x2",
-                        description: Text("Search the catalog on the left and select an app to see details and installation.")
+                        description: Text(
+                            "Search the catalog on the left and select an app to see details and installation.")
                     )
                 }
             }
@@ -64,7 +65,8 @@ struct ContentView: View {
                     showingUpdateSheet = true
                 } label: {
                     Label(
-                        updateCount > 0 ? String(localized: "All Updates (\(updateCount))") : String(localized: "All Updates"),
+                        updateCount > 0
+                            ? String(localized: "All Updates (\(updateCount))") : String(localized: "All Updates"),
                         systemImage: "arrow.down.circle"
                     )
                 }
@@ -113,9 +115,10 @@ struct ContentView: View {
     /// loaded catalog plus the installed inventory so that a fresh install (which
     /// changes the inventory) re-marks the catalog's "installiert" state.
     private var catalogConfigureID: String {
-        let stamp = viewModel.loadedCatalog.map {
-            "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
-        } ?? "none"
+        let stamp =
+            viewModel.loadedCatalog.map {
+                "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
+            } ?? "none"
         var hasher = Hasher()
         for report in viewModel.reports {
             hasher.combine(report.app.bundleName)
@@ -148,7 +151,8 @@ private struct StatusBar: View {
     var body: some View {
         HStack(spacing: 12) {
             Label(
-                viewModel.homebrewAvailable ? String(localized: "Homebrew available") : String(localized: "Homebrew not found"),
+                viewModel.homebrewAvailable
+                    ? String(localized: "Homebrew available") : String(localized: "Homebrew not found"),
                 systemImage: viewModel.homebrewAvailable ? "checkmark.seal" : "exclamationmark.triangle"
             )
             .foregroundStyle(viewModel.homebrewAvailable ? Color.secondary : Color.orange)

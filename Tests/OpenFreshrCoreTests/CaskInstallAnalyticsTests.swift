@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Coverage for the popularity table parser. It is fed an **untrusted** network
@@ -9,13 +10,14 @@ struct CaskInstallAnalyticsTests {
 
     @Test
     func parsesCommaGroupedCounts() {
-        let data = Data(#"""
-        {"category":"cask-install","total_items":2,
-         "items":[
-            {"number":1,"cask":"google-chrome","count":"6,190,417"},
-            {"number":2,"cask":"firefox","count":"1,000"}
-         ]}
-        """#.utf8)
+        let data = Data(
+            #"""
+            {"category":"cask-install","total_items":2,
+             "items":[
+                {"number":1,"cask":"google-chrome","count":"6,190,417"},
+                {"number":2,"cask":"firefox","count":"1,000"}
+             ]}
+            """#.utf8)
 
         let analytics = CaskInstallAnalytics.parse(fromAPIData: data)
 
@@ -34,14 +36,15 @@ struct CaskInstallAnalyticsTests {
 
     @Test
     func skipsEntriesMissingTokenOrCount() {
-        let data = Data(#"""
-        {"items":[
-            {"cask":"ok","count":"5"},
-            {"count":"9"},
-            {"cask":"no-count"},
-            {"cask":"bad-count","count":"n/a"}
-        ]}
-        """#.utf8)
+        let data = Data(
+            #"""
+            {"items":[
+                {"cask":"ok","count":"5"},
+                {"count":"9"},
+                {"cask":"no-count"},
+                {"cask":"bad-count","count":"n/a"}
+            ]}
+            """#.utf8)
 
         let analytics = CaskInstallAnalytics.parse(fromAPIData: data)
 

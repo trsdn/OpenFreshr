@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// `mas outdated` line parsing. The tool is authoritative for the store, so the
@@ -10,15 +11,17 @@ struct MasOutdatedParserTests {
     @Test
     func parsesTheDocumentedTwoLineForm() {
         let output = """
-        497799835 Xcode (14.0 -> 14.1)
-        1295203466 Microsoft Remote Desktop (10.7.6 -> 10.8.0)
-        """
+            497799835 Xcode (14.0 -> 14.1)
+            1295203466 Microsoft Remote Desktop (10.7.6 -> 10.8.0)
+            """
         let entries = MasOutdatedParser.parse(output)
         #expect(entries.count == 2)
-        #expect(entries[0] == MasOutdatedEntry(
-            identifier: "497799835", name: "Xcode",
-            installedVersion: "14.0", availableVersion: "14.1"
-        ))
+        #expect(
+            entries[0]
+                == MasOutdatedEntry(
+                    identifier: "497799835", name: "Xcode",
+                    installedVersion: "14.0", availableVersion: "14.1"
+                ))
         #expect(entries[1].identifier == "1295203466")
         #expect(entries[1].name == "Microsoft Remote Desktop")
         #expect(entries[1].availableVersion == "10.8.0")
@@ -28,10 +31,10 @@ struct MasOutdatedParserTests {
     func skipsBlankAndMalformedLines() {
         let output = """
 
-        this is not an app row
-        497799835 Xcode (14.0 -> 14.1)
-        garbage 1.0 -> 2.0
-        """
+            this is not an app row
+            497799835 Xcode (14.0 -> 14.1)
+            garbage 1.0 -> 2.0
+            """
         let entries = MasOutdatedParser.parse(output)
         #expect(entries.count == 1)
         #expect(entries[0].identifier == "497799835")
@@ -53,9 +56,9 @@ struct MsupdateListParserTests {
     @Test
     func parsesBracketedAppCodeAndVersion() {
         let output = """
-        Word (MSWD2019) Version: 16.78 (23...)
-        Excel (XCEL2019) Version: 16.78
-        """
+            Word (MSWD2019) Version: 16.78 (23...)
+            Excel (XCEL2019) Version: 16.78
+            """
         let entries = MsupdateListParser.parse(output)
         #expect(entries.count == 2)
         #expect(entries[0].appID == "MSWD2019")
@@ -85,10 +88,10 @@ struct MsupdateListParserTests {
     @Test
     func linesWithoutAnAppCodeAreSkippedAndDuplicatesCollapse() {
         let output = """
-        Updates available:
-        Word (MSWD2019) 16.78
-        Word (MSWD2019) 16.78
-        """
+            Updates available:
+            Word (MSWD2019) 16.78
+            Word (MSWD2019) 16.78
+            """
         let entries = MsupdateListParser.parse(output)
         #expect(entries.count == 1)
         #expect(entries[0].appID == "MSWD2019")
@@ -100,14 +103,15 @@ struct MsupdateListParserTests {
 struct SparkleAppcastTests {
 
     private func appcast(items: String) -> Data {
-        Data("""
-        <?xml version="1.0"?>
-        <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-          <channel>
-        \(items)
-          </channel>
-        </rss>
-        """.utf8)
+        Data(
+            """
+            <?xml version="1.0"?>
+            <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+              <channel>
+            \(items)
+              </channel>
+            </rss>
+            """.utf8)
     }
 
     /// A plaintext feed can be rewritten in transit to advertise any version,
@@ -127,27 +131,30 @@ struct SparkleAppcastTests {
 
     @Test
     func readsShortVersionFromChildElements() {
-        let data = appcast(items: """
-        <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString><sparkle:version>2000</sparkle:version></item>
-        """)
+        let data = appcast(
+            items: """
+                <item><sparkle:shortVersionString>2.0</sparkle:shortVersionString><sparkle:version>2000</sparkle:version></item>
+                """)
         #expect(SparkleAppcast.newestVersion(from: data) == "2.0")
     }
 
     @Test
     func readsVersionFromEnclosureAttributes() {
-        let data = appcast(items: """
-        <item><enclosure url="https://example.com/app.zip" sparkle:shortVersionString="3.1" sparkle:version="3100"/></item>
-        """)
+        let data = appcast(
+            items: """
+                <item><enclosure url="https://example.com/app.zip" sparkle:shortVersionString="3.1" sparkle:version="3100"/></item>
+                """)
         #expect(SparkleAppcast.newestVersion(from: data) == "3.1")
     }
 
     @Test
     func picksTheNewestAcrossMultipleItems() {
-        let data = appcast(items: """
-        <item><sparkle:shortVersionString>1.0</sparkle:shortVersionString></item>
-        <item><sparkle:shortVersionString>3.2</sparkle:shortVersionString></item>
-        <item><sparkle:shortVersionString>2.5</sparkle:shortVersionString></item>
-        """)
+        let data = appcast(
+            items: """
+                <item><sparkle:shortVersionString>1.0</sparkle:shortVersionString></item>
+                <item><sparkle:shortVersionString>3.2</sparkle:shortVersionString></item>
+                <item><sparkle:shortVersionString>2.5</sparkle:shortVersionString></item>
+                """)
         #expect(SparkleAppcast.newestVersion(from: data) == "3.2")
     }
 
@@ -172,7 +179,8 @@ struct SparkleAppcastTests {
     func fetchReturnsVersionForAReachableFeed() async {
         let fetcher = FakeHTTPFetcher()
         let feed = "https://example.com/appcast.xml"
-        fetcher.setData(appcast(items: "<item><sparkle:shortVersionString>5.5</sparkle:shortVersionString></item>"), for: feed)
+        fetcher.setData(
+            appcast(items: "<item><sparkle:shortVersionString>5.5</sparkle:shortVersionString></item>"), for: feed)
         let version = await SparkleAppcast.fetchNewestVersion(feedURL: feed, using: fetcher)
         #expect(version == "5.5")
         #expect(fetcher.requestedURLs == [feed])

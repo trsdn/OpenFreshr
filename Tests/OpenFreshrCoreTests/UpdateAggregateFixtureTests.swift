@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The update-side analogue of ``AggregateFixtureTests``: it runs the whole
@@ -22,7 +23,7 @@ struct UpdateAggregateFixtureTests {
         let casks = try Fixture.casks()
 
         var fs = FakeFileSystem()
-        fs.addExistingPath("/opt/homebrew/bin/brew") // brew present; mas + msupdate absent
+        fs.addExistingPath("/opt/homebrew/bin/brew")  // brew present; mas + msupdate absent
 
         let idle = RecordingProcessRunner { _, _ in
             ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
@@ -34,7 +35,7 @@ struct UpdateAggregateFixtureTests {
             macAppStore: MacAppStoreBackend(processRunner: idle, fileSystem: fs),
             microsoftAutoUpdate: MicrosoftAutoUpdateBackend(processRunner: idle, fileSystem: fs),
             catalog: CaskCatalog(casks: casks, fetchedAt: Date()),
-            httpFetcher: FakeHTTPFetcher(), // every feed unreachable
+            httpFetcher: FakeHTTPFetcher(),  // every feed unreachable
             scanDirectories: ["/Applications"]
         )
 
@@ -62,8 +63,9 @@ struct UpdateAggregateFixtureTests {
         // and never a Sparkle source (those carry no command by construction).
         for report in offered {
             let driving = report.sources.filter { $0.state.hasUpdate }
-            #expect(driving.allSatisfy { $0.backend == .homebrew },
-                    "\(report.app.displayName) offered a non-Homebrew update without its tool")
+            #expect(
+                driving.allSatisfy { $0.backend == .homebrew },
+                "\(report.app.displayName) offered a non-Homebrew update without its tool")
         }
 
         // No offered update may be built on an incomparable version — the hard
@@ -74,16 +76,17 @@ struct UpdateAggregateFixtureTests {
             }
         }
 
-        print("""
-        [update-aggregate] apps=\(reports.count) \
-        offered=\(offered.count) major=\(major.count) \
-        selfUpdating=\(selfUpdating.count) unassigned=\(unassigned.count) \
-        sourceProblem=\(withProblem.count)
-        [update-aggregate] executable=\(executable.count) adoptionWouldFail=\(adoptionWouldFail.count)
-        offered apps: \(offered.map { $0.app.displayName }.sorted())
-        executable: \(executable.map { $0.app.displayName }.sorted())
-        adoption would fail: \(adoptionWouldFail.map { $0.app.displayName }.sorted())
-        """)
+        print(
+            """
+            [update-aggregate] apps=\(reports.count) \
+            offered=\(offered.count) major=\(major.count) \
+            selfUpdating=\(selfUpdating.count) unassigned=\(unassigned.count) \
+            sourceProblem=\(withProblem.count)
+            [update-aggregate] executable=\(executable.count) adoptionWouldFail=\(adoptionWouldFail.count)
+            offered apps: \(offered.map { $0.app.displayName }.sorted())
+            executable: \(executable.map { $0.app.displayName }.sorted())
+            adoption would fail: \(adoptionWouldFail.map { $0.app.displayName }.sorted())
+            """)
 
         // Pins the headline count. If the fixture or comparator changes on
         // purpose, update these numbers and the reported figures together.

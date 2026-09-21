@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The pure due-logic — evaluated entirely with injected instants, so nothing in
@@ -43,22 +44,25 @@ struct UpdateCheckScheduleTests {
         let schedule = UpdateCheckSchedule(interval: interval)
 
         // One second short of the interval: not due.
-        #expect(schedule.isDue(
-            lastSuccessfulCheck: epoch,
-            now: epoch.addingTimeInterval(duration - 1)
-        ) == false)
+        #expect(
+            schedule.isDue(
+                lastSuccessfulCheck: epoch,
+                now: epoch.addingTimeInterval(duration - 1)
+            ) == false)
 
         // Exactly at the interval: due (>= boundary is inclusive).
-        #expect(schedule.isDue(
-            lastSuccessfulCheck: epoch,
-            now: epoch.addingTimeInterval(duration)
-        ) == true)
+        #expect(
+            schedule.isDue(
+                lastSuccessfulCheck: epoch,
+                now: epoch.addingTimeInterval(duration)
+            ) == true)
 
         // Well past the interval: due.
-        #expect(schedule.isDue(
-            lastSuccessfulCheck: epoch,
-            now: epoch.addingTimeInterval(duration * 3)
-        ) == true)
+        #expect(
+            schedule.isDue(
+                lastSuccessfulCheck: epoch,
+                now: epoch.addingTimeInterval(duration * 3)
+            ) == true)
     }
 
     @Test
@@ -72,14 +76,16 @@ struct UpdateCheckScheduleTests {
     func secondsUntilDueCountsDownAndClampsAtZero() {
         let schedule = UpdateCheckSchedule(interval: .hourly)
         // 15 minutes after a check: 45 minutes remain.
-        #expect(schedule.secondsUntilDue(
-            lastSuccessfulCheck: epoch,
-            now: epoch.addingTimeInterval(900)
-        ) == 2_700)
+        #expect(
+            schedule.secondsUntilDue(
+                lastSuccessfulCheck: epoch,
+                now: epoch.addingTimeInterval(900)
+            ) == 2_700)
         // Long past due: clamped to zero rather than negative.
-        #expect(schedule.secondsUntilDue(
-            lastSuccessfulCheck: epoch,
-            now: epoch.addingTimeInterval(10_000)
-        ) == 0)
+        #expect(
+            schedule.secondsUntilDue(
+                lastSuccessfulCheck: epoch,
+                now: epoch.addingTimeInterval(10_000)
+            ) == 0)
     }
 }

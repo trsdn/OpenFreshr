@@ -65,10 +65,12 @@ public struct MicrosoftAutoUpdateBackend: PackageBackend {
     /// Microsoft AutoUpdate source to `unbekannt` rather than blocking.
     public func list() -> [MsupdateAppEntry]? {
         guard let msupdateURL = msupdateURL() else { return nil }
-        guard let result = try? processRunner.run(
-            executableURL: msupdateURL,
-            arguments: ["--list"]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: msupdateURL,
+                arguments: ["--list"]
+            )
+        else {
             return nil
         }
         guard result.didSucceed else { return nil }

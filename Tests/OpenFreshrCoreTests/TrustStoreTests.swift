@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The on-disk ``JSONFileTrustStore`` — the app's real persistence. Exercised
@@ -10,9 +11,9 @@ struct TrustStoreTests {
     /// A fresh URL under `.build/trust-store-tests/` unique per test.
     private func scratchURL(_ name: String) -> URL {
         let base = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()      // OpenFreshrCoreTests
-            .deletingLastPathComponent()      // Tests
-            .deletingLastPathComponent()      // package root
+            .deletingLastPathComponent()  // OpenFreshrCoreTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // package root
             .appendingPathComponent(".build/trust-store-tests", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base.appendingPathComponent("\(name)-\(UUID().uuidString).json", isDirectory: false)
@@ -26,25 +27,29 @@ struct TrustStoreTests {
         let epoch = Date(timeIntervalSince1970: 1_700_000_000)
         do {
             let store = JSONFileTrustStore(url: url)
-            store.save(TrustRecord(
-                bundleIdentifier: "com.figma.desktop",
-                teamIdentifier: "T1234ABCDE",
-                firstObservedAt: epoch,
-                updatedAt: epoch,
-                origin: .firstUse
-            ))
-            store.save(TrustRecord(
-                bundleIdentifier: "com.google.chrome",
-                teamIdentifier: "EQHXZ8M8AV",
-                firstObservedAt: epoch,
-                updatedAt: epoch,
-                origin: .userConfirmedChange,
-                confirmedChanges: [TrustChange(
-                    previousTeamIdentifier: "OLDTEAM111",
-                    newTeamIdentifier: "EQHXZ8M8AV",
-                    confirmedAt: epoch
-                )]
-            ))
+            store.save(
+                TrustRecord(
+                    bundleIdentifier: "com.figma.desktop",
+                    teamIdentifier: "T1234ABCDE",
+                    firstObservedAt: epoch,
+                    updatedAt: epoch,
+                    origin: .firstUse
+                ))
+            store.save(
+                TrustRecord(
+                    bundleIdentifier: "com.google.chrome",
+                    teamIdentifier: "EQHXZ8M8AV",
+                    firstObservedAt: epoch,
+                    updatedAt: epoch,
+                    origin: .userConfirmedChange,
+                    confirmedChanges: [
+                        TrustChange(
+                            previousTeamIdentifier: "OLDTEAM111",
+                            newTeamIdentifier: "EQHXZ8M8AV",
+                            confirmedAt: epoch
+                        )
+                    ]
+                ))
         }
 
         // A brand-new instance must see exactly what was written, audit trail included.
@@ -68,10 +73,14 @@ struct TrustStoreTests {
 
         let epoch = Date(timeIntervalSince1970: 1_700_000_000)
         let store = JSONFileTrustStore(url: url)
-        store.save(TrustRecord(bundleIdentifier: "com.a.one", teamIdentifier: "AAAA111111",
-                               firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
-        store.save(TrustRecord(bundleIdentifier: "com.b.two", teamIdentifier: "BBBB222222",
-                               firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
+        store.save(
+            TrustRecord(
+                bundleIdentifier: "com.a.one", teamIdentifier: "AAAA111111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
+        store.save(
+            TrustRecord(
+                bundleIdentifier: "com.b.two", teamIdentifier: "BBBB222222",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
 
         store.reset(bundleIdentifier: "com.a.one")
         #expect(store.record(for: "com.a.one") == nil)
@@ -95,8 +104,10 @@ struct TrustStoreTests {
 
         // And it can recover to a working store.
         let epoch = Date(timeIntervalSince1970: 1_700_000_000)
-        store.save(TrustRecord(bundleIdentifier: "com.c.three", teamIdentifier: "CCCC333333",
-                               firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
+        store.save(
+            TrustRecord(
+                bundleIdentifier: "com.c.three", teamIdentifier: "CCCC333333",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse))
         #expect(JSONFileTrustStore(url: url).record(for: "com.c.three") != nil)
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The single definition of "how many updates are available". These tests pin it
@@ -15,11 +16,13 @@ struct MenuBarStatusTests {
     ) -> AppUpdateReport {
         AppUpdateReport(
             app: InstalledApp(bundlePath: path, bundleIdentifier: path),
-            sources: [SourceUpdate(
-                appBundlePath: path,
-                kind: .homebrew(token: "token"),
-                state: state
-            )],
+            sources: [
+                SourceUpdate(
+                    appBundlePath: path,
+                    kind: .homebrew(token: "token"),
+                    state: state
+                )
+            ],
             isSelfUpdating: isSelfUpdating
         )
     }
@@ -52,7 +55,7 @@ struct MenuBarStatusTests {
                 "/Applications/Self.app",
                 state: .updateAvailable(available: "9.0", isMajor: false),
                 isSelfUpdating: true
-            ),
+            )
         ]
         #expect(MenuBarStatus.availableUpdateCount(in: reports) == 1)
     }
@@ -64,7 +67,8 @@ struct MenuBarStatusTests {
             report("/Applications/B.app", state: .upToDate),
             report("/Applications/C.app", state: .unknown(.noAvailableVersion)),
             report("/Applications/D.app", state: .updateAvailable(available: "5.0", isMajor: true)),
-            report("/Applications/E.app", state: .updateAvailable(available: "1.1", isMajor: false), isSelfUpdating: true),
+            report(
+                "/Applications/E.app", state: .updateAvailable(available: "1.1", isMajor: false), isSelfUpdating: true),
         ]
         #expect(MenuBarStatus.availableUpdateCount(in: reports) == windowUpdateCount(reports))
     }

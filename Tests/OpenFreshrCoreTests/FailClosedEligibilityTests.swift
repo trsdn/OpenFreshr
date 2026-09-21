@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Focused proof of the **fail-closed** eligibility gate, on synthetic casks so

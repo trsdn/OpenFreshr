@@ -1,4 +1,5 @@
 import Foundation
+
 @testable import OpenFreshrCore
 
 /// Loads the checked-in fixtures (derived from `docs/research/coverage-result.json`
@@ -55,9 +56,11 @@ enum Fixture {
     }
 
     static func data(named name: String) throws -> Data {
-        guard let url = Bundle.module.url(
-            forResource: name, withExtension: "json", subdirectory: "Fixtures"
-        ) else {
+        guard
+            let url = Bundle.module.url(
+                forResource: name, withExtension: "json", subdirectory: "Fixtures"
+            )
+        else {
             throw MissingFixtureError(name: name)
         }
         return try Data(contentsOf: url)

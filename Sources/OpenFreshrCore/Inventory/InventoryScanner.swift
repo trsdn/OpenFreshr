@@ -40,7 +40,7 @@ public struct InventoryScanner: Sendable {
         // User-local installs are exactly the phase-1 target group, so the
         // per-user Applications folder must be scanned too. Expanded eagerly
         // because the scanner takes literal directory paths.
-        ("~/Applications" as NSString).expandingTildeInPath
+        ("~/Applications" as NSString).expandingTildeInPath,
     ]
 
     /// Scan `directories` and return the de-duplicated inventory.
@@ -119,7 +119,8 @@ public struct InventoryScanner: Sendable {
     /// Filter out helper/installer bundles that are not user-managed apps.
     private func isNoise(_ app: InstalledApp) -> Bool {
         if let bundleID = app.bundleIdentifier,
-           Self.ignoredBundleIdentifiers.contains(bundleID) {
+            Self.ignoredBundleIdentifiers.contains(bundleID)
+        {
             return true
         }
         let display = app.displayName

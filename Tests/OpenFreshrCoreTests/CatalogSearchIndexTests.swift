@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The prepared catalog search index (Phase 5): finds casks by token, name and
@@ -26,10 +27,11 @@ struct CatalogSearchIndexTests {
 
     @Test
     func findsByToken() {
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("visual-studio-code", names: ["Visual Studio Code"]),
-            cask("firefox", names: ["Firefox"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("visual-studio-code", names: ["Visual Studio Code"]),
+                cask("firefox", names: ["Firefox"]),
+            ]))
         let hits = index.search("studio").map(\.cask.token)
         #expect(hits == ["visual-studio-code"])
     }
@@ -37,10 +39,11 @@ struct CatalogSearchIndexTests {
     @Test
     func findsByName() {
         // The token gives no hint; only the declared name carries the term.
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("iterm2", names: ["iTerm"]),
-            cask("firefox", names: ["Firefox"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("iterm2", names: ["iTerm"]),
+                cask("firefox", names: ["Firefox"]),
+            ]))
         let hits = index.search("iterm").map(\.cask.token)
         #expect(hits == ["iterm2"])
     }
@@ -48,23 +51,26 @@ struct CatalogSearchIndexTests {
     @Test
     func findsByDescription() {
         // Neither token nor name mention "conferencing"; the description does.
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("zm", names: ["Zm"], desc: "Video conferencing and meetings"),
-            cask("firefox", names: ["Firefox"], desc: "Web browser"),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("zm", names: ["Zm"], desc: "Video conferencing and meetings"),
+                cask("firefox", names: ["Firefox"], desc: "Web browser"),
+            ]))
         let hits = index.search("conferencing").map(\.cask.token)
         #expect(hits == ["zm"])
     }
 
     @Test
     func andSemanticsNarrowsAcrossTerms() {
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("visual-studio-code", names: ["Visual Studio Code"]),
-            cask("visualboyadvance-m", names: ["VisualBoyAdvance-M"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("visual-studio-code", names: ["Visual Studio Code"]),
+                cask("visualboyadvance-m", names: ["VisualBoyAdvance-M"]),
+            ]))
         // "visual" alone matches both; adding "studio" must narrow to just one.
-        #expect(Set(index.search("visual").map(\.cask.token))
-            == ["visual-studio-code", "visualboyadvance-m"])
+        #expect(
+            Set(index.search("visual").map(\.cask.token))
+                == ["visual-studio-code", "visualboyadvance-m"])
         #expect(index.search("visual studio").map(\.cask.token) == ["visual-studio-code"])
     }
 
@@ -93,11 +99,12 @@ struct CatalogSearchIndexTests {
     @Test
     func missingAnalyticsFallsBackToStableAlphabeticalOrder() {
         // No analytics at all — search and ranking must still work, alphabetically.
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("charlie", names: ["Charlie"]),
-            cask("alpha", names: ["Alpha"]),
-            cask("bravo", names: ["Bravo"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("charlie", names: ["Charlie"]),
+                cask("alpha", names: ["Alpha"]),
+                cask("bravo", names: ["Bravo"]),
+            ]))
         #expect(index.allRanked().map(\.cask.token) == ["alpha", "bravo", "charlie"])
         #expect(index.allRanked().allSatisfy { $0.installCount == nil })
     }
@@ -121,12 +128,14 @@ struct CatalogSearchIndexTests {
     func marksInstalledByBundleNameCaseInsensitively() {
         let index = CatalogSearchIndex(
             catalog: catalog([
-                cask("firefox", names: ["Firefox"],
-                     artifacts: [CaskArtifact(kind: .app, target: "Firefox.app")]),
-                cask("iterm2", names: ["iTerm"],
-                     artifacts: [CaskArtifact(kind: .app, target: "iTerm.app")]),
+                cask(
+                    "firefox", names: ["Firefox"],
+                    artifacts: [CaskArtifact(kind: .app, target: "Firefox.app")]),
+                cask(
+                    "iterm2", names: ["iTerm"],
+                    artifacts: [CaskArtifact(kind: .app, target: "iTerm.app")]),
             ]),
-            installedBundleNames: ["firefox.app"]   // different case on purpose
+            installedBundleNames: ["firefox.app"]  // different case on purpose
         )
         let firefox = index.search("firefox").first
         #expect(firefox?.isInstalled == true)
@@ -141,11 +150,12 @@ struct CatalogSearchIndexTests {
     func marksInstalledByRecognizedTokenEvenWithoutBundleMatch() {
         let index = CatalogSearchIndex(
             catalog: catalog([
-                cask("someapp", names: ["Some App"],
-                     artifacts: [CaskArtifact(kind: .app, target: "SomeApp.app")]),
+                cask(
+                    "someapp", names: ["Some App"],
+                    artifacts: [CaskArtifact(kind: .app, target: "SomeApp.app")])
             ]),
-            installedBundleNames: [],                 // nothing matches by filename
-            recognizedTokens: ["someapp"]             // …but the token is recognized
+            installedBundleNames: [],  // nothing matches by filename
+            recognizedTokens: ["someapp"]  // …but the token is recognized
         )
         #expect(index.search("some").first?.isInstalled == true)
     }
@@ -154,12 +164,15 @@ struct CatalogSearchIndexTests {
 
     @Test
     func flagsInstallerOnlyCask() {
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("appcask", names: ["App Cask"],
-                 artifacts: [CaskArtifact(kind: .app, target: "App.app")]),
-            cask("pkgcask", names: ["Pkg Cask"],
-                 artifacts: [CaskArtifact(kind: .pkg)]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask(
+                    "appcask", names: ["App Cask"],
+                    artifacts: [CaskArtifact(kind: .app, target: "App.app")]),
+                cask(
+                    "pkgcask", names: ["Pkg Cask"],
+                    artifacts: [CaskArtifact(kind: .pkg)]),
+            ]))
         #expect(index.search("app cask").first?.isInstallerOnly == false)
         let pkg = index.search("pkg cask").first
         #expect(pkg?.isInstallerOnly == true)
@@ -169,10 +182,11 @@ struct CatalogSearchIndexTests {
 
     @Test
     func emptyQueryReturnsWholeCatalogRanked() {
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("alpha", names: ["Alpha"]),
-            cask("bravo", names: ["Bravo"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("alpha", names: ["Alpha"]),
+                cask("bravo", names: ["Bravo"]),
+            ]))
         #expect(index.count == 2)
         #expect(index.search("").count == 2)
         #expect(index.search("   ").count == 2)
@@ -180,11 +194,12 @@ struct CatalogSearchIndexTests {
 
     @Test
     func limitCapsResults() {
-        let index = CatalogSearchIndex(catalog: catalog([
-            cask("alpha", names: ["Alpha"]),
-            cask("bravo", names: ["Bravo"]),
-            cask("charlie", names: ["Charlie"]),
-        ]))
+        let index = CatalogSearchIndex(
+            catalog: catalog([
+                cask("alpha", names: ["Alpha"]),
+                cask("bravo", names: ["Bravo"]),
+                cask("charlie", names: ["Charlie"]),
+            ]))
         #expect(index.allRanked(limit: 2).count == 2)
         #expect(index.search("a", limit: 1).count == 1)
     }

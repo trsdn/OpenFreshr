@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The detail pane for one selected app: identity, every detected source, the
 /// per-source update state with a single-app update action, the adoption verdict
@@ -216,7 +216,8 @@ struct AppDetailView: View {
     private func adoptionRequiredNotice(for source: SourceUpdate) -> some View {
         Label(
             source.actionBlocker?.explanation
-                ?? String(localized: "This app cannot be adopted and updated automatically — please update via the vendor."),
+                ?? String(
+                    localized: "This app cannot be adopted and updated automatically — please update via the vendor."),
             systemImage: "exclamationmark.triangle"
         )
         .font(.callout)
@@ -250,10 +251,12 @@ struct AppDetailView: View {
                     Text(prediction.explanation)
                         .foregroundStyle(.secondary)
                 }
-                Text("Optional — only needed if Homebrew should manage this app going forward. A pending update does not require a separate adoption.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Text(
+                    "Optional — only needed if Homebrew should manage this app going forward. A pending update does not require a separate adoption."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
                 Button {
                     showingAdoptionSheet = true
                 } label: {
@@ -306,23 +309,29 @@ struct AppDetailView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Text("No trust baseline stored yet. The next update records the currently signing team ID as the initial trust (trust-on-first-use).")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Text("A deliberately named limit: if the first observed installation was already tampered with, exactly that state is taken as the initial trust. That is not verified safety, but a starting point against which later changes stand out.")
+                    Text(
+                        "No trust baseline stored yet. The next update records the currently signing team ID as the initial trust (trust-on-first-use)."
+                    )
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Text(
+                    "A deliberately named limit: if the first observed installation was already tampered with, exactly that state is taken as the initial trust. That is not verified safety, but a starting point against which later changes stand out."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
                 if trust.signature.wasDegradedByMissingTool {
-                    Label("A check could not be run (tool missing). OpenFreshr therefore does not block across the board, but does not claim verified safety either.",
-                        systemImage: "questionmark.circle")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Label(
+                        "A check could not be run (tool missing). OpenFreshr therefore does not block across the board, but does not claim verified safety either.",
+                        systemImage: "questionmark.circle"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             } else {
                 HStack(spacing: 8) {
@@ -357,10 +366,12 @@ struct AppDetailView: View {
                 .foregroundStyle(.red)
             Text(block.explanation)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("OpenFreshr does not replace this app automatically. Please check the origin of the app manually before you continue.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            Text(
+                "OpenFreshr does not replace this app automatically. Please check the origin of the app manually before you continue."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -381,19 +392,25 @@ struct AppDetailView: View {
                 .font(.headline)
                 .foregroundStyle(.red)
 
-            Text("This app is now signed by a different Apple team ID than at the last trusted observation. OpenFreshr therefore does not update it casually.")
-                .fixedSize(horizontal: false, vertical: true)
+            Text(
+                "This app is now signed by a different Apple team ID than at the last trusted observation. OpenFreshr therefore does not update it casually."
+            )
+            .fixedSize(horizontal: false, vertical: true)
 
             LabeledContent("Previously trusted", value: change.previousTeamIdentifier)
             LabeledContent("Now signed by", value: change.newTeamIdentifier)
 
-            Text("A change can mean a legitimate takeover by the vendor (new signing certificate, company acquisition) — or a takeover of the update channel by third parties. Both look the same here. Only agree if you have understood the change.")
-                .font(.callout)
-                .fixedSize(horizontal: false, vertical: true)
+            Text(
+                "A change can mean a legitimate takeover by the vendor (new signing certificate, company acquisition) — or a takeover of the update channel by third parties. Both look the same here. Only agree if you have understood the change."
+            )
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
 
-            Toggle("I have checked the team ID change and deliberately agree to the replacement.",
-                   isOn: $acknowledgeTeamChange)
-                .toggleStyle(.checkbox)
+            Toggle(
+                "I have checked the team ID change and deliberately agree to the replacement.",
+                isOn: $acknowledgeTeamChange
+            )
+            .toggleStyle(.checkbox)
 
             Button {
                 Task { await viewModel.update(update, source: source, acknowledgeTeamChange: true) }
@@ -448,7 +465,9 @@ struct AppDetailView: View {
     }
 
     private var sortedUpdateSources: [SourceUpdate] {
-        (update?.sources ?? []).sorted { $0.kind.label.localizedCaseInsensitiveCompare($1.kind.label) == .orderedAscending }
+        (update?.sources ?? []).sorted {
+            $0.kind.label.localizedCaseInsensitiveCompare($1.kind.label) == .orderedAscending
+        }
     }
 }
 
@@ -473,7 +492,8 @@ private struct UpdateSourceRow: View {
     private var icon: String {
         switch source.state {
         case .upToDate: return "checkmark.circle.fill"
-        case .updateAvailable(_, let isMajor): return isMajor ? "exclamationmark.arrow.triangle.2.circlepath" : "arrow.down.circle.fill"
+        case .updateAvailable(_, let isMajor):
+            return isMajor ? "exclamationmark.arrow.triangle.2.circlepath" : "arrow.down.circle.fill"
         case .unknown: return "questionmark.circle"
         }
     }

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The trust gate wired into the coordinators, proving the contract that matters
@@ -77,10 +78,12 @@ struct TrustEnforcementTests {
     /// *new* team — i.e. a pending, unacknowledged team-ID change.
     private func teamChangeGate() -> (TrustGate, InMemoryTrustStore) {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified(figmaPath, team: "NEWTEAM222"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified(figmaPath, team: "NEWTEAM222"), store: store)
         return (gate, store)
     }
 
@@ -100,7 +103,8 @@ struct TrustEnforcementTests {
         let outcome = coordinator.perform(item)
 
         guard case let .blockedByTrust(_, block) = outcome,
-              case let .teamIdentifierChanged(change) = block else {
+            case let .teamIdentifierChanged(change) = block
+        else {
             Issue.record("expected .blockedByTrust(.teamIdentifierChanged), got \(outcome)")
             return
         }
@@ -127,7 +131,7 @@ struct TrustEnforcementTests {
 
         let outcome = coordinator.perform(item, acknowledgingTeamChange: true)
 
-        #expect(outcome.didUpdate)                                   // confirmed by rescan
+        #expect(outcome.didUpdate)  // confirmed by rescan
         #expect(brew.invocations.contains { $0.arguments.first == "upgrade" })
         let record = store.record(for: "com.figma.desktop")
         #expect(record?.teamIdentifier == "NEWTEAM222")
@@ -143,8 +147,9 @@ struct TrustEnforcementTests {
         // must block Figma before its backend runs, yet still update Slack.
         let slackPath = "/Applications/Slack.app"
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
         let inspector = FakeCodeSignatureInspector(infos: [
             figmaPath: CodeSignatureInfo(teamIdentifier: "NEWTEAM222", verification: .verified, gatekeeper: .accepted),
@@ -153,10 +158,13 @@ struct TrustEnforcementTests {
         let gate = TrustGate(inspector: inspector, store: store)
 
         let (coordinator, brew) = makeCoordinator(
-            apps: [[
-                InstalledApp(bundlePath: figmaPath, bundleIdentifier: figmaID, shortVersion: "1.2.4"),
-                InstalledApp(bundlePath: slackPath, bundleIdentifier: "com.tinyspeck.slackmacgap", shortVersion: "3.1"),
-            ]],
+            apps: [
+                [
+                    InstalledApp(bundlePath: figmaPath, bundleIdentifier: figmaID, shortVersion: "1.2.4"),
+                    InstalledApp(
+                        bundlePath: slackPath, bundleIdentifier: "com.tinyspeck.slackmacgap", shortVersion: "3.1"),
+                ]
+            ],
             casks: [
                 Cask(token: "figma", names: ["Figma"], version: "1.2.4"),
                 Cask(token: "slack", names: ["Slack"], version: "3.1"),
@@ -165,13 +173,17 @@ struct TrustEnforcementTests {
             trustGate: gate
         )
         let figmaItem = homebrewItem(bundlePath: figmaPath, bundleIdentifier: figmaID, token: "figma", target: "1.2.4")
-        let slackItem = homebrewItem(bundlePath: slackPath, bundleIdentifier: "com.tinyspeck.slackmacgap", token: "slack", target: "3.1")
+        let slackItem = homebrewItem(
+            bundlePath: slackPath, bundleIdentifier: "com.tinyspeck.slackmacgap", token: "slack", target: "3.1")
         let release = try #require(UpdateRelease(items: [figmaItem, slackItem]))
 
-        let result = await coordinator.perform(release)     // no acknowledgements
+        let result = await coordinator.perform(release)  // no acknowledgements
 
         // Figma blocked by trust …
-        #expect(result.outcomes.contains { if case .blockedByTrust = $0 { return true }; return false })
+        #expect(
+            result.outcomes.contains {
+                if case .blockedByTrust = $0 { return true }; return false
+            })
         #expect(result.updatedItems.map(\.app.bundleName) == ["Slack.app"])
         // … and its `brew upgrade` never ran, while Slack's did.
         #expect(brew.invocations.contains { $0.arguments == ["upgrade", "--cask", "--greedy", "--", "slack"] })
@@ -204,8 +216,9 @@ struct TrustEnforcementTests {
         // still fire first. Bigapp jumps 1.x → 2.0 (major) and its team changed.
         let bigPath = "/Applications/Bigapp.app"
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.example.bigapp", teamIdentifier: "OLDBIG1111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.example.bigapp", teamIdentifier: "OLDBIG1111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
         let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified(bigPath, team: "NEWBIG2222"), store: store)
 
@@ -215,14 +228,18 @@ struct TrustEnforcementTests {
             brewList: "bigapp\n",
             trustGate: gate
         )
-        let majorItem = homebrewItem(bundlePath: bigPath, bundleIdentifier: "com.example.Bigapp",
-                                     token: "bigapp", target: "2.0.0", isMajor: true)
+        let majorItem = homebrewItem(
+            bundlePath: bigPath, bundleIdentifier: "com.example.Bigapp",
+            token: "bigapp", target: "2.0.0", isMajor: true)
         let release = try #require(UpdateRelease(items: [majorItem]))
         #expect(release.isMajor)
 
         let result = await coordinator.perform(release)
 
-        #expect(result.outcomes.contains { if case .blockedByTrust = $0 { return true }; return false })
+        #expect(
+            result.outcomes.contains {
+                if case .blockedByTrust = $0 { return true }; return false
+            })
         #expect(result.updatedItems.isEmpty)
         #expect(brew.invocations.isEmpty)
     }
@@ -258,10 +275,12 @@ struct TrustEnforcementTests {
         let onePassword = try #require(Fixture.app(named: "1Password.app", in: apps))
         // A stored baseline that differs from the inspected team → pending change.
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.1password.1password", teamIdentifier: "OLD1PW0000",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.1password.1password", teamIdentifier: "OLD1PW0000",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified(onePassword.bundlePath, team: "NEW1PW9999"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified(onePassword.bundlePath, team: "NEW1PW9999"), store: store)
         let backend = FakeBackend()
 
         let coordinator = AdoptionCoordinator(
@@ -287,10 +306,12 @@ struct TrustEnforcementTests {
         let apps = try Fixture.installedApps()
         let onePassword = try #require(Fixture.app(named: "1Password.app", in: apps))
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.1password.1password", teamIdentifier: "OLD1PW0000",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.1password.1password", teamIdentifier: "OLD1PW0000",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified(onePassword.bundlePath, team: "NEW1PW9999"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified(onePassword.bundlePath, team: "NEW1PW9999"), store: store)
         let backend = FakeBackend(adoptResult: .succeeded(standardOutput: "ok"), adoptBecomesManaged: true)
 
         let coordinator = AdoptionCoordinator(
