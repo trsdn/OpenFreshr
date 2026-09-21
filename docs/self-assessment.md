@@ -3,8 +3,8 @@
 Evidence for `.github/conformance.yml`. Assessed against version **1.15.0** of
 the [trsdn Repository Quality Standard](https://github.com/trsdn/.github/blob/main/docs/repository-quality-standard.md).
 First assessed on 2026-09-20; reassessed on **2026-09-21** after the gaps it named
-were worked. Overall state: **Needs work**. Three criteria fail and four are
-partial; none of the critical criteria (`B04`, `D01`-`D04`, `D06`) fails.
+were worked. Overall state: **Needs work**. No criterion fails and two are
+partial (`P08`, `P09`, both waiting on the first run of `stats.yml`); none of the critical criteria (`B04`, `D01`-`D04`, `D06`) fails.
 
 Every line below was read from the tree, the GitHub API, or a command run for
 this assessment. The profiles that apply are Baseline, Public, Software,
@@ -23,17 +23,13 @@ release.
 | Repository security settings | Secret scanning and push protection enabled; private vulnerability reporting enabled (`gh api repos/trsdn/OpenFreshr/private-vulnerability-reporting` returns `enabled: true`); Dependabot security updates disabled |
 | Local run | `swift test`: 265 tests in 31 suites passed on 2026-09-20 |
 | Markdown | `npx markdownlint-cli2@0.18.1 "**/*.md" "#node_modules" "#.build"`: 0 errors on 2026-09-21 |
-| Formatting | `swift format lint --strict -r Sources Tests Package.swift` reports 914 violations in 64 files on 2026-09-21 (489 indentation, 290 missing line breaks, 78 line length, 36 spacing, 11 import order); it is therefore not wired into CI |
+| Formatting | `swift format lint --strict --recursive Sources Tests`: 0 violations on 2026-09-21; enforced in CI and in `make all` |
 
 ## Results that are not `pass`
 
 ### `fail`
 
-| ID | What was observed | What would make it pass |
-|---|---|---|
-| `L01` | The README now declares English as the language of the documentation and the interface, but the interface in `Sources/OpenFreshrApp/*.swift` is still German at the time of this assessment | Land the interface translation, then the declaration is true |
-| `L02` | User-facing strings are hardcoded German literals ("Alle Updates", "Hintergrundprüfung", ...), with no string catalog | English base strings plus a `.xcstrings` catalog |
-| `L03` | The README states English with a German translation, but no catalog exists yet to back it | Ships with the catalog from `L02` |
+None.
 
 ### `partial`
 
@@ -41,8 +37,6 @@ release.
 |---|---|---|
 | `P08` | The README carries the badge block in the standard's order (licence, platform, CI, conformance). The licence and platform badges are rendered by `scripts/badges.py` from `Info.plist` and `Package.swift` and are served from the generated `stats` branch, which does not exist until the first run of `stats.yml`, so those two images do not render yet. There is no release badge because there is no release | Create the `stats` branch and run the workflow once; add the release badge with the first release |
 | `P09` | `.github/workflows/stats.yml` calls the shared `repo-stats` workflow on a schedule, in light and dark variants, and the README references the card in a `<picture>` element. The workflow has not run, so no card exists | Create the `stats` branch and run the workflow once |
-| `S03` | Compilation with `-warnings-as-errors` is the type check and runs in CI. `.swift-format` exists, but the code does not pass `swift format lint --strict` (914 violations in 64 files), so wiring it into CI and `make all` would turn both red | Format the code once with `swift format -i -r`, then add `swift format lint --strict` to CI and to the `B05` command |
-| `X02` | Standard controls carry names. The catalogue search clear button (`CatalogView.swift`, `xmark.circle.fill`) is an icon-only button with no `accessibilityLabel`; only the menu bar item has one | Label the icon-only controls |
 
 ## Results that are `na`, and why
 
@@ -106,6 +100,7 @@ release.
 |---|---|
 | `S01` | `Package.resolved` and the pinned `project.yml` dependency are committed; the setup commands are in the README |
 | `S02` | 265 tests in 31 suites cover scanning, matching, adoption, update resolution, the trust gate and scheduling without any view; failure paths are asserted (`throws`, `FailClosedEligibilityTests`, `TrustEnforcementTests`, rejected-signature cases). The SwiftUI views and real `brew` are covered by no test |
+| `S03` | `-warnings-as-errors` is the type check; `swift format lint --strict` (configured by `.swift-format`) runs in CI and in `make all`, and the sources were formatted once so it passes |
 | `S04` | The README claims macOS 14 or later and the manifest declares the same, a range covered by the newest runner. CI runs `macos-15` and `macos-latest` |
 | `S05` | `secret-scan.yml` runs on pull requests and on pushes to `main`. GitHub secret scanning and push protection are enabled (`security_and_analysis`), a second layer |
 | `S07` | The one `Logger` (`SelfUpdateController`) logs operation names, versions and error descriptions; no environment, token, header or body is logged, and error text names the failed operation |
@@ -141,7 +136,11 @@ release.
 |---|---|
 | `L05` | Displayed dates and counts use `.formatted(...)` (`TrustManagementView`, `CatalogView`); sorts of displayed text are not hand-built |
 | `L07` | Commit messages, code comments, identifiers, `README.md`, `CHANGELOG.md`, `docs/PRD.md`, `docs/PLAN.md` and the release guide are in English; no German remains in the documents outside literal UI strings quoted here |
+| `L01` | The README declares English as the language of the documentation and of the interface; the interface has an English source language and a German translation |
+| `L02` | User-facing strings are English source strings in `Sources/OpenFreshrApp/Resources/Localizable.xcstrings` (277 keys, each with a `de` translation); no German literal remains in the Swift sources |
+| `L03` | The README states English with a German translation, and the catalog and `CFBundleLocalizations: [en, de]` back it; the built app contains `de.lproj` |
 | `X01` | Read: the interface uses standard SwiftUI controls, `keyboardShortcut` on the sheet actions, and no gesture-only interaction (no `onTapGesture`). Source review only; the product was not operated |
+| `X02` | The catalogue search clear button, the install-outcome icon and the update sheet's hidden checkbox carry localized accessibility labels; decorative icons are hidden from VoiceOver |
 | `X03` | Read: no fixed font sizes, semantic text styles and system colours only; status is carried by a distinct symbol or text alongside any colour. Not verified with the real system accessibility settings |
 | `X05` | The README's Accessibility section states that no assistive-technology audit has been done, that some icon-only controls (the catalogue search clear button) lack a label, and that contrast, text size and Reduce Motion were not checked |
 
@@ -161,10 +160,4 @@ release.
 1. Create the `stats` branch from `main` and run the `Repository stats` workflow
    once, so the activity card and the licence and platform badges exist
    (`P08`, `P09`).
-2. Land the interface translation, then `L01`-`L03` can pass (English base
-   strings, a German catalog, and the README declaration).
-3. Format the code once, then wire `swift format lint --strict` into CI and
-   `make all` (`S03`).
-4. Label the icon-only controls (`X02`).
-5. Before the first release: mirror the `Info.plist` identity keys in
-   `project.yml`, wire the icon into the bundle, and date the `[1.0.0]` entry.
+2. Before the first release: tag `v1.0.0` and date the `[1.0.0]` entry.

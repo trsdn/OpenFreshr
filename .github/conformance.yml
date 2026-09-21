@@ -45,7 +45,7 @@ criteria:
   # --- Software Repositories --------------------------------------------
   S01: pass
   S02: pass
-  S03: partial
+  S03: pass
   S04: pass
   S05: pass
   S06: na
@@ -112,9 +112,9 @@ criteria:
   G08: pass
 
   # --- Language And Localization ----------------------------------------
-  L01: fail
-  L02: fail
-  L03: fail
+  L01: pass
+  L02: pass
+  L03: pass
   L04: na
   L05: pass
   L06: na
@@ -122,7 +122,7 @@ criteria:
 
   # --- Accessibility -----------------------------------------------------
   X01: pass
-  X02: partial
+  X02: pass
   X03: pass
   X04: na
   X05: pass
