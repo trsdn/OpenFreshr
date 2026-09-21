@@ -241,12 +241,12 @@
         }
       }
     },
-    "A newer version exists. The app has its own updater, so OpenFreshr leaves it alone." : {
+    "A newer version exists. OpenFreshr cannot install it, but the app has its own updater: open it and check for updates." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Es gibt eine neuere Version. Die App hat einen eigenen Updater, deshalb lässt OpenFreshr sie in Ruhe."
+            "value" : "Es gibt eine neuere Version. OpenFreshr kann sie nicht installieren, aber die App hat einen eigenen Updater: öffne sie und suche nach Updates."
           }
         }
       }
@@ -877,6 +877,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allgemein"
+          }
+        }
+      }
+    },
+    "Has its own updater" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hat einen eigenen Updater"
           }
         }
       }
@@ -1667,6 +1677,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fenster öffnen"
+          }
+        }
+      }
+    },
+    "Open the app to update it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App öffnen, um sie zu aktualisieren"
           }
         }
       }
@@ -2567,26 +2587,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Updates verfügbar"
-          }
-        }
-      }
-    },
-    "Updates itself" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktualisiert sich selbst"
-          }
-        }
-      }
-    },
-    "Updates itself when you open it" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktualisiert sich beim Öffnen"
           }
         }
       }

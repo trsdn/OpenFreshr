@@ -53,7 +53,7 @@ extension UpdateBucket {
     var title: String {
         switch self {
         case .ready: return String(localized: "Ready to update")
-        case .updatesItself: return String(localized: "Updates itself")
+        case .ownUpdater: return String(localized: "Has its own updater")
         case .manual: return String(localized: "Needs you")
         case .cannotTell: return String(localized: "Can't tell")
         case .upToDate: return String(localized: "Up to date")
@@ -63,7 +63,7 @@ extension UpdateBucket {
     var symbol: String {
         switch self {
         case .ready: return "arrow.down.circle.fill"
-        case .updatesItself: return "arrow.triangle.2.circlepath"
+        case .ownUpdater: return "arrow.triangle.2.circlepath"
         case .manual: return "hand.raised.fill"
         case .cannotTell: return "questionmark.circle"
         case .upToDate: return "checkmark.circle"
@@ -73,7 +73,7 @@ extension UpdateBucket {
     var color: Color {
         switch self {
         case .ready: return .accentColor
-        case .updatesItself: return .blue
+        case .ownUpdater: return .blue
         case .manual: return .orange
         case .cannotTell: return .secondary
         case .upToDate: return .green
@@ -84,7 +84,7 @@ extension UpdateBucket {
     var explanation: String? {
         switch self {
         case .ready: return nil
-        case .updatesItself:
+        case .ownUpdater:
             return String(
                 localized: "A newer version exists. The app has its own updater, so OpenFreshr leaves it alone.")
         case .manual:
@@ -171,8 +171,8 @@ private struct InstalledRow: View {
         switch bucket {
         case .ready:
             return update.primarySource?.backend.map { String(localized: "via \($0.label)") }
-        case .updatesItself:
-            return String(localized: "Updates itself when you open it")
+        case .ownUpdater:
+            return String(localized: "Open the app to update it")
         case .manual:
             switch update.manualReason {
             case .homebrewCannotTakeOver?:
