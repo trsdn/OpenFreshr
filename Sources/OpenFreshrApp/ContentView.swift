@@ -34,7 +34,8 @@ struct ContentView: View {
                     ContentUnavailableView(
                         "No App Selected",
                         systemImage: "shippingbox",
-                        description: Text("Select an app on the left to see sources, updates and adoption status.")
+                        description: Text(
+                            "Select an app on the left to see where it stands and what you can do about it.")
                     )
                 }
             case .catalog:

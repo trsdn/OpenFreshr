@@ -231,6 +231,26 @@
         }
       }
     },
+    "A newer version exists, but OpenFreshr cannot install it for you." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es gibt eine neuere Version, aber OpenFreshr kann sie nicht für dich installieren."
+          }
+        }
+      }
+    },
+    "A newer version exists. The app has its own updater, so OpenFreshr leaves it alone." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es gibt eine neuere Version. Die App hat einen eigenen Updater, deshalb lässt OpenFreshr sie in Ruhe."
+          }
+        }
+      }
+    },
     "A scan runs after the installation. Success is only reported if the app is actually found afterwards." : {
       "localizations" : {
         "de" : {
@@ -517,6 +537,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gebündelter Stand vom %@"
+          }
+        }
+      }
+    },
+    "Can't tell" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unklar"
           }
         }
       }
@@ -881,6 +911,16 @@
         }
       }
     },
+    "Homebrew cannot take this app over. Update it at the vendor." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew kann diese App nicht übernehmen. Beim Hersteller aktualisieren."
+          }
+        }
+      }
+    },
     "Homebrew is not available — adoption is disabled, scanning still works." : {
       "localizations" : {
         "de" : {
@@ -1201,6 +1241,16 @@
         }
       }
     },
+    "Looking for apps …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche nach Apps …"
+          }
+        }
+      }
+    },
     "Major" : {
       "localizations" : {
         "de" : {
@@ -1257,6 +1307,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name ähnelt dem Cask %@"
+          }
+        }
+      }
+    },
+    "Needs you" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht dich"
           }
         }
       }
@@ -1321,6 +1381,16 @@
         }
       }
     },
+    "No automatic way to update it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein automatischer Weg zum Aktualisieren"
+          }
+        }
+      }
+    },
     "No comparison version available" : {
       "localizations" : {
         "de" : {
@@ -1361,6 +1431,16 @@
         }
       }
     },
+    "No source could say whether these have an update. That does not mean they are current." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Quelle konnte sagen, ob es ein Update gibt. Das heißt nicht, dass sie aktuell sind."
+          }
+        }
+      }
+    },
     "No source reports a problem." : {
       "localizations" : {
         "de" : {
@@ -1387,6 +1467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keine Update-Quelle erkannt."
+          }
+        }
+      }
+    },
+    "No update source found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Update-Quelle gefunden"
           }
         }
       }
@@ -1457,6 +1547,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nichts im Filter"
+          }
+        }
+      }
+    },
+    "Nothing to compare against" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zum Vergleichen vorhanden"
           }
         }
       }
@@ -1751,6 +1851,16 @@
         }
       }
     },
+    "Ready to update" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereit zum Aktualisieren"
+          }
+        }
+      }
+    },
     "Regular Updates" : {
       "localizations" : {
         "de" : {
@@ -1897,6 +2007,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wähle links eine App, um Quellen, Updates und Adoptionsstatus zu sehen."
+          }
+        }
+      }
+    },
+    "Select an app on the left to see where it stands and what you can do about it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle links eine App, um zu sehen, wo sie steht und was du tun kannst."
           }
         }
       }
@@ -2181,6 +2301,16 @@
         }
       }
     },
+    "The update source did not answer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Update-Quelle hat nicht geantwortet"
+          }
+        }
+      }
+    },
     "This app cannot be adopted and updated automatically — please update via the vendor." : {
       "localizations" : {
         "de" : {
@@ -2331,6 +2461,16 @@
         }
       }
     },
+    "Up to date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuell"
+          }
+        }
+      }
+    },
     "Update" : {
       "localizations" : {
         "de" : {
@@ -2427,6 +2567,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Updates verfügbar"
+          }
+        }
+      }
+    },
+    "Updates itself" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert sich selbst"
+          }
+        }
+      }
+    },
+    "Updates itself when you open it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert sich beim Öffnen"
           }
         }
       }
@@ -2747,6 +2907,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "verifiziert (codesign --strict)"
+          }
+        }
+      }
+    },
+    "via %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "über %@"
           }
         }
       }
