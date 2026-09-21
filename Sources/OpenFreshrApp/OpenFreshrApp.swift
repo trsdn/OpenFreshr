@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 
 /// Stable scene identifiers, shared by the scenes and the actions that open them
-/// (the menu bar's "Fenster öffnen", Settings' "Vertrauensspeicher öffnen").
+/// (the menu bar's "Open Window", Settings' "Open Trust Store").
 enum OpenFreshrScene {
     static let mainWindowID = "main"
     static let trustWindowID = "trust"
@@ -31,11 +31,11 @@ struct OpenFreshrApp: App {
         .windowResizability(.contentSize)
         .commands {
             // OpenFreshr's *own* update check lives in the app menu, the
-            // conventional home for "Nach Updates suchen …". It is intentionally
+            // conventional home for "Check for Updates …". It is intentionally
             // apart from the managed-app updates (which live in the window and the
             // menu-bar counter) so the two are never confused.
             CommandGroup(after: .appInfo) {
-                Button("Nach OpenFreshr-Updates suchen …") {
+                Button("Check for OpenFreshr Updates …") {
                     appDelegate.selfUpdateController.checkFromMenu()
                 }
                 .disabled(!appDelegate.selfUpdateController.canCheck)
@@ -58,7 +58,7 @@ struct OpenFreshrApp: App {
                 .environment(appDelegate.selfUpdateController)
         }
 
-        Window("Vertrauensspeicher", id: OpenFreshrScene.trustWindowID) {
+        Window("Trust Store", id: OpenFreshrScene.trustWindowID) {
             TrustManagementView()
                 .environment(appDelegate.viewModel)
                 .frame(minWidth: 520, minHeight: 420)

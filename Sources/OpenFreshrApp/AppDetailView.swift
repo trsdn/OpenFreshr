@@ -56,10 +56,10 @@ struct AppDetailView: View {
                     .textSelection(.enabled)
             }
             HStack(spacing: 16) {
-                LabeledContent("Kurzversion", value: report.app.shortVersion ?? "—")
+                LabeledContent("Short Version", value: report.app.shortVersion ?? "—")
                 LabeledContent("Build", value: report.app.bundleVersion ?? "—")
                 if let available = update?.primarySource?.state.availableVersion {
-                    LabeledContent("Verfügbar", value: available)
+                    LabeledContent("Available", value: available)
                         .foregroundStyle(.orange)
                 }
             }
@@ -70,21 +70,22 @@ struct AppDetailView: View {
 
     private var sourcesSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Quellen")
+            Text("Sources")
                 .font(.headline)
 
             if report.sources.isEmpty {
-                Text("Keine Update-Quelle erkannt.")
+                Text("No update source detected.")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(sortedSources, id: \.label) { source in
                     HStack(spacing: 8) {
                         Image(systemName: source.isManaging ? "checkmark.circle.fill" : "circle")
                             .foregroundStyle(source.isManaging ? .green : .secondary)
+                            .accessibilityHidden(true)
                         Text(source.label)
                         Spacer()
                         if source.isManaging {
-                            Text("verwaltet")
+                            Text("managed")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -104,7 +105,7 @@ struct AppDetailView: View {
 
             if let update {
                 if update.sources.isEmpty {
-                    Text("Keine Update-Quelle erkannt.")
+                    Text("No update source detected.")
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(sortedUpdateSources) { source in
@@ -114,8 +115,7 @@ struct AppDetailView: View {
 
                 if update.isSelfUpdating {
                     Label(
-                        "Diese App aktualisiert sich selbst. OpenFreshr stösst sie nur auf ausdrückliche Anforderung an, "
-                            + "um konkurrierende Updater zu vermeiden.",
+                        "This app updates itself. OpenFreshr only triggers it on explicit request, to avoid competing updaters.",
                         systemImage: "arrow.triangle.2.circlepath"
                     )
                     .font(.caption)
@@ -132,10 +132,10 @@ struct AppDetailView: View {
             } else if viewModel.isCheckingUpdates {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Prüfe auf Updates …").foregroundStyle(.secondary)
+                    Text("Checking for updates …").foregroundStyle(.secondary)
                 }
             } else {
-                Text("Noch nicht auf Updates geprüft.")
+                Text("Not checked for updates yet.")
                     .foregroundStyle(.secondary)
             }
         }
@@ -159,9 +159,7 @@ struct AppDetailView: View {
 
                 if source.homebrewStrategy == .adoptThenReinstall {
                     Label(
-                        "Diese App wird noch nicht von Homebrew verwaltet. OpenFreshr übernimmt sie zuerst "
-                            + "(install --cask --adopt) und aktualisiert sie dann (reinstall --cask) — zwei Schritte, "
-                            + "eine Aktion. Schlägt die Übernahme fehl, wird der zweite Schritt nicht ausgeführt.",
+                        "This app is not managed by Homebrew yet. OpenFreshr adopts it first (install --cask --adopt) and then updates it (reinstall --cask) — two steps, one action. If the adoption fails, the second step is not run.",
                         systemImage: "square.and.arrow.down.on.square"
                     )
                     .font(.caption)
@@ -171,7 +169,7 @@ struct AppDetailView: View {
 
                 if source.state.isMajor {
                     Label(
-                        "Major-Upgrade — die erste Versionskomponente ändert sich. Bitte bewusst bestätigen.",
+                        "Major upgrade — the first version component changes. Please confirm deliberately.",
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .font(.caption)
@@ -180,8 +178,7 @@ struct AppDetailView: View {
 
                 if source.isReceiptDrift {
                     Label(
-                        "Homebrew führt diese App bereits als aktuell, auf der Platte liegt aber eine ältere Version. "
-                            + "Ein normales Upgrade bliebe wirkungslos, deshalb wird die App neu installiert statt aktualisiert.",
+                        "Homebrew already lists this app as up to date, but an older version is on disk. A normal upgrade would have no effect, so the app is reinstalled instead of updated.",
                         systemImage: "arrow.triangle.2.circlepath"
                     )
                     .font(.caption)
@@ -212,14 +209,14 @@ struct AppDetailView: View {
     /// A detected update whose only Homebrew path — taking the app over first — is
     /// **predicted to abort** (a non-auto-updating cask whose installed version
     /// differs; the Amazon Photos case). There is no honest one-click action, so
-    /// instead of an "Aktualisieren" button that could only fail, state plainly
+    /// instead of an "Update" button that could only fail, state plainly
     /// why and point the user at the vendor. Predicted up front so this is shown
     /// *before* any failed attempt.
     @ViewBuilder
     private func adoptionRequiredNotice(for source: SourceUpdate) -> some View {
         Label(
             source.actionBlocker?.explanation
-                ?? "Diese App kann nicht automatisch übernommen und aktualisiert werden — bitte über den Hersteller aktualisieren.",
+                ?? String(localized: "This app cannot be adopted and updated automatically — please update via the vendor."),
             systemImage: "exclamationmark.triangle"
         )
         .font(.callout)
@@ -231,9 +228,9 @@ struct AppDetailView: View {
         // A self-updating app driven by anything other than MAU is an explicit
         // opt-in; name it as such so the user knows they are overriding a default.
         if update.isSelfUpdating && source.backend != .microsoftAutoUpdate {
-            return "Trotzdem über OpenFreshr aktualisieren"
+            return String(localized: "Update via OpenFreshr anyway")
         }
-        return source.state.isMajor ? "Major-Upgrade durchführen" : "Aktualisieren"
+        return source.state.isMajor ? String(localized: "Perform Major Upgrade") : String(localized: "Update")
     }
 
     /// A **secondary**, optional take-over: adopting an app into Homebrew even
@@ -242,32 +239,31 @@ struct AppDetailView: View {
     /// the take-over itself. This section only offers the standalone convenience.
     private var verdictSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Übernahme durch Homebrew")
+            Text("Adoption by Homebrew")
                 .font(.headline)
 
             switch report.eligibility {
             case let .eligible(token):
-                Label("Adoptierbar als „\(token)“", systemImage: "checkmark.seal.fill")
+                Label("Adoptable as “\(token)”", systemImage: "checkmark.seal.fill")
                     .foregroundStyle(.green)
                 if let prediction = report.predictedOutcome {
                     Text(prediction.explanation)
                         .foregroundStyle(.secondary)
                 }
-                Text("Optional — nur nötig, wenn Homebrew diese App künftig mitverwalten soll. "
-                    + "Für ein anstehendes Update ist keine separate Übernahme erforderlich.")
+                Text("Optional — only needed if Homebrew should manage this app going forward. A pending update does not require a separate adoption.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Button {
                     showingAdoptionSheet = true
                 } label: {
-                    Label("Mit Homebrew übernehmen …", systemImage: "square.and.arrow.down.on.square")
+                    Label("Adopt with Homebrew …", systemImage: "square.and.arrow.down.on.square")
                 }
                 .buttonStyle(.bordered)
                 .disabled(!viewModel.homebrewAvailable || viewModel.adoptionInFlight.contains(report.app.bundlePath))
 
                 if !viewModel.homebrewAvailable {
-                    Text("Homebrew ist nicht verfügbar — Übernahme ist deaktiviert, der Scan funktioniert weiterhin.")
+                    Text("Homebrew is not available — adoption is disabled, scanning still works.")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
@@ -287,22 +283,22 @@ struct AppDetailView: View {
     @ViewBuilder
     private var trustSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Vertrauen & Signatur")
+            Text("Trust & Signature")
                 .font(.headline)
 
             if let trust {
                 let signature = signatureLabel(trust.signature.verification)
-                LabeledContent("Signatur") { Text(signature.text).foregroundStyle(signature.color) }
+                LabeledContent("Signature") { Text(signature.text).foregroundStyle(signature.color) }
                 let gatekeeper = gatekeeperLabel(trust.signature.gatekeeper)
                 LabeledContent("Gatekeeper") { Text(gatekeeper.text).foregroundStyle(gatekeeper.color) }
-                LabeledContent("Signierende Team ID") {
-                    Text(trust.signature.teamIdentifier ?? "nicht auslesbar")
+                LabeledContent("Signing Team ID") {
+                    Text(trust.signature.teamIdentifier ?? String(localized: "not readable"))
                         .textSelection(.enabled)
                         .foregroundStyle(trust.signature.teamIdentifier == nil ? .secondary : .primary)
                 }
 
                 if let baseline = trust.baseline {
-                    LabeledContent("Vertraute Team ID") {
+                    LabeledContent("Trusted Team ID") {
                         Text(baseline.teamIdentifier).textSelection(.enabled)
                     }
                     Text(baselineOriginText(baseline))
@@ -310,23 +306,19 @@ struct AppDetailView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Text("Noch keine Vertrauensbasis gespeichert. Die nächste Aktualisierung legt die aktuell "
-                        + "signierende Team ID als Ausgangsvertrauen fest (Trust-on-first-use).")
+                    Text("No trust baseline stored yet. The next update records the currently signing team ID as the initial trust (trust-on-first-use).")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                Text("Grenze bewusst benannt: War die erste beobachtete Installation bereits manipuliert, wird "
-                    + "genau dieser Zustand als Ausgangsvertrauen übernommen. Das ist keine geprüfte "
-                    + "Unbedenklichkeit, sondern ein Ausgangspunkt, gegen den spätere Wechsel auffallen.")
+                Text("A deliberately named limit: if the first observed installation was already tampered with, exactly that state is taken as the initial trust. That is not verified safety, but a starting point against which later changes stand out.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if trust.signature.wasDegradedByMissingTool {
-                    Label("Eine Prüfung konnte nicht ausgeführt werden (Werkzeug fehlt). OpenFreshr blockiert "
-                        + "deshalb nicht pauschal, behauptet aber auch keine geprüfte Sicherheit.",
+                    Label("A check could not be run (tool missing). OpenFreshr therefore does not block across the board, but does not claim verified safety either.",
                         systemImage: "questionmark.circle")
                         .font(.caption)
                         .foregroundStyle(.orange)
@@ -335,7 +327,7 @@ struct AppDetailView: View {
             } else {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Prüfe Signatur und Gatekeeper …").foregroundStyle(.secondary)
+                    Text("Checking signature and Gatekeeper …").foregroundStyle(.secondary)
                 }
             }
         }
@@ -360,13 +352,12 @@ struct AppDetailView: View {
     @ViewBuilder
     private func trustHardBlockNotice(_ block: TrustBlock) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Ersetzung blockiert", systemImage: "xmark.shield.fill")
+            Label("Replacement blocked", systemImage: "xmark.shield.fill")
                 .font(.headline)
                 .foregroundStyle(.red)
             Text(block.explanation)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("OpenFreshr ersetzt diese App nicht automatisch. Bitte prüfen Sie die Herkunft der App manuell, "
-                + "bevor Sie fortfahren.")
+            Text("OpenFreshr does not replace this app automatically. Please check the origin of the app manually before you continue.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -386,32 +377,28 @@ struct AppDetailView: View {
         source: SourceUpdate
     ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Team-ID-Wechsel erkannt", systemImage: "exclamationmark.shield.fill")
+            Label("Team ID change detected", systemImage: "exclamationmark.shield.fill")
                 .font(.headline)
                 .foregroundStyle(.red)
 
-            Text("Diese App wird jetzt von einer anderen Apple Team ID signiert als bei der letzten "
-                + "vertrauten Beobachtung. OpenFreshr aktualisiert sie deshalb nicht beiläufig.")
+            Text("This app is now signed by a different Apple team ID than at the last trusted observation. OpenFreshr therefore does not update it casually.")
                 .fixedSize(horizontal: false, vertical: true)
 
-            LabeledContent("Bisher vertraut", value: change.previousTeamIdentifier)
-            LabeledContent("Jetzt signiert", value: change.newTeamIdentifier)
+            LabeledContent("Previously trusted", value: change.previousTeamIdentifier)
+            LabeledContent("Now signed by", value: change.newTeamIdentifier)
 
-            Text("Ein Wechsel kann eine legitime Übernahme durch den Hersteller bedeuten (neues "
-                + "Signierzertifikat, Firmenübernahme) — oder die Übernahme des Update-Kanals durch Dritte. "
-                + "Beides sieht an dieser Stelle gleich aus. Stimmen Sie nur zu, wenn Sie den Wechsel "
-                + "eingeordnet haben.")
+            Text("A change can mean a legitimate takeover by the vendor (new signing certificate, company acquisition) — or a takeover of the update channel by third parties. Both look the same here. Only agree if you have understood the change.")
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Toggle("Ich habe den Team-ID-Wechsel geprüft und stimme der Ersetzung bewusst zu.",
+            Toggle("I have checked the team ID change and deliberately agree to the replacement.",
                    isOn: $acknowledgeTeamChange)
                 .toggleStyle(.checkbox)
 
             Button {
                 Task { await viewModel.update(update, source: source, acknowledgeTeamChange: true) }
             } label: {
-                Label("Trotzdem ersetzen", systemImage: "arrow.down.circle")
+                Label("Replace anyway", systemImage: "arrow.down.circle")
             }
             .buttonStyle(.borderedProminent)
             .tint(.red)
@@ -426,29 +413,29 @@ struct AppDetailView: View {
         let base: String
         switch record.origin {
         case .firstUse:
-            base = "Als Ausgangsvertrauen bei der ersten Beobachtung gespeichert."
+            base = String(localized: "Stored as the initial trust at the first observation.")
         case .userConfirmedChange:
-            base = "Zuletzt durch einen von Ihnen bewusst bestätigten Team-ID-Wechsel aktualisiert."
+            base = String(localized: "Last updated by a team ID change you deliberately confirmed.")
         }
         if record.confirmedChanges.isEmpty { return base }
         let count = record.confirmedChanges.count
-        return base + " Bestätigte Wechsel: \(count)."
+        return base + " " + String(localized: "Confirmed changes: \(count).")
     }
 
     private func signatureLabel(_ verification: SignatureVerification) -> (text: String, color: Color) {
         switch verification {
-        case .verified: return ("verifiziert (codesign --strict)", .green)
-        case .unsigned: return ("nicht signiert", .red)
-        case let .invalid(message): return ("ungültig – \(message)", .red)
-        case .toolUnavailable: return ("nicht geprüft (Werkzeug fehlt)", .orange)
+        case .verified: return (String(localized: "verified (codesign --strict)"), .green)
+        case .unsigned: return (String(localized: "not signed"), .red)
+        case let .invalid(message): return (String(localized: "invalid – \(message)"), .red)
+        case .toolUnavailable: return (String(localized: "not checked (tool missing)"), .orange)
         }
     }
 
     private func gatekeeperLabel(_ assessment: GatekeeperAssessment) -> (text: String, color: Color) {
         switch assessment {
-        case .accepted: return ("akzeptiert (spctl execute)", .green)
-        case let .rejected(message): return ("abgelehnt – \(message)", .red)
-        case .toolUnavailable: return ("nicht geprüft (Werkzeug fehlt)", .orange)
+        case .accepted: return (String(localized: "accepted (spctl execute)"), .green)
+        case let .rejected(message): return (String(localized: "rejected – \(message)"), .red)
+        case .toolUnavailable: return (String(localized: "not checked (tool missing)"), .orange)
         }
     }
 
@@ -474,6 +461,7 @@ private struct UpdateSourceRow: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .foregroundStyle(color)
+                .accessibilityHidden(true)
             Text(source.kind.label)
             Spacer()
             Text(stateText)
@@ -502,10 +490,10 @@ private struct UpdateSourceRow: View {
     private var stateText: String {
         switch source.state {
         case .upToDate:
-            return "aktuell"
+            return String(localized: "current")
         case let .updateAvailable(available, isMajor):
-            let arrow = isMajor ? "Major → \(available)" : "→ \(available)"
-            return source.adoptionWouldFail ? "\(arrow) · über Hersteller" : arrow
+            let arrow = isMajor ? String(localized: "Major → \(available)") : "→ \(available)"
+            return source.adoptionWouldFail ? String(localized: "\(arrow) · via vendor") : arrow
         case let .unknown(reason):
             return reason.explanation
         }

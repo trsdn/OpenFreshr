@@ -27,47 +27,47 @@ struct SettingsView: View {
         TabView {
             Form {
                 Section {
-                    Picker("Automatisch prüfen", selection: $viewModel.checkInterval) {
+                    Picker("Check automatically", selection: $viewModel.checkInterval) {
                         ForEach(UpdateCheckInterval.allCases) { interval in
                             Text(interval.label).tag(interval)
                         }
                     }
-                    Text("OpenFreshr prüft im Hintergrund nur auf Updates — installiert wird nie automatisch. Jede Aktualisierung läuft über die Vorschau und Bestätigung im Fenster.")
+                    Text("OpenFreshr only checks for updates in the background — nothing is ever installed automatically. Every update goes through the preview and confirmation in the window.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Hintergrundprüfung")
+                    Text("Background Check")
                 }
 
                 Section {
-                    Toggle("Bei neuen Updates benachrichtigen", isOn: $viewModel.notifyOnNewUpdates)
+                    Toggle("Notify about new updates", isOn: $viewModel.notifyOnNewUpdates)
                         .onChange(of: viewModel.notifyOnNewUpdates) { _, enabled in
                             if enabled {
                                 Task { await UpdateNotifier.requestAuthorizationIfNeeded() }
                             }
                         }
-                    Text("Standardmäßig aus. Ohne erteilte Systemberechtigung bleibt die Benachrichtigung still aus.")
+                    Text("Off by default. Without the granted system permission, the notification stays silent.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Benachrichtigungen")
+                    Text("Notifications")
                 }
             }
             .formStyle(.grouped)
-            .tabItem { Label("Prüfung", systemImage: "clock.arrow.circlepath") }
+            .tabItem { Label("Checking", systemImage: "clock.arrow.circlepath") }
 
             Form {
                 Section {
-                    Toggle("Symbol im Dock anzeigen", isOn: $viewModel.showsDockIcon)
-                    Text("Aus: OpenFreshr läuft nur in der Menüleiste, ohne Dock-Symbol. Das Schließen des Fensters beendet die App nicht — sie läuft in der Menüleiste weiter.")
+                    Toggle("Show icon in the Dock", isOn: $viewModel.showsDockIcon)
+                    Text("Off: OpenFreshr runs only in the menu bar, without a Dock icon. Closing the window does not quit the app — it keeps running in the menu bar.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Erscheinungsbild")
+                    Text("Appearance")
                 }
 
                 Section {
-                    Toggle("Bei der Anmeldung starten", isOn: $launchAtLogin)
+                    Toggle("Launch at login", isOn: $launchAtLogin)
                         .onChange(of: launchAtLogin) { _, enabled in
                             setLaunchAtLogin(enabled)
                         }
@@ -77,38 +77,38 @@ struct SettingsView: View {
                             .foregroundStyle(.orange)
                     }
                 } header: {
-                    Text("Start")
+                    Text("Startup")
                 }
 
                 Section {
                     Toggle(
-                        "OpenFreshr automatisch aktualisieren",
+                        "Update OpenFreshr automatically",
                         isOn: Binding(
                             get: { selfUpdate.automaticChecksEnabled },
                             set: { selfUpdate.automaticChecksEnabled = $0 }
                         ))
-                    Text("Prüft höchstens einmal täglich auf GitHub, ob es eine neue Version von OpenFreshr gibt. Installiert wird erst nach deiner Bestätigung.")
+                    Text("Checks GitHub at most once a day for a new version of OpenFreshr. Nothing is installed until you confirm.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Selbst-Update")
+                    Text("Self-Update")
                 }
 
                 Section {
                     Button {
                         openWindow(id: OpenFreshrScene.trustWindowID)
                     } label: {
-                        Label("Vertrauensspeicher öffnen …", systemImage: "shield.lefthalf.filled")
+                        Label("Open Trust Store …", systemImage: "shield.lefthalf.filled")
                     }
-                    Text("Verwalte gespeicherte Vertrauensentscheidungen (Signatur, Team-ID) pro App.")
+                    Text("Manage stored trust decisions (signature, team ID) per app.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Sicherheit")
+                    Text("Security")
                 }
             }
             .formStyle(.grouped)
-            .tabItem { Label("Allgemein", systemImage: "gearshape") }
+            .tabItem { Label("General", systemImage: "gearshape") }
         }
         .frame(width: 460, height: 440)
         .onAppear { launchAtLogin = SMAppService.mainApp.status == .enabled }
@@ -128,7 +128,7 @@ struct SettingsView: View {
             }
             loginItemError = nil
         } catch {
-            loginItemError = "Anmeldeobjekt konnte nicht geändert werden: \(error.localizedDescription)"
+            loginItemError = String(localized: "Login item could not be changed: \(error.localizedDescription)")
             // Reflect the true system state rather than the intended one.
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
@@ -155,10 +155,10 @@ enum UpdateNotifier {
                     || settings.authorizationStatus == .provisional else { return }
 
             let content = UNMutableNotificationContent()
-            content.title = "Updates verfügbar"
+            content.title = String(localized: "Updates available")
             content.body = count == 1
-                ? "1 App kann aktualisiert werden."
-                : "\(count) Apps können aktualisiert werden."
+                ? String(localized: "1 app can be updated.")
+                : String(localized: "\(count) apps can be updated.")
 
             let request = UNNotificationRequest(
                 identifier: "openfreshr.updates.\(Date().timeIntervalSince1970)",

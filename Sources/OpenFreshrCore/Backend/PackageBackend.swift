@@ -51,20 +51,20 @@ public enum BackendFailureReason: Sendable, Equatable {
     public var explanation: String {
         switch self {
         case .homebrewUnavailable:
-            return "Homebrew wurde nicht gefunden"
+            return String(localized: "Homebrew was not found")
         case let .toolUnavailable(tool):
-            return "\(tool) wurde nicht gefunden"
+            return String(localized: "\(tool) was not found")
         case let .processFailed(exitCode, standardError):
             let trimmed = standardError.trimmingCharacters(in: .whitespacesAndNewlines)
-            return "Prozess endete mit Code \(exitCode): \(trimmed)"
+            return String(localized: "Process ended with code \(exitCode): \(trimmed)")
         case let .launchFailed(message):
-            return "Prozess konnte nicht gestartet werden: \(message)"
+            return String(localized: "Process could not be started: \(message)")
         case let .invalidCaskToken(token):
-            return "Ungültiger Cask-Token abgelehnt (nicht ausgeführt): \(token)"
+            return String(localized: "Invalid cask token rejected (not executed): \(token)")
         case let .invalidIdentifier(identifier):
-            return "Ungültiger Bezeichner abgelehnt (nicht ausgeführt): \(identifier)"
+            return String(localized: "Invalid identifier rejected (not executed): \(identifier)")
         case let .requiresAdoption(token):
-            return "Erfordert zuerst Übernahme — Cask „\(token)“ ist nicht brew-verwaltet (nicht ausgeführt)."
+            return String(localized: "Requires adoption first — cask “\(token)” is not managed by brew (not executed).")
         }
     }
 }

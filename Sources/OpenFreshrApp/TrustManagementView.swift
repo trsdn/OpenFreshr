@@ -26,10 +26,9 @@ struct TrustManagementView: View {
 
             if records.isEmpty {
                 ContentUnavailableView(
-                    "Keine Vertrauensentscheidungen gespeichert",
+                    "No Trust Decisions Stored",
                     systemImage: "shield",
-                    description: Text("Sobald OpenFreshr eine App zum ersten Mal ersetzt, wird deren Team ID "
-                        + "hier als Ausgangsvertrauen abgelegt.")
+                    description: Text("As soon as OpenFreshr replaces an app for the first time, its team ID is stored here as the initial trust.")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -42,9 +41,7 @@ struct TrustManagementView: View {
                             }
                         }
                     } footer: {
-                        Text("Zurücksetzen löscht das Ausgangsvertrauen. Die nächste Aktualisierung behandelt die "
-                            + "App als neue Erstbeobachtung und legt die dann signierende Team ID neu ab — es ist "
-                            + "kein stilles Weitervertrauen der alten Team ID.")
+                        Text("Resetting deletes the initial trust. The next update treats the app as a new first observation and stores the then-signing team ID anew — it is not a silent continued trust in the old team ID.")
                             .font(.caption)
                     }
                 }
@@ -59,12 +56,9 @@ struct TrustManagementView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Vertrauensspeicher")
+            Text("Trust Store")
                 .font(.title2.bold())
-            Text("OpenFreshr merkt sich beim ersten Ersetzen die signierende Apple Team ID einer App als "
-                + "Ausgangsvertrauen (Trust-on-first-use). War die erste Installation bereits manipuliert, wird "
-                + "dieser Zustand übernommen — das ist eine bewusste Grenze, keine geprüfte Unbedenklichkeit. "
-                + "Ein späterer Team-ID-Wechsel wird erkannt und erfordert Ihre ausdrückliche Zustimmung.")
+            Text("When it first replaces an app, OpenFreshr remembers the signing Apple team ID as the initial trust (trust-on-first-use). If the first installation was already tampered with, that state is adopted — this is a deliberate limit, not verified safety. A later team ID change is detected and requires your explicit consent.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -78,26 +72,26 @@ struct TrustManagementView: View {
             Button(role: .destructive) {
                 confirmingResetAll = true
             } label: {
-                Label("Alle zurücksetzen", systemImage: "trash")
+                Label("Reset All", systemImage: "trash")
             }
             .disabled(records.isEmpty)
             .confirmationDialog(
-                "Alle gespeicherten Vertrauensentscheidungen löschen?",
+                "Delete all stored trust decisions?",
                 isPresented: $confirmingResetAll,
                 titleVisibility: .visible
             ) {
-                Button("Alle zurücksetzen", role: .destructive) {
+                Button("Reset All", role: .destructive) {
                     viewModel.resetAllTrust()
                     reload()
                 }
-                Button("Abbrechen", role: .cancel) {}
+                Button("Cancel", role: .cancel) {}
             } message: {
-                Text("Jede App wird bei ihrer nächsten Aktualisierung wieder als Erstbeobachtung behandelt.")
+                Text("Each app is treated as a first observation again at its next update.")
             }
 
             Spacer()
 
-            Button("Fertig") { dismiss() }
+            Button("Done") { dismiss() }
                 .keyboardShortcut(.defaultAction)
         }
         .padding(20)
@@ -122,22 +116,22 @@ private struct TrustRecordRow: View {
                     .font(.headline)
                     .textSelection(.enabled)
                 Spacer()
-                Button("Zurücksetzen", role: .destructive, action: onReset)
+                Button("Reset", role: .destructive, action: onReset)
                     .buttonStyle(.borderless)
             }
 
-            LabeledContent("Vertraute Team ID") {
+            LabeledContent("Trusted Team ID") {
                 Text(record.teamIdentifier).textSelection(.enabled)
             }
-            LabeledContent("Herkunft", value: originText)
-            LabeledContent("Zuletzt aktualisiert", value: record.updatedAt.formatted(date: .abbreviated, time: .shortened))
+            LabeledContent("Origin", value: originText)
+            LabeledContent("Last Updated", value: record.updatedAt.formatted(date: .abbreviated, time: .shortened))
 
             if !record.confirmedChanges.isEmpty {
-                Text("Bestätigte Team-ID-Wechsel")
+                Text("Confirmed Team ID Changes")
                     .font(.caption.bold())
                     .padding(.top, 2)
                 ForEach(Array(record.confirmedChanges.enumerated()), id: \.offset) { _, change in
-                    Text("\(change.previousTeamIdentifier) → \(change.newTeamIdentifier) "
+                    Text(verbatim: "\(change.previousTeamIdentifier) → \(change.newTeamIdentifier) "
                         + "· \(change.confirmedAt.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -150,8 +144,8 @@ private struct TrustRecordRow: View {
 
     private var originText: String {
         switch record.origin {
-        case .firstUse: return "Erstbeobachtung (Trust-on-first-use)"
-        case .userConfirmedChange: return "Vom Nutzer bestätigter Team-ID-Wechsel"
+        case .firstUse: return String(localized: "First observation (trust-on-first-use)")
+        case .userConfirmedChange: return String(localized: "Team ID change confirmed by the user")
         }
     }
 }

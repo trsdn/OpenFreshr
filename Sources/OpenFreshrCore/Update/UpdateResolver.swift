@@ -4,7 +4,7 @@ import Foundation
 /// ``UpdateState`` under one rule that never bends —
 ///
 /// > **A version pair that cannot be compared with confidence yields
-/// > `unbekannt`, never "Update verfügbar".**
+/// > `unbekannt`, never "update available".**
 ///
 /// A falsely reported update leads to an unnecessary — possibly destructive —
 /// replacement, so every ambiguous outcome is funnelled into ``UpdateState/unknown(_:)``.
