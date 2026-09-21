@@ -25,6 +25,12 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>OpenFreshr</string>
+	<string>Copyright © 2026 Torsten Mahr. Released under the MIT License.</string>
+	<key>OFRIssueTrackerURL</key>
+	<string>https://github.com/trsdn/OpenFreshr/issues</string>
+	<key>OFRLicenseIdentifier</key>
+	<string>MIT</string>
+	<key>OFRRepositoryURL</key>
+	<string>https://github.com/trsdn/OpenFreshr</string>
 </dict>
 </plist>
