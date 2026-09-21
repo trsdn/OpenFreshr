@@ -231,6 +231,16 @@
         }
       }
     },
+    "A new major version can change how the app works." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine neue Hauptversion kann verändern, wie die App funktioniert."
+          }
+        }
+      }
+    },
     "A newer version exists, but OpenFreshr cannot install it for you." : {
       "localizations" : {
         "de" : {
@@ -541,6 +551,16 @@
         }
       }
     },
+    "Can't be checked (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht prüfbar (%lld)"
+          }
+        }
+      }
+    },
     "Can't tell" : {
       "localizations" : {
         "de" : {
@@ -611,6 +631,16 @@
         }
       }
     },
+    "Check Again" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut prüfen"
+          }
+        }
+      }
+    },
     "Check Now" : {
       "localizations" : {
         "de" : {
@@ -677,6 +707,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prüfe Signatur und Gatekeeper …"
+          }
+        }
+      }
+    },
+    "Checking your apps …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Apps werden geprüft …"
           }
         }
       }
@@ -797,6 +837,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jede App ist einer Quelle zugeordnet."
+          }
+        }
+      }
+    },
+    "Everything is up to date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles ist aktuell"
           }
         }
       }
@@ -1051,6 +1101,26 @@
         }
       }
     },
+    "Install every update OpenFreshr can install" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Updates installieren, die OpenFreshr installieren kann"
+          }
+        }
+      }
+    },
+    "Install the new version of %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Version von %@ installieren"
+          }
+        }
+      }
+    },
     "Installation failed" : {
       "localizations" : {
         "de" : {
@@ -1181,6 +1251,16 @@
         }
       }
     },
+    "Last checked %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt geprüft: %@"
+          }
+        }
+      }
+    },
     "Last checked %@ · %@" : {
       "localizations" : {
         "de" : {
@@ -1247,6 +1327,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anmeldeobjekt konnte nicht geändert werden: %@"
+          }
+        }
+      }
+    },
+    "Look for new versions now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt nach neuen Versionen suchen"
           }
         }
       }
@@ -1327,6 +1417,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Braucht dich"
+          }
+        }
+      }
+    },
+    "New major version" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Hauptversion"
           }
         }
       }
@@ -1661,6 +1761,36 @@
         }
       }
     },
+    "Open" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnen"
+          }
+        }
+      }
+    },
+    "Open %@ to update it there" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ öffnen und dort aktualisieren"
+          }
+        }
+      }
+    },
+    "Open OpenFreshr's settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen von OpenFreshr öffnen"
+          }
+        }
+      }
+    },
     "Open Trust Store …" : {
       "localizations" : {
         "de" : {
@@ -1677,6 +1807,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fenster öffnen"
+          }
+        }
+      }
+    },
+    "Open the app and check for updates." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne die App und suche dort nach Updates."
           }
         }
       }
@@ -1707,6 +1847,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OpenFreshr %@ ist bereit"
+          }
+        }
+      }
+    },
+    "OpenFreshr does not know where to look for updates for these apps." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr weiß bei diesen Apps nicht, wo es nach Updates suchen soll."
           }
         }
       }
@@ -2077,6 +2227,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selbst-aktualisierend — opt-in"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
           }
         }
       }
@@ -2491,12 +2651,42 @@
         }
       }
     },
+    "Up to date (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuell (%lld)"
+          }
+        }
+      }
+    },
     "Update" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aktualisieren"
+          }
+        }
+      }
+    },
+    "Update %@ to a new major version?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ auf eine neue Hauptversion aktualisieren?"
+          }
+        }
+      }
+    },
+    "Update All (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle aktualisieren (%lld)"
           }
         }
       }
@@ -2551,6 +2741,16 @@
         }
       }
     },
+    "Update it in the app or on the vendor's website." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiere sie in der App oder auf der Webseite des Herstellers."
+          }
+        }
+      }
+    },
     "Update via OpenFreshr anyway" : {
       "localizations" : {
         "de" : {
@@ -2597,6 +2797,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aktualisiere Katalog …"
+          }
+        }
+      }
+    },
+    "Updating …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird aktualisiert …"
           }
         }
       }

@@ -25,7 +25,7 @@ struct OpenFreshrApp: App {
         WindowGroup(id: OpenFreshrScene.mainWindowID) {
             ContentView()
                 .environment(appDelegate.viewModel)
-                .frame(minWidth: 820, minHeight: 520)
+                .frame(minWidth: 620, minHeight: 520)
                 .task { await appDelegate.viewModel.scanOnWindowAppear() }
         }
         .windowResizability(.contentSize)
