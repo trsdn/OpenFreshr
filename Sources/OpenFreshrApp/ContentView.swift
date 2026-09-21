@@ -196,6 +196,11 @@ private struct UpdateRow: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                if let website = viewModel.websiteURL(for: report) {
+                    Link("Website", destination: website)
+                        .font(.caption)
+                        .help("Open the website of \(report.app.displayName)")
+                }
                 if let hint {
                     Text(hint)
                         .font(.caption)

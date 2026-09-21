@@ -553,6 +553,30 @@ public final class AppViewModel {
         UserDefaults.standard.set(lastKnownAvailableUpdateCount, forKey: Self.lastKnownCountDefaultsKey)
     }
 
+    @ObservationIgnored private var homepageCache: (casks: Int, byToken: [String: String])?
+
+    /// The vendor's website for an app, taken from the cask the app was matched to.
+    /// `nil` when the app matched no cask or the cask lists no web address.
+    public func websiteURL(for report: AppReport) -> URL? {
+        guard let casks = loadedCatalog?.casks, !report.matches.isEmpty else { return nil }
+        if homepageCache?.casks != casks.count {
+            homepageCache = (
+                casks.count,
+                Dictionary(
+                    casks.compactMap { cask in cask.homepage.map { (cask.token, $0) } },
+                    uniquingKeysWith: { first, _ in first })
+            )
+        }
+        for match in report.matches {
+            if let text = homepageCache?.byToken[match.caskToken], let url = URL(string: text),
+                ["https", "http"].contains(url.scheme?.lowercased())
+            {
+                return url
+            }
+        }
+        return nil
+    }
+
     /// The update report for a given adoption report, if one has been detected.
     public func updateReport(for report: AppReport) -> AppUpdateReport? {
         updateReports[report.app.bundlePath]

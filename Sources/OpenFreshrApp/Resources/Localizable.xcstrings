@@ -1831,6 +1831,16 @@
         }
       }
     },
+    "Open the website of %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webseite von %@ öffnen"
+          }
+        }
+      }
+    },
     "Open the window to see the details." : {
       "localizations" : {
         "de" : {
@@ -2877,6 +2887,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versionen nicht vergleichbar"
+          }
+        }
+      }
+    },
+    "Website" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webseite"
           }
         }
       }
