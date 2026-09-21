@@ -41,17 +41,17 @@ public enum UpdateUnknownReason: Hashable, Sendable {
     public var explanation: String {
         switch self {
         case .noAvailableVersion:
-            return "Keine Vergleichsversion verfügbar"
+            return String(localized: "No comparison version available")
         case .noInstalledVersion:
-            return "Installierte Version nicht lesbar"
+            return String(localized: "Installed version not readable")
         case .incomparableVersions:
-            return "Versionen nicht vergleichbar"
+            return String(localized: "Versions not comparable")
         case .feedUnreachable:
-            return "Sparkle-Feed nicht erreichbar"
+            return String(localized: "Sparkle feed unreachable")
         case .feedUnparsable:
-            return "Sparkle-Feed nicht auswertbar"
+            return String(localized: "Sparkle feed could not be parsed")
         case .toolUnavailable:
-            return "Werkzeug nicht installiert"
+            return String(localized: "Tool not installed")
         }
     }
 }
@@ -173,9 +173,7 @@ public enum UpdateActionBlocker: Hashable, Sendable {
     public var explanation: String {
         switch self {
         case let .adoptionWouldFail(token):
-            return "Homebrew kann „\(token)“ nicht übernehmen: Die installierte Version weicht von der "
-                + "erwarteten ab und der Cask aktualisiert sich nicht selbst — die Übernahme würde mit "
-                + "einem CaskError abbrechen. Bitte über den Hersteller aktualisieren."
+            return String(localized: "Homebrew cannot adopt “\(token)”: the installed version differs from the expected one and the cask does not update itself — the adoption would abort with a CaskError. Please update via the vendor.")
         }
     }
 }
@@ -323,7 +321,7 @@ public struct AppUpdateReport: Sendable, Identifiable {
 
     /// The source that knows of a newer version but whose take-over is predicted
     /// to fail, if any. Lets the UI render the version together with the honest
-    /// "muss über den Hersteller aktualisiert werden" notice.
+    /// "must be updated via the vendor" notice.
     public var adoptionBlockedSource: SourceUpdate? {
         sources.first { $0.adoptionWouldFail }
     }

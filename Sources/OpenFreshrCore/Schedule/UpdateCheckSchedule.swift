@@ -30,10 +30,10 @@ public enum UpdateCheckInterval: String, CaseIterable, Sendable, Codable, Identi
     /// Short, human-facing label for the settings picker and the menu bar.
     public var label: String {
         switch self {
-        case .off: return "Aus"
-        case .hourly: return "Stündlich"
-        case .daily: return "Täglich"
-        case .weekly: return "Wöchentlich"
+        case .off: return String(localized: "Off")
+        case .hourly: return String(localized: "Hourly")
+        case .daily: return String(localized: "Daily")
+        case .weekly: return String(localized: "Weekly")
         }
     }
 }

@@ -13,7 +13,7 @@ struct InstalledListView: View {
         VStack(spacing: 0) {
             Picker("Filter", selection: $viewModel.listFilter) {
                 ForEach(AppListFilter.allCases) { filter in
-                    Text("\(filter.label) (\(viewModel.count(for: filter)))")
+                    Text(verbatim: "\(filter.label) (\(viewModel.count(for: filter)))")
                         .tag(filter)
                 }
             }
@@ -41,16 +41,16 @@ struct InstalledListView: View {
     }
 
     private var emptyTitle: String {
-        viewModel.listFilter == .all ? "Keine Apps gefunden" : "Nichts im Filter"
+        viewModel.listFilter == .all ? String(localized: "No apps found") : String(localized: "Nothing in this filter")
     }
 
     private var emptyDescription: String {
         switch viewModel.listFilter {
-        case .all: return "Der Scan hat keine Programme erkannt."
-        case .updates: return "Für keine App wurde ein Update erkannt."
-        case .selfUpdating: return "Keine App aktualisiert sich selbst."
-        case .unassigned: return "Jede App ist einer Quelle zugeordnet."
-        case .problems: return "Keine Quelle meldet ein Problem."
+        case .all: return String(localized: "The scan did not detect any apps.")
+        case .updates: return String(localized: "No update was detected for any app.")
+        case .selfUpdating: return String(localized: "No app updates itself.")
+        case .unassigned: return String(localized: "Every app is assigned to a source.")
+        case .problems: return String(localized: "No source reports a problem.")
         }
     }
 }
@@ -67,6 +67,7 @@ private struct InstalledRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: "app.dashed")
+                .accessibilityHidden(true)
                 .foregroundStyle(.secondary)
                 .imageScale(.large)
 
@@ -75,10 +76,11 @@ private struct InstalledRow: View {
                     .font(.body)
                     .lineLimit(1)
                 HStack(spacing: 6) {
-                    Text(report.app.displayVersion.map { "Version \($0)" } ?? "Version unbekannt")
+                    Text(report.app.displayVersion.map { String(localized: "Version \($0)") } ?? String(localized: "Version unknown"))
                         .foregroundStyle(.secondary)
                     if let available = availableVersion {
                         Image(systemName: "arrow.right")
+                            .accessibilityHidden(true)
                             .imageScale(.small)
                             .foregroundStyle(.secondary)
                         Text(available)
@@ -120,7 +122,7 @@ struct UpdateBadge: View {
     let isMajor: Bool
 
     var body: some View {
-        Text(isMajor ? "Major" : "Update")
+        Text(isMajor ? String(localized: "Major") : String(localized: "Update"))
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -169,8 +171,8 @@ struct AdoptionBadge: View {
 
     private var text: String {
         switch state {
-        case .adoptable: return "adoptierbar"
-        case .recognized: return "erkannt"
+        case .adoptable: return String(localized: "adoptable")
+        case .recognized: return String(localized: "recognized")
         case .unassigned: return "—"
         }
     }

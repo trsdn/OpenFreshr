@@ -1,0 +1,2776 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@\n\nPlease restart OpenFreshr." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n\nBitte OpenFreshr neu starten."
+          }
+        }
+      }
+    },
+    "%@ apps searchable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Apps durchsuchbar"
+          }
+        }
+      }
+    },
+    "%@ cannot be adopted: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ist nicht adoptierbar: %@"
+          }
+        }
+      }
+    },
+    "%@ installs/year" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Installationen/Jahr"
+          }
+        }
+      }
+    },
+    "%@ is now managed by Homebrew." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wird jetzt von Homebrew verwaltet."
+          }
+        }
+      }
+    },
+    "%@ matches" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Treffer"
+          }
+        }
+      }
+    },
+    "%@ was not found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wurde nicht gefunden"
+          }
+        }
+      }
+    },
+    "%@ will be installed via Homebrew." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wird über Homebrew neu installiert."
+          }
+        }
+      }
+    },
+    "%@ will be managed by Homebrew from now on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wird künftig von Homebrew verwaltet."
+          }
+        }
+      }
+    },
+    "%@ · via vendor" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · über Hersteller"
+          }
+        }
+      }
+    },
+    "%@: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@"
+          }
+        }
+      }
+    },
+    "%@: Homebrew reported success, but the renewed scan does not confirm it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Homebrew meldete Erfolg, der erneute Scan bestätigt ihn aber nicht."
+          }
+        }
+      }
+    },
+    "%lld apps can be updated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Apps können aktualisiert werden."
+          }
+        }
+      }
+    },
+    "%lld apps updated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Apps aktualisiert."
+          }
+        }
+      }
+    },
+    "%lld of %@ matches" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld von %@ Treffern"
+          }
+        }
+      }
+    },
+    "%lld updated, %lld failed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld aktualisiert, %lld fehlgeschlagen."
+          }
+        }
+      }
+    },
+    "%lld updates available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Updates verfügbar"
+          }
+        }
+      }
+    },
+    "1 app can be updated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 App kann aktualisiert werden."
+          }
+        }
+      }
+    },
+    "1 app updated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 App aktualisiert."
+          }
+        }
+      }
+    },
+    "1 update available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Update verfügbar"
+          }
+        }
+      }
+    },
+    "A change can mean a legitimate takeover by the vendor (new signing certificate, company acquisition) — or a takeover of the update channel by third parties. Both look the same here. Only agree if you have understood the change." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Wechsel kann eine legitime Übernahme durch den Hersteller bedeuten (neues Signierzertifikat, Firmenübernahme) — oder die Übernahme des Update-Kanals durch Dritte. Beides sieht an dieser Stelle gleich aus. Stimmen Sie nur zu, wenn Sie den Wechsel eingeordnet haben."
+          }
+        }
+      }
+    },
+    "A check could not be run (tool missing). OpenFreshr therefore does not block across the board, but does not claim verified safety either." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Prüfung konnte nicht ausgeführt werden (Werkzeug fehlt). OpenFreshr blockiert deshalb nicht pauschal, behauptet aber auch keine geprüfte Sicherheit."
+          }
+        }
+      }
+    },
+    "A deliberately named limit: if the first observed installation was already tampered with, exactly that state is taken as the initial trust. That is not verified safety, but a starting point against which later changes stand out." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grenze bewusst benannt: War die erste beobachtete Installation bereits manipuliert, wird genau dieser Zustand als Ausgangsvertrauen übernommen. Das ist keine geprüfte Unbedenklichkeit, sondern ein Ausgangspunkt, gegen den spätere Wechsel auffallen."
+          }
+        }
+      }
+    },
+    "A scan runs after the installation. Success is only reported if the app is actually found afterwards." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach der Installation wird ein Scan ausgeführt. Erfolg wird nur gemeldet, wenn die App danach tatsächlich gefunden wird."
+          }
+        }
+      }
+    },
+    "Aborted (CaskError): %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abgebrochen (CaskError): %@"
+          }
+        }
+      }
+    },
+    "Adopt" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übernehmen"
+          }
+        }
+      }
+    },
+    "Adopt App" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App übernehmen"
+          }
+        }
+      }
+    },
+    "Adopt with Homebrew …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Homebrew übernehmen …"
+          }
+        }
+      }
+    },
+    "Adoptable as “%@”" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adoptierbar als „%@“"
+          }
+        }
+      }
+    },
+    "Adopting …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übernahme läuft …"
+          }
+        }
+      }
+    },
+    "Adoption aborted (CaskError): %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adoption abgebrochen (CaskError): %@"
+          }
+        }
+      }
+    },
+    "Adoption by Homebrew" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übernahme durch Homebrew"
+          }
+        }
+      }
+    },
+    "All" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle"
+          }
+        }
+      }
+    },
+    "All Updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Updates"
+          }
+        }
+      }
+    },
+    "All Updates (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Updates (%lld)"
+          }
+        }
+      }
+    },
+    "All apps are up to date." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Apps sind aktuell."
+          }
+        }
+      }
+    },
+    "Already installed as %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereits installiert als %@."
+          }
+        }
+      }
+    },
+    "Already managed by Homebrew (%@)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird bereits von Homebrew (%@) verwaltet"
+          }
+        }
+      }
+    },
+    "Already managed by Homebrew – nothing to do." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereits von Homebrew verwaltet – nichts zu tun."
+          }
+        }
+      }
+    },
+    "Already managed through the Mac App Store" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird bereits über den Mac App Store verwaltet"
+          }
+        }
+      }
+    },
+    "App bundle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Bundle"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erscheinungsbild"
+          }
+        }
+      }
+    },
+    "Artifact match %@ invalidated by veto (bundle ID contradicts the cask identity)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artefakt-Treffer %@ durch Veto entwertet (Bundle-ID widerspricht der Cask-Identität)"
+          }
+        }
+      }
+    },
+    "As soon as OpenFreshr replaces an app for the first time, its team ID is stored here as the initial trust." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobald OpenFreshr eine App zum ersten Mal ersetzt, wird deren Team ID hier als Ausgangsvertrauen abgelegt."
+          }
+        }
+      }
+    },
+    "Available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verfügbar"
+          }
+        }
+      }
+    },
+    "Background Check" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hintergrundprüfung"
+          }
+        }
+      }
+    },
+    "Binary" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Binary"
+          }
+        }
+      }
+    },
+    "Build" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build"
+          }
+        }
+      }
+    },
+    "Building search index …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchindex wird aufgebaut …"
+          }
+        }
+      }
+    },
+    "Bundle ID %@ appears in a cleanup stanza" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bundle-ID %@ taucht in einer Cleanup-Stanza auf"
+          }
+        }
+      }
+    },
+    "Bundled catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebündelter Katalog"
+          }
+        }
+      }
+    },
+    "Bundled snapshot from %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebündelter Stand vom %@"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        }
+      }
+    },
+    "Cask %@ installs via pkg/installer — cannot be adopted losslessly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cask %@ installiert per pkg/installer — nicht verlustfrei adoptierbar"
+          }
+        }
+      }
+    },
+    "Cask provides the app artifact %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cask liefert das App-Artefakt %@"
+          }
+        }
+      }
+    },
+    "Catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog"
+          }
+        }
+      }
+    },
+    "Catalog from %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog von %@"
+          }
+        }
+      }
+    },
+    "Catalog loaded" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog geladen"
+          }
+        }
+      }
+    },
+    "Check Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt prüfen"
+          }
+        }
+      }
+    },
+    "Check automatically" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch prüfen"
+          }
+        }
+      }
+    },
+    "Check for OpenFreshr Updates …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach OpenFreshr-Updates suchen …"
+          }
+        }
+      }
+    },
+    "Check: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfung: %@"
+          }
+        }
+      }
+    },
+    "Checking" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfung"
+          }
+        }
+      }
+    },
+    "Checking for updates …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe auf Updates …"
+          }
+        }
+      }
+    },
+    "Checking signature and Gatekeeper …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe Signatur und Gatekeeper …"
+          }
+        }
+      }
+    },
+    "Checks GitHub at most once a day for a new version of OpenFreshr. Nothing is installed until you confirm." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüft höchstens einmal täglich auf GitHub, ob es eine neue Version von OpenFreshr gibt. Installiert wird erst nach deiner Bestätigung."
+          }
+        }
+      }
+    },
+    "Clear Cache and Reload" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cache leeren und neu laden"
+          }
+        }
+      }
+    },
+    "Clear search" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche löschen"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließen"
+          }
+        }
+      }
+    },
+    "Confirmed Team ID Changes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestätigte Team-ID-Wechsel"
+          }
+        }
+      }
+    },
+    "Confirmed changes: %lld." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestätigte Wechsel: %lld."
+          }
+        }
+      }
+    },
+    "Daily" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Täglich"
+          }
+        }
+      }
+    },
+    "Delete all stored trust decisions?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle gespeicherten Vertrauensentscheidungen löschen?"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        }
+      }
+    },
+    "Each app is treated as a first observation again at its next update." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede App wird bei ihrer nächsten Aktualisierung wieder als Erstbeobachtung behandelt."
+          }
+        }
+      }
+    },
+    "Errors" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fehler"
+          }
+        }
+      }
+    },
+    "Every app is assigned to a source." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede App ist einer Quelle zugeordnet."
+          }
+        }
+      }
+    },
+    "Fetch failed – the last snapshot stays active." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abruf fehlgeschlagen – letzter Stand bleibt aktiv."
+          }
+        }
+      }
+    },
+    "Filter" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "First observation" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstbeobachtung"
+          }
+        }
+      }
+    },
+    "First observation (trust-on-first-use)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstbeobachtung (Trust-on-first-use)"
+          }
+        }
+      }
+    },
+    "Gatekeeper" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gatekeeper"
+          }
+        }
+      }
+    },
+    "Gatekeeper rejected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gatekeeper abgelehnt"
+          }
+        }
+      }
+    },
+    "Gatekeeper rejected the bundle (%@). The replacement is blocked." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gatekeeper hat das Bundle abgelehnt (%@). Der Ersatz wird blockiert."
+          }
+        }
+      }
+    },
+    "General" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allgemein"
+          }
+        }
+      }
+    },
+    "Homebrew already lists this app as up to date, but an older version is on disk. A normal upgrade would have no effect, so the app is reinstalled instead of updated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew führt diese App bereits als aktuell, auf der Platte liegt aber eine ältere Version. Ein normales Upgrade bliebe wirkungslos, deshalb wird die App neu installiert statt aktualisiert."
+          }
+        }
+      }
+    },
+    "Homebrew available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew verfügbar"
+          }
+        }
+      }
+    },
+    "Homebrew cannot adopt “%@”: the installed version differs from the expected one and the cask does not update itself — the adoption would abort with a CaskError. Please update via the vendor." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew kann „%@“ nicht übernehmen: Die installierte Version weicht von der erwarteten ab und der Cask aktualisiert sich nicht selbst — die Übernahme würde mit einem CaskError abbrechen. Bitte über den Hersteller aktualisieren."
+          }
+        }
+      }
+    },
+    "Homebrew is not available — adoption is disabled, scanning still works." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew ist nicht verfügbar — Übernahme ist deaktiviert, der Scan funktioniert weiterhin."
+          }
+        }
+      }
+    },
+    "Homebrew lists this app as up to date, but an older version is on disk. The reinstall reported success, but the scan does not confirm it — the app probably brings its own version (auto_updates). Please launch it manually once and let it update; then check again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew führt diese App als aktuell, auf der Platte liegt aber eine ältere Version. Die Neuinstallation meldete Erfolg, der Scan bestätigt ihn aber nicht — die App bringt ihre Version vermutlich selbst mit (auto_updates). Bitte einmal manuell starten und aktualisieren lassen; danach erneut prüfen."
+          }
+        }
+      }
+    },
+    "Homebrew not found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew nicht gefunden"
+          }
+        }
+      }
+    },
+    "Homebrew was not found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew wurde nicht gefunden"
+          }
+        }
+      }
+    },
+    "Homepage" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homepage"
+          }
+        }
+      }
+    },
+    "Hourly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stündlich"
+          }
+        }
+      }
+    },
+    "I have checked the team ID change and deliberately agree to the replacement." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich habe den Team-ID-Wechsel geprüft und stimme der Ersetzung bewusst zu."
+          }
+        }
+      }
+    },
+    "Identity not confirmed: bundle ID is not in the cask identity of %@ and the cask updates itself — adoption too risky" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identität nicht bestätigt: Bundle-ID nicht in der Cask-Identität von %@ und Cask aktualisiert sich selbst — Adoption zu riskant"
+          }
+        }
+      }
+    },
+    "Identity unreadable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identität unlesbar"
+          }
+        }
+      }
+    },
+    "Install" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installieren"
+          }
+        }
+      }
+    },
+    "Install App" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App installieren"
+          }
+        }
+      }
+    },
+    "Install and Restart" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installieren und neu starten"
+          }
+        }
+      }
+    },
+    "Installation failed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation fehlgeschlagen"
+          }
+        }
+      }
+    },
+    "Installation failed (code %lld)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation fehlgeschlagen (Code %lld)."
+          }
+        }
+      }
+    },
+    "Installed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installiert"
+          }
+        }
+      }
+    },
+    "Installed and confirmed by scan." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installiert und per Scan bestätigt."
+          }
+        }
+      }
+    },
+    "Installed is %@. OpenFreshr will be replaced and restarts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installiert ist %@. OpenFreshr wird ersetzt und startet neu."
+          }
+        }
+      }
+    },
+    "Installed version not readable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installierte Version nicht lesbar"
+          }
+        }
+      }
+    },
+    "Installer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer"
+          }
+        }
+      }
+    },
+    "Installer cask: installs via a pkg/installer with an authorization prompt, not via a simple app bundle." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer-Cask: installiert über pkg/Installer mit Rechteabfrage, nicht über ein einfaches App-Bundle."
+          }
+        }
+      }
+    },
+    "Installer run; managed by Homebrew." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer ausgeführt; von Homebrew verwaltet."
+          }
+        }
+      }
+    },
+    "Installing …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation läuft …"
+          }
+        }
+      }
+    },
+    "Invalid cask token rejected (not executed): %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungültiger Cask-Token abgelehnt (nicht ausgeführt): %@"
+          }
+        }
+      }
+    },
+    "Invalid identifier rejected (not executed): %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungültiger Bezeichner abgelehnt (nicht ausgeführt): %@"
+          }
+        }
+      }
+    },
+    "Last Updated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt aktualisiert"
+          }
+        }
+      }
+    },
+    "Last checked %@ · %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt geprüft %@ · %@"
+          }
+        }
+      }
+    },
+    "Last updated by a team ID change you deliberately confirmed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt durch einen von Ihnen bewusst bestätigten Team-ID-Wechsel aktualisiert."
+          }
+        }
+      }
+    },
+    "Later" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Später"
+          }
+        }
+      }
+    },
+    "Launch at login" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei der Anmeldung starten"
+          }
+        }
+      }
+    },
+    "Loading catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog wird geladen"
+          }
+        }
+      }
+    },
+    "Loading catalog …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog wird geladen …"
+          }
+        }
+      }
+    },
+    "Login item could not be changed: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmeldeobjekt konnte nicht geändert werden: %@"
+          }
+        }
+      }
+    },
+    "Major" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major"
+          }
+        }
+      }
+    },
+    "Major Upgrades" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major-Upgrades"
+          }
+        }
+      }
+    },
+    "Major upgrade — the first version component changes. Please confirm deliberately." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major-Upgrade — die erste Versionskomponente ändert sich. Bitte bewusst bestätigen."
+          }
+        }
+      }
+    },
+    "Major → %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major → %@"
+          }
+        }
+      }
+    },
+    "Manage stored trust decisions (signature, team ID) per app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwalte gespeicherte Vertrauensentscheidungen (Signatur, Team-ID) pro App."
+          }
+        }
+      }
+    },
+    "Name resembles the cask %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name ähnelt dem Cask %@"
+          }
+        }
+      }
+    },
+    "No App Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine App ausgewählt"
+          }
+        }
+      }
+    },
+    "No Executable Updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine ausführbaren Updates"
+          }
+        }
+      }
+    },
+    "No Trust Decisions Stored" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Vertrauensentscheidungen gespeichert"
+          }
+        }
+      }
+    },
+    "No app matches “%@”." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine App passt zu „%@“."
+          }
+        }
+      }
+    },
+    "No app updates itself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine App aktualisiert sich selbst."
+          }
+        }
+      }
+    },
+    "No apps found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Apps gefunden"
+          }
+        }
+      }
+    },
+    "No comparison version available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Vergleichsversion verfügbar"
+          }
+        }
+      }
+    },
+    "No matches" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Treffer"
+          }
+        }
+      }
+    },
+    "No matching cask found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein passendes Cask gefunden"
+          }
+        }
+      }
+    },
+    "No regular updates." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine regulären Updates."
+          }
+        }
+      }
+    },
+    "No source reports a problem." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Quelle meldet ein Problem."
+          }
+        }
+      }
+    },
+    "No trust baseline stored yet. The next update records the currently signing team ID as the initial trust (trust-on-first-use)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Vertrauensbasis gespeichert. Die nächste Aktualisierung legt die aktuell signierende Team ID als Ausgangsvertrauen fest (Trust-on-first-use)."
+          }
+        }
+      }
+    },
+    "No update source detected." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Update-Quelle erkannt."
+          }
+        }
+      }
+    },
+    "No update that OpenFreshr can execute was detected for any app. Self-updating apps only appear here if a backend can drive them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wurde für keine App ein über OpenFreshr ausführbares Update erkannt. Selbst-aktualisierende Apps erscheinen hier nur, wenn ein Backend sie ansteuern kann."
+          }
+        }
+      }
+    },
+    "No update was detected for any app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für keine App wurde ein Update erkannt."
+          }
+        }
+      }
+    },
+    "No updates available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Updates verfügbar"
+          }
+        }
+      }
+    },
+    "Not checked for updates yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nicht auf Updates geprüft."
+          }
+        }
+      }
+    },
+    "Not checked yet · %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nicht geprüft · %@"
+          }
+        }
+      }
+    },
+    "Not managed by Homebrew — adopted first, then updated (two steps, one action)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht von Homebrew verwaltet — wird zuerst übernommen, dann aktualisiert (zwei Schritte, eine Aktion)."
+          }
+        }
+      }
+    },
+    "Nothing in this filter" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts im Filter"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benachrichtigungen"
+          }
+        }
+      }
+    },
+    "Notify about new updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei neuen Updates benachrichtigen"
+          }
+        }
+      }
+    },
+    "Now signed by" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt signiert"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus"
+          }
+        }
+      }
+    },
+    "Off by default. Without the granted system permission, the notification stays silent." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standardmäßig aus. Ohne erteilte Systemberechtigung bleibt die Benachrichtigung still aus."
+          }
+        }
+      }
+    },
+    "Off: OpenFreshr runs only in the menu bar, without a Dock icon. Closing the window does not quit the app — it keeps running in the menu bar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus: OpenFreshr läuft nur in der Menüleiste, ohne Dock-Symbol. Das Schließen des Fensters beendet die App nicht — sie läuft in der Menüleiste weiter."
+          }
+        }
+      }
+    },
+    "Once the cask catalog is loaded, you can search here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobald der Cask-Katalog geladen ist, kannst du hier suchen."
+          }
+        }
+      }
+    },
+    "Only weak matches (bundle ID/name) — no safe candidate" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur schwache Treffer (Bundle-ID/Name) — kein sicherer Kandidat"
+          }
+        }
+      }
+    },
+    "Open Trust Store …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauensspeicher öffnen …"
+          }
+        }
+      }
+    },
+    "Open Window" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fenster öffnen"
+          }
+        }
+      }
+    },
+    "Open the window to see the details." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne das Fenster, um die Details zu sehen."
+          }
+        }
+      }
+    },
+    "OpenFreshr %@ is ready" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr %@ ist bereit"
+          }
+        }
+      }
+    },
+    "OpenFreshr does not replace this app automatically. Please check the origin of the app manually before you continue." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr ersetzt diese App nicht automatisch. Bitte prüfen Sie die Herkunft der App manuell, bevor Sie fortfahren."
+          }
+        }
+      }
+    },
+    "OpenFreshr is up to date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr ist aktuell"
+          }
+        }
+      }
+    },
+    "OpenFreshr only checks for updates in the background — nothing is ever installed automatically. Every update goes through the preview and confirmation in the window." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr prüft im Hintergrund nur auf Updates — installiert wird nie automatisch. Jede Aktualisierung läuft über die Vorschau und Bestätigung im Fenster."
+          }
+        }
+      }
+    },
+    "OpenFreshr: %lld updates available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr: %lld Updates verfügbar"
+          }
+        }
+      }
+    },
+    "OpenFreshr: 1 update available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr: 1 Update verfügbar"
+          }
+        }
+      }
+    },
+    "OpenFreshr: no updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr: keine Updates"
+          }
+        }
+      }
+    },
+    "Optional — only needed if Homebrew should manage this app going forward. A pending update does not require a separate adoption." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional — nur nötig, wenn Homebrew diese App künftig mitverwalten soll. Für ein anstehendes Update ist keine separate Übernahme erforderlich."
+          }
+        }
+      }
+    },
+    "Origin" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herkunft"
+          }
+        }
+      }
+    },
+    "Outcome unclear (version information missing)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgang unklar (Versionsangaben fehlen)"
+          }
+        }
+      }
+    },
+    "Perform Major Upgrade" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major-Upgrade durchführen"
+          }
+        }
+      }
+    },
+    "Perform Major Upgrades (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Major-Upgrades durchführen (%lld)"
+          }
+        }
+      }
+    },
+    "Popularity" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popularität"
+          }
+        }
+      }
+    },
+    "Previously trusted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bisher vertraut"
+          }
+        }
+      }
+    },
+    "Process could not be started: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prozess konnte nicht gestartet werden: %@"
+          }
+        }
+      }
+    },
+    "Process ended with code %@: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prozess endete mit Code %@: %@"
+          }
+        }
+      }
+    },
+    "Quit OpenFreshr" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr beenden"
+          }
+        }
+      }
+    },
+    "Regular Updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reguläre Updates"
+          }
+        }
+      }
+    },
+    "Replace anyway" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trotzdem ersetzen"
+          }
+        }
+      }
+    },
+    "Replacement blocked" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzung blockiert"
+          }
+        }
+      }
+    },
+    "Requires adoption first — cask “%@” is not managed by brew (not executed)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erfordert zuerst Übernahme — Cask „%@“ ist nicht brew-verwaltet (nicht ausgeführt)."
+          }
+        }
+      }
+    },
+    "Rescan" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neu scannen"
+          }
+        }
+      }
+    },
+    "Reset" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurücksetzen"
+          }
+        }
+      }
+    },
+    "Reset All" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle zurücksetzen"
+          }
+        }
+      }
+    },
+    "Resetting deletes the initial trust. The next update treats the app as a new first observation and stores the then-signing team ID anew — it is not a silent continued trust in the old team ID." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurücksetzen löscht das Ausgangsvertrauen. Die nächste Aktualisierung behandelt die App als neue Erstbeobachtung und legt die dann signierende Team ID neu ab — es ist kein stilles Weitervertrauen der alten Team ID."
+          }
+        }
+      }
+    },
+    "Response unreadable – the last snapshot stays active." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antwort unlesbar – letzter Stand bleibt aktiv."
+          }
+        }
+      }
+    },
+    "Scanning …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan läuft …"
+          }
+        }
+      }
+    },
+    "Search apps in the catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps im Katalog suchen"
+          }
+        }
+      }
+    },
+    "Search the catalog on the left and select an app to see details and installation." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche links im Katalog und wähle eine App, um Details und Installation zu sehen."
+          }
+        }
+      }
+    },
+    "Section" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich"
+          }
+        }
+      }
+    },
+    "Security" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherheit"
+          }
+        }
+      }
+    },
+    "Select an app on the left to see sources, updates and adoption status." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle links eine App, um Quellen, Updates und Adoptionsstatus zu sehen."
+          }
+        }
+      }
+    },
+    "Select for update" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zum Aktualisieren auswählen"
+          }
+        }
+      }
+    },
+    "Self-Update" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selbst-Update"
+          }
+        }
+      }
+    },
+    "Self-updating" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selbst-aktualisierend"
+          }
+        }
+      }
+    },
+    "Self-updating — opt-in" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selbst-aktualisierend — opt-in"
+          }
+        }
+      }
+    },
+    "Settings …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen …"
+          }
+        }
+      }
+    },
+    "Short Version" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurzversion"
+          }
+        }
+      }
+    },
+    "Show icon in the Dock" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol im Dock anzeigen"
+          }
+        }
+      }
+    },
+    "Signature" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signatur"
+          }
+        }
+      }
+    },
+    "Signature invalid" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signatur ungültig"
+          }
+        }
+      }
+    },
+    "Signing Team ID" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signierende Team ID"
+          }
+        }
+      }
+    },
+    "Sources" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellen"
+          }
+        }
+      }
+    },
+    "Sparkle feed could not be parsed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparkle-Feed nicht auswertbar"
+          }
+        }
+      }
+    },
+    "Sparkle feed unreachable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparkle-Feed nicht erreichbar"
+          }
+        }
+      }
+    },
+    "Startup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "Stored as the initial trust at the first observation." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Ausgangsvertrauen bei der ersten Beobachtung gespeichert."
+          }
+        }
+      }
+    },
+    "Suite (app bundle)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suite (App-Bundle)"
+          }
+        }
+      }
+    },
+    "Switch between installed apps and the catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwischen installierten Apps und dem Katalog wechseln"
+          }
+        }
+      }
+    },
+    "Team ID change" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team-ID-Wechsel"
+          }
+        }
+      }
+    },
+    "Team ID change confirmed by the user" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vom Nutzer bestätigter Team-ID-Wechsel"
+          }
+        }
+      }
+    },
+    "Team ID change detected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team-ID-Wechsel erkannt"
+          }
+        }
+      }
+    },
+    "The app bundle is not signed. OpenFreshr does not replace an unsigned app automatically." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das App-Bundle ist nicht signiert. OpenFreshr ersetzt eine unsignierte App nicht automatisch."
+          }
+        }
+      }
+    },
+    "The bundle identity is unreadable. Without a clear identity nothing is replaced automatically — please check manually." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bundle-Identität ist unlesbar. Ohne eindeutige Identität wird nicht automatisch ersetzt — bitte manuell prüfen."
+          }
+        }
+      }
+    },
+    "The first version component changes. Confirm separately and deliberately." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die erste Versionskomponente ändert sich. Getrennt und bewusst bestätigen."
+          }
+        }
+      }
+    },
+    "The scan after the installation did not find the app. Please try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Scan nach der Installation hat die App nicht gefunden. Bitte erneut versuchen."
+          }
+        }
+      }
+    },
+    "The scan did not detect any apps." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Scan hat keine Programme erkannt."
+          }
+        }
+      }
+    },
+    "The signature check failed (%@). The replacement is blocked." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Signaturprüfung ist fehlgeschlagen (%@). Der Ersatz wird blockiert."
+          }
+        }
+      }
+    },
+    "The team ID changed (was %@, now %@, bundle %@). This can be a legitimate takeover by the vendor — or a takeover of the update channel. Requires your explicit confirmation." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Team ID hat sich geändert (bisher %@, jetzt %@, Bundle %@). Das kann eine legitime Übernahme durch den Hersteller sein — oder eine Übernahme des Update-Kanals. Erfordert deine ausdrückliche Bestätigung."
+          }
+        }
+      }
+    },
+    "The tool reported success, but the renewed scan does not confirm it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Werkzeug meldete Erfolg, der erneute Scan bestätigt ihn aber nicht."
+          }
+        }
+      }
+    },
+    "This app cannot be adopted and updated automatically — please update via the vendor." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App kann nicht automatisch übernommen und aktualisiert werden — bitte über den Hersteller aktualisieren."
+          }
+        }
+      }
+    },
+    "This app cannot be adopted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App ist nicht adoptierbar."
+          }
+        }
+      }
+    },
+    "This app is already present. A reinstall is normally not necessary." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App ist bereits vorhanden. Eine erneute Installation ist normalerweise nicht nötig."
+          }
+        }
+      }
+    },
+    "This app is already recognized as installed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App ist bereits als installiert erkannt."
+          }
+        }
+      }
+    },
+    "This app is also managed by Microsoft AutoUpdate (MAU). After adoption, Homebrew and MAU update it in parallel." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App wird auch von Microsoft AutoUpdate (MAU) verwaltet. Nach der Übernahme aktualisieren Homebrew und MAU sie parallel."
+          }
+        }
+      }
+    },
+    "This app is not managed by Homebrew yet. OpenFreshr adopts it first (install --cask --adopt) and then updates it (reinstall --cask) — two steps, one action. If the adoption fails, the second step is not run." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App wird noch nicht von Homebrew verwaltet. OpenFreshr übernimmt sie zuerst (install --cask --adopt) und aktualisiert sie dann (reinstall --cask) — zwei Schritte, eine Aktion. Schlägt die Übernahme fehl, wird der zweite Schritt nicht ausgeführt."
+          }
+        }
+      }
+    },
+    "This app is now signed by a different Apple team ID than at the last trusted observation. OpenFreshr therefore does not update it casually." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App wird jetzt von einer anderen Apple Team ID signiert als bei der letzten vertrauten Beobachtung. OpenFreshr aktualisiert sie deshalb nicht beiläufig."
+          }
+        }
+      }
+    },
+    "This app updates itself. OpenFreshr only triggers it on explicit request, to avoid competing updaters." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App aktualisiert sich selbst. OpenFreshr stösst sie nur auf ausdrückliche Anforderung an, um konkurrierende Updater zu vermeiden."
+          }
+        }
+      }
+    },
+    "This cask does not provide an app bundle, but starts a pkg/installer with an authorization prompt (administrator password). Success is confirmed via the Homebrew entry, not via a found app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Cask liefert kein App-Bundle, sondern startet einen pkg-/Installer mit Rechteabfrage (Administratorkennwort). Der Erfolg wird über den Homebrew-Eintrag bestätigt, nicht über eine gefundene App."
+          }
+        }
+      }
+    },
+    "Tool not installed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Werkzeug nicht installiert"
+          }
+        }
+      }
+    },
+    "Trust & Signature" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauen & Signatur"
+          }
+        }
+      }
+    },
+    "Trust Store" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauensspeicher"
+          }
+        }
+      }
+    },
+    "Trusted Team ID" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertraute Team ID"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ"
+          }
+        }
+      }
+    },
+    "Unassigned" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht zugeordnet"
+          }
+        }
+      }
+    },
+    "Update" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisieren"
+          }
+        }
+      }
+    },
+    "Update Catalog" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katalog aktualisieren"
+          }
+        }
+      }
+    },
+    "Update Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt aktualisieren"
+          }
+        }
+      }
+    },
+    "Update OpenFreshr automatically" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr automatisch aktualisieren"
+          }
+        }
+      }
+    },
+    "Update Selected (%lld)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte aktualisieren (%lld)"
+          }
+        }
+      }
+    },
+    "Update check not possible" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update-Prüfung nicht möglich"
+          }
+        }
+      }
+    },
+    "Update via OpenFreshr anyway" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trotzdem über OpenFreshr aktualisieren"
+          }
+        }
+      }
+    },
+    "Updated and confirmed by scan." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert und per Scan bestätigt."
+          }
+        }
+      }
+    },
+    "Updates" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updates"
+          }
+        }
+      }
+    },
+    "Updates available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updates verfügbar"
+          }
+        }
+      }
+    },
+    "Updating catalog …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiere Katalog …"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
+    },
+    "Version %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "Version %@ is the latest available." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@ ist die neueste verfügbare."
+          }
+        }
+      }
+    },
+    "Version unknown" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version unbekannt"
+          }
+        }
+      }
+    },
+    "Versions differ — Homebrew aborts with a CaskError, the app stays untouched" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionen weichen ab — Homebrew bricht mit CaskError ab, App bleibt unangetastet"
+          }
+        }
+      }
+    },
+    "Versions match — adoption should succeed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionen passen — Adoption sollte gelingen"
+          }
+        }
+      }
+    },
+    "Versions not comparable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versionen nicht vergleichbar"
+          }
+        }
+      }
+    },
+    "Weekly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wöchentlich"
+          }
+        }
+      }
+    },
+    "When it first replaces an app, OpenFreshr remembers the signing Apple team ID as the initial trust (trust-on-first-use). If the first installation was already tampered with, that state is adopted — this is a deliberate limit, not verified safety. A later team ID change is detected and requires your explicit consent." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr merkt sich beim ersten Ersetzen die signierende Apple Team ID einer App als Ausgangsvertrauen (Trust-on-first-use). War die erste Installation bereits manipuliert, wird dieser Zustand übernommen — das ist eine bewusste Grenze, keine geprüfte Unbedenklichkeit. Ein späterer Team-ID-Wechsel wird erkannt und erfordert Ihre ausdrückliche Zustimmung."
+          }
+        }
+      }
+    },
+    "Without Homebrew available, no install command can be built." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohne verfügbares Homebrew kann kein Installationsbefehl gebildet werden."
+          }
+        }
+      }
+    },
+    "accepted (spctl execute)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "akzeptiert (spctl execute)"
+          }
+        }
+      }
+    },
+    "adoptable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "adoptierbar"
+          }
+        }
+      }
+    },
+    "and %lld more …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "und %lld weitere …"
+          }
+        }
+      }
+    },
+    "auto_updates: adoption succeeds unconditionally (version check skipped)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "auto_updates: Adoption gelingt bedingungslos (Versionscheck übersprungen)"
+          }
+        }
+      }
+    },
+    "current" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aktuell"
+          }
+        }
+      }
+    },
+    "installed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "installiert"
+          }
+        }
+      }
+    },
+    "invalid – %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ungültig – %@"
+          }
+        }
+      }
+    },
+    "managed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verwaltet"
+          }
+        }
+      }
+    },
+    "not checked" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht geprüft"
+          }
+        }
+      }
+    },
+    "not checked (tool missing)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht geprüft (Werkzeug fehlt)"
+          }
+        }
+      }
+    },
+    "not readable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht auslesbar"
+          }
+        }
+      }
+    },
+    "not signed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht signiert"
+          }
+        }
+      }
+    },
+    "other artifact" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sonstiges Artefakt"
+          }
+        }
+      }
+    },
+    "pkg installer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkg-Installer"
+          }
+        }
+      }
+    },
+    "recognized" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "erkannt"
+          }
+        }
+      }
+    },
+    "rejected – %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "abgelehnt – %@"
+          }
+        }
+      }
+    },
+    "running …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "läuft …"
+          }
+        }
+      }
+    },
+    "today %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heute %@"
+          }
+        }
+      }
+    },
+    "trusted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vertraut"
+          }
+        }
+      }
+    },
+    "unknown" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unbekannt"
+          }
+        }
+      }
+    },
+    "verified (codesign --strict)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verifiziert (codesign --strict)"
+          }
+        }
+      }
+    },
+    "yesterday %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gestern %@"
+          }
+        }
+      }
+    },
+    "→ %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "→ %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -4,6 +4,8 @@ options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
+  # English is the source language; German is a translation (Localizable.xcstrings).
+  developmentLanguage: en
 
 # The app shell consumes the UI-free core through the local Swift package. Only
 # the thin SwiftUI layer lives in the Xcode target; all logic stays in the
@@ -64,6 +66,8 @@ targets:
     info:
       path: Sources/OpenFreshrApp/Info.plist
       properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, de]
         CFBundleDisplayName: OpenFreshr
         # Expanded from the single source in settings.base at build time, so the
         # version is defined in exactly one place.
