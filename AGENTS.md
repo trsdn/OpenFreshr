@@ -147,7 +147,8 @@ which is their only home. Two rules bind every change:
 - `OpenFreshr.xcodeproj` is committed on purpose because the broker cannot run
   XcodeGen. Regenerate **and commit** it after changing `project.yml`.
 - The app ships hardened, non-sandboxed, with zero entitlements. Keep
-  `Sources/OpenFreshrApp/OpenFreshr.entitlements` in sync with the broker copy
+  `Sources/OpenFreshrApp/OpenFreshr.entitlements` in sync with the broker's
+  `profiles/entitlements/openfreshr.plist`, which is mirrored without comments in
   `docs/release/entitlements/openfreshr.plist`.
 
 OpenFreshr updates itself with mxcl/AppUpdater from its own GitHub Releases.

@@ -1,34 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!--
-  Broker-owned copy of OpenFreshr's entitlements.
-
-  This is a byte-for-byte mirror of Sources/OpenFreshrApp/OpenFreshr.entitlements.
-  The broker signs with ITS OWN copy of the entitlements (profiles/entitlements/
-  openfreshr.plist in trsdn/macos-notarization-broker), never the repo's, so the
-  two must stay identical. If you change one, change the other in the same
-  release cycle.
-
-  OpenFreshr ships as a direct-distribution Developer ID app under the hardened
-  runtime and is NOT sandboxed, because it must write to /Applications to replace
-  apps in place. A non-sandboxed hardened-runtime app needs NO entitlement for
-  anything OpenFreshr does:
-
-    * Spawning brew/mas/msupdate/codesign/spctl — the hardened runtime does not
-      gate spawning separate, independently-signed processes.
-    * Outbound network (URLSession) — network.client is a SANDBOX entitlement;
-      unsandboxed network access needs none.
-    * Launch-at-login (SMAppService.mainApp) — no entitlement for a
-      non-sandboxed app.
-    * User notifications — none.
-    * Apple events — the app sends none, so apple-events is NOT requested.
-    * Loading third-party code — none; Sparkle (when linked) ships its framework
-      and XPC services signed by the SAME Developer ID team, so library
-      validation passes without cs.disable-library-validation.
-
-  Therefore: an empty dict. Requesting anything here would be unjustified
-  attack surface.
--->
 <plist version="1.0">
 <dict/>
 </plist>
