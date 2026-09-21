@@ -3,8 +3,8 @@
 Evidence for `.github/conformance.yml`. Assessed against version **1.15.0** of
 the [trsdn Repository Quality Standard](https://github.com/trsdn/.github/blob/main/docs/repository-quality-standard.md).
 First assessed on 2026-09-20; reassessed on **2026-09-21** after the gaps it named
-were worked. Overall state: **Needs work**. No criterion fails and two are
-partial (`P08`, `P09`, both waiting on the first run of `stats.yml`); none of the critical criteria (`B04`, `D01`-`D04`, `D06`) fails.
+were worked. Overall state: **Healthy**. No criterion fails and none is
+partial; none of the critical criteria (`B04`, `D01`-`D04`, `D06`) fails.
 
 Every line below was read from the tree, the GitHub API, or a command run for
 this assessment. The profiles that apply are Baseline, Public, Software,
@@ -33,10 +33,7 @@ None.
 
 ### `partial`
 
-| ID | What was observed | What would make it pass |
-|---|---|---|
-| `P08` | The README carries the badge block in the standard's order (licence, platform, CI, conformance). The licence and platform badges are rendered by `scripts/badges.py` from `Info.plist` and `Package.swift` and are served from the generated `stats` branch, which does not exist until the first run of `stats.yml`, so those two images do not render yet. There is no release badge because there is no release | Create the `stats` branch and run the workflow once; add the release badge with the first release |
-| `P09` | `.github/workflows/stats.yml` calls the shared `repo-stats` workflow on a schedule, in light and dark variants, and the README references the card in a `<picture>` element. The workflow has not run, so no card exists | Create the `stats` branch and run the workflow once |
+None.
 
 ## Results that are `na`, and why
 
@@ -157,7 +154,4 @@ None.
 
 ## What remains
 
-1. Create the `stats` branch from `main` and run the `Repository stats` workflow
-   once, so the activity card and the licence and platform badges exist
-   (`P08`, `P09`).
-2. Before the first release: tag `v1.0.0` and date the `[1.0.0]` entry.
+Before the first release: tag `v1.0.0` and date the `[1.0.0]` entry.
