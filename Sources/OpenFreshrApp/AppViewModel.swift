@@ -486,7 +486,7 @@ public final class AppViewModel {
     /// failures from successes, so it must stay the single source of that text.
     private static var updatedMessage: String { String(localized: "Updated and confirmed by scan.") }
 
-    private func failedOutcome(for bundlePath: String) -> Bool {
+    func failedOutcome(for bundlePath: String) -> Bool {
         guard let message = updateOutcomes[bundlePath] else { return false }
         return message != Self.updatedMessage
     }

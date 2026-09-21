@@ -1,258 +1,261 @@
+import AppKit
 import OpenFreshrCore
 import SwiftUI
 
-/// The top-level layout: a list of installed apps on the left, the selected
-/// app's provenance, update state and adoption verdict on the right.
+/// The window: one list that answers two questions, is there a new version and
+/// what do I have to do about it.
+///
+/// Nothing else lives here on purpose. What an update is made of, which package
+/// manager runs it and how it is verified stay in the core; a person only needs to
+/// see the app, the version change and one button.
 struct ContentView: View {
 
     @Environment(AppViewModel.self) private var viewModel
-    @State private var showingUpdateSheet = false
-    @State private var showingTrustSheet = false
-    @State private var section: AppSection = .installed
-    @State private var catalogModel = CatalogViewModel()
+    @Environment(\.openSettings) private var openSettings
+    @State private var showUpToDate = false
+    @State private var showNotChecked = false
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
-        NavigationSplitView {
-            Group {
-                switch section {
-                case .installed:
-                    InstalledListView(selection: $viewModel.selectedReportID)
-                case .catalog:
-                    CatalogSidebar(model: catalogModel)
-                }
-            }
-            .navigationTitle("OpenFreshr")
-            .navigationSplitViewColumnWidth(min: 280, ideal: 320)
-        } detail: {
-            switch section {
-            case .installed:
-                if let report = viewModel.selectedReport {
-                    AppDetailView(report: report)
-                } else {
-                    ContentUnavailableView(
-                        "No App Selected",
-                        systemImage: "shippingbox",
-                        description: Text(
-                            "Select an app on the left to see where it stands and what you can do about it.")
-                    )
-                }
-            case .catalog:
-                if let result = catalogModel.selectedResult {
-                    CatalogDetailView(result: result, model: catalogModel)
-                } else {
-                    ContentUnavailableView(
-                        "No App Selected",
-                        systemImage: "square.grid.2x2",
-                        description: Text(
-                            "Search the catalog on the left and select an app to see details and installation.")
-                    )
-                }
-            }
+        VStack(spacing: 0) {
+            header
+            Divider()
+            list
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Picker("Section", selection: $section) {
-                    ForEach(AppSection.allCases) { item in
-                        Label(item.label, systemImage: item.symbol).tag(item)
+        .frame(minWidth: 620, minHeight: 520)
+    }
+
+    // MARK: - Data
+
+    private var groups: [UpdateBucket: [AppReport]] {
+        Dictionary(uniqueKeysWithValues: viewModel.bucketedReports.map { ($0.bucket, $0.reports) })
+    }
+
+    private var actionable: [(report: AppReport, bucket: UpdateBucket)] {
+        [UpdateBucket.ready, .ownUpdater, .manual].flatMap { bucket in
+            (groups[bucket] ?? []).map { (report: $0, bucket: bucket) }
+        }
+    }
+
+    private var isBusy: Bool { viewModel.isScanning || viewModel.isCheckingUpdates }
+
+    /// What "Update All" would run: updates OpenFreshr can install, without the ones
+    /// that change the major version. Those are updated one by one, on purpose.
+    private var batchItems: [UpdateItem] {
+        viewModel.allUpdateItems.filter { !$0.isMajor && viewModel.isDefaultSelectable($0) }
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.title2.weight(.semibold))
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            if isBusy { ProgressView().controlSize(.small) }
+            if !batchItems.isEmpty {
+                Button("Update All (\(batchItems.count))") {
+                    Task { await viewModel.performUpdates(batchItems) }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isBusy || !viewModel.updateInFlight.isEmpty)
+                .help("Install every update OpenFreshr can install")
+            }
+            Button("Check Again") {
+                Task { await viewModel.scan() }
+            }
+            .disabled(isBusy)
+            .help("Look for new versions now")
+            Button("Settings") { openSettings() }
+                .help("Open OpenFreshr's settings")
+        }
+        .padding(16)
+    }
+
+    private var title: String {
+        if viewModel.reports.isEmpty || (isBusy && !viewModel.hasCompletedUpdateCheck) {
+            return String(localized: "Checking your apps …")
+        }
+        switch actionable.count {
+        case 0: return String(localized: "Everything is up to date")
+        case 1: return String(localized: "1 update available")
+        case let count: return String(localized: "\(count) updates available")
+        }
+    }
+
+    private var subtitle: String? {
+        if let message = viewModel.lastUpdateMessage { return message }
+        if let checked = viewModel.lastSuccessfulCheck {
+            return String(
+                localized: "Last checked \(checked.formatted(date: .omitted, time: .shortened))")
+        }
+        return nil
+    }
+
+    // MARK: - List
+
+    private var list: some View {
+        List {
+            if !actionable.isEmpty {
+                Section {
+                    ForEach(actionable, id: \.report.id) { entry in
+                        UpdateRow(report: entry.report, bucket: entry.bucket)
                     }
                 }
-                .pickerStyle(.segmented)
-                .help("Switch between installed apps and the catalog")
             }
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingUpdateSheet = true
-                } label: {
-                    Label(
-                        updateCount > 0
-                            ? String(localized: "All Updates (\(updateCount))") : String(localized: "All Updates"),
-                        systemImage: "arrow.down.circle"
-                    )
-                }
-                .disabled(viewModel.allUpdateItems.isEmpty)
+
+            collapsible(.upToDate, isExpanded: $showUpToDate, title: "Up to date (\(count(.upToDate)))")
+
+            collapsible(
+                .cannotTell, isExpanded: $showNotChecked, title: "Can't be checked (\(count(.cannotTell)))",
+                footer: "OpenFreshr does not know where to look for updates for these apps.")
+        }
+        .listStyle(.inset)
+        .overlay {
+            if viewModel.reports.isEmpty && !viewModel.isScanning {
+                ContentUnavailableView(
+                    "No apps found",
+                    systemImage: "magnifyingglass",
+                    description: Text("The scan did not detect any apps.")
+                )
             }
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    Task { await viewModel.scan() }
-                } label: {
-                    Label("Rescan", systemImage: "arrow.clockwise")
-                }
-                .disabled(viewModel.isScanning)
-            }
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    showingTrustSheet = true
-                } label: {
-                    Label("Trust Store", systemImage: "shield.lefthalf.filled")
-                }
-            }
-        }
-        .sheet(isPresented: $showingUpdateSheet) {
-            UpdateSheet()
-        }
-        .sheet(isPresented: $showingTrustSheet) {
-            TrustManagementView()
-        }
-        .safeAreaInset(edge: .bottom) {
-            StatusBar()
-        }
-        .task(id: catalogConfigureID) {
-            await configureCatalog()
-        }
-        .onAppear {
-            catalogModel.onInstalled = { await viewModel.scan() }
         }
     }
 
-    /// The number of apps that offer at least one over-OpenFreshr-drivable update.
-    private var updateCount: Int {
-        Set(viewModel.allUpdateItems.map(\.app.bundlePath)).count
-    }
+    private func count(_ bucket: UpdateBucket) -> Int { groups[bucket]?.count ?? 0 }
 
-    /// A stable identity for the catalog index inputs; when it changes, the
-    /// catalog view model rebuilds its index off the main actor. Derived from the
-    /// loaded catalog plus the installed inventory so that a fresh install (which
-    /// changes the inventory) re-marks the catalog's "installiert" state.
-    private var catalogConfigureID: String {
-        let stamp =
-            viewModel.loadedCatalog.map {
-                "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
-            } ?? "none"
-        var hasher = Hasher()
-        for report in viewModel.reports {
-            hasher.combine(report.app.bundleName)
-            for match in report.matches { hasher.combine(match.caskToken) }
+    @ViewBuilder
+    private func collapsible(
+        _ bucket: UpdateBucket, isExpanded: Binding<Bool>, title: LocalizedStringKey,
+        footer: LocalizedStringKey? = nil
+    ) -> some View {
+        if let reports = groups[bucket], !reports.isEmpty {
+            Section(isExpanded: isExpanded) {
+                ForEach(reports) { report in
+                    HStack(spacing: 10) {
+                        AppIcon(path: report.app.bundlePath, size: 24)
+                        Text(report.app.displayName)
+                        Spacer()
+                        Text(report.app.displayVersion ?? "")
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.callout)
+                }
+                if let footer {
+                    Text(footer).font(.caption).foregroundStyle(.secondary)
+                }
+            } header: {
+                Text(title)
+            }
         }
-        hasher.combine(viewModel.installAnalytics?.count ?? 0)
-        return "\(stamp)-\(hasher.finalize())"
-    }
-
-    /// Hand the catalog view model its data. A no-op until the catalog has loaded.
-    private func configureCatalog() async {
-        guard let catalog = viewModel.loadedCatalog else { return }
-        let installedBundleNames = Set(viewModel.reports.map { $0.app.bundleName })
-        let recognizedTokens = Set(viewModel.reports.flatMap { $0.matches.map(\.caskToken) })
-        await catalogModel.configure(
-            catalog: catalog,
-            analytics: viewModel.installAnalytics,
-            installedBundleNames: installedBundleNames,
-            recognizedTokens: recognizedTokens
-        )
     }
 }
 
-/// A thin status line: Homebrew availability, scan/update progress and the last
-/// adoption or update message.
-private struct StatusBar: View {
+/// The app's own icon, so a row is recognisable at a glance.
+private struct AppIcon: View {
+    let path: String
+    let size: CGFloat
+
+    var body: some View {
+        Image(nsImage: NSWorkspace.shared.icon(forFile: path))
+            .resizable()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
+    }
+}
+
+/// One app with a newer version: its icon, the version change, and the one thing to
+/// do about it.
+private struct UpdateRow: View {
 
     @Environment(AppViewModel.self) private var viewModel
+    let report: AppReport
+    let bucket: UpdateBucket
+
+    private var update: AppUpdateReport? { viewModel.updateReport(for: report) }
+    private var path: String { report.app.bundlePath }
+    private var isUpdating: Bool { viewModel.updateInFlight.contains(path) }
+    private var isMajor: Bool { update?.hasMajorUpdate == true }
+    @State private var confirmingMajor = false
 
     var body: some View {
         HStack(spacing: 12) {
-            Label(
-                viewModel.homebrewAvailable
-                    ? String(localized: "Homebrew available") : String(localized: "Homebrew not found"),
-                systemImage: viewModel.homebrewAvailable ? "checkmark.seal" : "exclamationmark.triangle"
-            )
-            .foregroundStyle(viewModel.homebrewAvailable ? Color.secondary : Color.orange)
+            AppIcon(path: path, size: 36)
 
-            Divider().frame(height: 14)
-
-            CatalogStatusView()
-
-            if viewModel.isScanning {
-                ProgressView().controlSize(.small)
-                Text("Scanning …").foregroundStyle(.secondary)
-            } else if viewModel.isCheckingUpdates {
-                ProgressView().controlSize(.small)
-                Text("Checking for updates …").foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(report.app.displayName)
+                    .font(.headline)
+                    .lineLimit(1)
+                Text(versionChange)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                if let hint {
+                    Text(hint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if viewModel.failedOutcome(for: path), let problem = viewModel.updateOutcomes[path] {
+                    Text(problem)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .lineLimit(3)
+                }
             }
 
             Spacer()
 
-            if let message = viewModel.lastUpdateMessage ?? viewModel.lastAdoptionMessage {
-                Text(message)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-        }
-        .font(.callout)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(.bar)
-    }
-}
-
-/// The catalog provenance and refresh control: shows where the cask catalog came
-/// from and how old it is, and offers "Katalog aktualisieren" with a visible
-/// state (loading / current / failed with reason). A failed refresh never blocks
-/// the app — the prior catalog stays in place and only the reason is surfaced.
-private struct CatalogStatusView: View {
-
-    @Environment(AppViewModel.self) private var viewModel
-
-    var body: some View {
-        HStack(spacing: 8) {
-            switch viewModel.catalogStatus {
-            case .loading:
+            if isUpdating {
                 ProgressView().controlSize(.small)
-                Text("Updating catalog …").foregroundStyle(.secondary)
-            case .upToDate:
-                Label(viewModel.catalogProvenanceText, systemImage: catalogSymbol)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            case let .failed(reason):
-                Label(viewModel.catalogProvenanceText, systemImage: catalogSymbol)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Text(reason)
-                    .foregroundStyle(.orange)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .help(reason)
-            }
-
-            Menu {
-                Button {
-                    viewModel.refreshCatalog()
-                } label: {
-                    Label("Update Now", systemImage: "arrow.clockwise")
+                Text("Updating …").foregroundStyle(.secondary)
+            } else if bucket == .ready {
+                Button("Update") {
+                    if isMajor { confirmingMajor = true } else { install() }
                 }
-                Button {
-                    viewModel.invalidateCatalogCache()
-                } label: {
-                    Label("Clear Cache and Reload", systemImage: "trash")
+                .buttonStyle(.borderedProminent)
+                .confirmationDialog(
+                    "Update \(report.app.displayName) to a new major version?",
+                    isPresented: $confirmingMajor
+                ) {
+                    Button("Update") { install() }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("A new major version can change how the app works.")
                 }
-            } label: {
-                Label("Update Catalog", systemImage: "arrow.clockwise")
-                    .labelStyle(.iconOnly)
-            } primaryAction: {
-                viewModel.refreshCatalog()
+                .help("Install the new version of \(report.app.displayName)")
+            } else {
+                Button("Open") {
+                    NSWorkspace.shared.open(URL(fileURLWithPath: path))
+                }
+                .help("Open \(report.app.displayName) to update it there")
             }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
-            .disabled(isRefreshing)
-            .help("Update Catalog")
         }
+        .padding(.vertical, 4)
     }
 
-    private var isRefreshing: Bool {
-        if case .loading = viewModel.catalogStatus { return true }
-        return false
+    private func install() {
+        guard let update, let source = update.sources.first(where: { $0.isDrivable }) else { return }
+        Task { await viewModel.update(update, source: source) }
     }
 
-    /// A provenance glyph matching the catalog's origin.
-    private var catalogSymbol: String {
-        switch viewModel.catalogOrigin {
-        case .network: return "cloud"
-        case .cache: return "internaldrive"
-        case .bundledSnapshot: return "shippingbox"
-        case .empty, .none: return "hourglass"
+    private var versionChange: String {
+        let installed = report.app.displayVersion ?? "?"
+        guard let available = update?.primarySource?.state.availableVersion else { return installed }
+        return "\(installed) → \(available)"
+    }
+
+    /// What to do when a button cannot do it for the person.
+    private var hint: String? {
+        switch bucket {
+        case .ownUpdater: return String(localized: "Open the app and check for updates.")
+        case .manual: return String(localized: "Update it in the app or on the vendor's website.")
+        default: return update?.hasMajorUpdate == true ? String(localized: "New major version") : nil
         }
     }
 }
