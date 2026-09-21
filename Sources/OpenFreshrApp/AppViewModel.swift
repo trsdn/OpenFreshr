@@ -445,6 +445,24 @@ public final class AppViewModel {
         }
     }
 
+    /// Every app in the bucket a person would look for it in, groups in reading
+    /// order and apps by name. An app whose update check has not finished yet is
+    /// listed under "can't tell" rather than guessed at.
+    public var bucketedReports: [(bucket: UpdateBucket, reports: [AppReport])] {
+        let grouped = Dictionary(grouping: reports) {
+            updateReports[$0.app.bundlePath]?.bucket ?? .cannotTell
+        }
+        return UpdateBucket.allCases.compactMap { bucket in
+            guard let members = grouped[bucket], !members.isEmpty else { return nil }
+            return (
+                bucket,
+                members.sorted {
+                    $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending
+                }
+            )
+        }
+    }
+
     /// The number of reports each filter would show, for the segmented control.
     public func count(for filter: AppListFilter) -> Int {
         switch filter {

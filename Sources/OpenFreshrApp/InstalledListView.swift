@@ -1,119 +1,191 @@
 import OpenFreshrCore
 import SwiftUI
 
-/// The sidebar: a filter control over every scanned app as a selectable row.
+/// The sidebar: every app, grouped by what a person wants to know about it. What
+/// OpenFreshr can update for them comes first; what is already fine comes last
+/// and starts collapsed.
 struct InstalledListView: View {
 
     @Environment(AppViewModel.self) private var viewModel
     @Binding var selection: AppReport.ID?
+    @State private var collapsed: Set<UpdateBucket> = [.upToDate, .cannotTell]
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
-        VStack(spacing: 0) {
-            Picker("Filter", selection: $viewModel.listFilter) {
-                ForEach(AppListFilter.allCases) { filter in
-                    Text(verbatim: "\(filter.label) (\(viewModel.count(for: filter)))")
-                        .tag(filter)
+        List(selection: $selection) {
+            ForEach(viewModel.bucketedReports, id: \.bucket) { group in
+                Section(isExpanded: expansion(of: group.bucket)) {
+                    ForEach(group.reports) { report in
+                        InstalledRow(report: report, bucket: group.bucket)
+                            .tag(report.id)
+                    }
+                } header: {
+                    BucketHeader(bucket: group.bucket, count: group.reports.count)
                 }
             }
-            .pickerStyle(.menu)
-            .labelsHidden()
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-
-            Divider()
-
-            List(viewModel.filteredReports, selection: $selection) { report in
-                InstalledRow(report: report)
-                    .tag(report.id)
-            }
-            .overlay {
-                if viewModel.filteredReports.isEmpty && !viewModel.isScanning {
-                    ContentUnavailableView(
-                        emptyTitle,
-                        systemImage: "magnifyingglass",
-                        description: Text(emptyDescription)
-                    )
-                }
+        }
+        .listStyle(.sidebar)
+        .overlay {
+            if viewModel.reports.isEmpty && !viewModel.isScanning {
+                ContentUnavailableView(
+                    "No apps found",
+                    systemImage: "magnifyingglass",
+                    description: Text("The scan did not detect any apps.")
+                )
+            } else if viewModel.reports.isEmpty {
+                ProgressView("Looking for apps …")
             }
         }
     }
 
-    private var emptyTitle: String {
-        viewModel.listFilter == .all ? String(localized: "No apps found") : String(localized: "Nothing in this filter")
+    private func expansion(of bucket: UpdateBucket) -> Binding<Bool> {
+        Binding(
+            get: { !collapsed.contains(bucket) },
+            set: { isExpanded in
+                if isExpanded { collapsed.remove(bucket) } else { collapsed.insert(bucket) }
+            }
+        )
+    }
+}
+
+extension UpdateBucket {
+
+    /// The group heading, in the words a person would use.
+    var title: String {
+        switch self {
+        case .ready: return String(localized: "Ready to update")
+        case .updatesItself: return String(localized: "Updates itself")
+        case .manual: return String(localized: "Needs you")
+        case .cannotTell: return String(localized: "Can't tell")
+        case .upToDate: return String(localized: "Up to date")
+        }
     }
 
-    private var emptyDescription: String {
-        switch viewModel.listFilter {
-        case .all: return String(localized: "The scan did not detect any apps.")
-        case .updates: return String(localized: "No update was detected for any app.")
-        case .selfUpdating: return String(localized: "No app updates itself.")
-        case .unassigned: return String(localized: "Every app is assigned to a source.")
-        case .problems: return String(localized: "No source reports a problem.")
+    var symbol: String {
+        switch self {
+        case .ready: return "arrow.down.circle.fill"
+        case .updatesItself: return "arrow.triangle.2.circlepath"
+        case .manual: return "hand.raised.fill"
+        case .cannotTell: return "questionmark.circle"
+        case .upToDate: return "checkmark.circle"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .ready: return .accentColor
+        case .updatesItself: return .blue
+        case .manual: return .orange
+        case .cannotTell: return .secondary
+        case .upToDate: return .green
+        }
+    }
+
+    /// One sentence under the heading for the groups whose meaning is not obvious.
+    var explanation: String? {
+        switch self {
+        case .ready: return nil
+        case .updatesItself:
+            return String(
+                localized: "A newer version exists. The app has its own updater, so OpenFreshr leaves it alone.")
+        case .manual:
+            return String(localized: "A newer version exists, but OpenFreshr cannot install it for you.")
+        case .cannotTell:
+            return String(
+                localized: "No source could say whether these have an update. That does not mean they are current.")
+        case .upToDate: return nil
         }
     }
 }
 
-/// One app row: name, version, the available update version when known, and a
-/// compact update/adoption badge.
+private struct BucketHeader: View {
+    let bucket: UpdateBucket
+    let count: Int
+
+    var body: some View {
+        Label {
+            Text(verbatim: "\(bucket.title) (\(count))")
+        } icon: {
+            Image(systemName: bucket.symbol).foregroundStyle(bucket.color)
+        }
+        .font(.subheadline.weight(.semibold))
+        .help(bucket.explanation ?? "")
+    }
+}
+
+/// One app row: name, the version change, and one plain-language line saying where
+/// the update comes from or why nothing happens.
 private struct InstalledRow: View {
 
     @Environment(AppViewModel.self) private var viewModel
     let report: AppReport
+    let bucket: UpdateBucket
 
     private var update: AppUpdateReport? { viewModel.updateReport(for: report) }
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: "app.dashed")
-                .accessibilityHidden(true)
-                .foregroundStyle(.secondary)
-                .imageScale(.large)
-
             VStack(alignment: .leading, spacing: 2) {
                 Text(report.app.displayName)
                     .font(.body)
                     .lineLimit(1)
                 HStack(spacing: 6) {
-                    Text(
-                        report.app.displayVersion.map { String(localized: "Version \($0)") }
-                            ?? String(localized: "Version unknown")
-                    )
-                    .foregroundStyle(.secondary)
-                    if let available = availableVersion {
+                    Text(installedVersion)
+                        .foregroundStyle(.secondary)
+                    if let available = update?.primarySource?.state.availableVersion, bucket != .upToDate {
                         Image(systemName: "arrow.right")
                             .accessibilityHidden(true)
                             .imageScale(.small)
                             .foregroundStyle(.secondary)
                         Text(available)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(bucket.color)
                     }
                 }
                 .font(.caption)
                 .lineLimit(1)
+                if let line = detailLine {
+                    Text(line)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
 
             Spacer()
 
-            badge
+            if viewModel.updateInFlight.contains(report.app.bundlePath) {
+                ProgressView().controlSize(.small)
+            } else if let update, update.hasMajorUpdate {
+                UpdateBadge(isMajor: true)
+            }
         }
         .padding(.vertical, 2)
     }
 
-    /// The version the most actionable source would move to, if any.
-    private var availableVersion: String? {
-        update?.primarySource?.state.availableVersion
+    private var installedVersion: String {
+        report.app.displayVersion.map { String(localized: "Version \($0)") } ?? String(localized: "Version unknown")
     }
 
-    @ViewBuilder
-    private var badge: some View {
-        if viewModel.updateInFlight.contains(report.app.bundlePath) {
-            ProgressView().controlSize(.small)
-        } else if let update, update.hasUpdate {
-            UpdateBadge(isMajor: update.hasMajorUpdate)
-        } else {
-            AdoptionBadge(report: report)
+    /// Where the update comes from, or why it is not simply installed.
+    private var detailLine: String? {
+        guard let update else { return nil }
+        switch bucket {
+        case .ready:
+            return update.primarySource?.backend.map { String(localized: "via \($0.label)") }
+        case .updatesItself:
+            return String(localized: "Updates itself when you open it")
+        case .manual:
+            switch update.manualReason {
+            case .homebrewCannotTakeOver?:
+                return String(localized: "Homebrew cannot take this app over. Update it at the vendor.")
+            case .noAutomaticWay?, nil:
+                return String(localized: "No automatic way to update it")
+            }
+        case .cannotTell:
+            if update.isUnassigned { return String(localized: "No update source found") }
+            if update.hasSourceProblem { return String(localized: "The update source did not answer") }
+            return String(localized: "Nothing to compare against")
+        case .upToDate:
+            return nil
         }
     }
 }
@@ -134,57 +206,4 @@ struct UpdateBadge: View {
     }
 
     private var color: Color { isMajor ? .orange : .accentColor }
-}
-
-/// A small colored capsule summarising the adoption verdict.
-///
-/// Three states, so a recognised-but-not-adoptable app is never mistaken for a
-/// genuinely unmatched one:
-///
-/// * **adoptierbar** — eligible for `--adopt` (green).
-/// * **erkannt** — at least one cask candidate was found but the app cannot be
-///   adopted (already managed, vetoed, installer-only, identity unconfirmed …).
-/// * **—** — no cask candidate at all; truly unassigned.
-struct AdoptionBadge: View {
-
-    let report: AppReport
-
-    private enum State {
-        case adoptable
-        case recognized
-        case unassigned
-    }
-
-    var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(color.opacity(0.15), in: Capsule())
-            .foregroundStyle(color)
-    }
-
-    private var state: State {
-        if report.eligibility.isEligible { return .adoptable }
-        // A cask candidate exists but the app is not adoptable: recognised, not
-        // unassigned. Uses the matches already present on the report.
-        if !report.matches.isEmpty { return .recognized }
-        return .unassigned
-    }
-
-    private var text: String {
-        switch state {
-        case .adoptable: return String(localized: "adoptable")
-        case .recognized: return String(localized: "recognized")
-        case .unassigned: return "—"
-        }
-    }
-
-    private var color: Color {
-        switch state {
-        case .adoptable: return .green
-        case .recognized: return .blue
-        case .unassigned: return .secondary
-        }
-    }
 }
