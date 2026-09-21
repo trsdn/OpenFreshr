@@ -3,8 +3,38 @@
 **Status:** Draft  
 **Target platform:** macOS 14+, Apple Silicon  
 **Primary user:** initially the developer themselves  
-**Product idea:** An "App Store for the rest of the Mac" that detects installed GUI apps,
-makes updates transparent, and can find and install new apps.
+**Product idea:** Keep **everything** on the Mac current, with as little effort as
+possible: apps, command-line packages, App Store apps and macOS itself. See
+[Goal](#goal).
+
+## Goal
+
+*Revised 2026-09-21. This section supersedes any passage below that limits the
+product to GUI apps.*
+
+The product does one thing: **it keeps a Mac current, and the person does not
+have to think about it.** Every place software comes from is a source. OpenFreshr
+asks each source what is outdated, shows the answer in one list, and updates on
+request.
+
+- **Sources:** Homebrew casks and formulae, the Mac App Store, Microsoft
+  AutoUpdate, Sparkle feeds, macOS (`softwareupdate`), and language package
+  managers (npm, pipx, then cargo and gem). A source is only used when its tool is
+  installed.
+- **One core, several surfaces.** The engine is UI-free. A command line
+  (`openfreshr check`, `openfreshr update`) comes first because it needs no window;
+  the menu bar and the window are other surfaces over the same engine. The menu
+  bar is not the product.
+- **The safety contract stays.** "Cannot tell" is never shown as "up to date" or
+  as an update. A reported success is confirmed by checking again. A name from
+  external data is validated before it reaches a command line, and no shell is
+  involved.
+- **Not the goal:** discovering and installing new apps is a separate feature and
+  is not needed to keep a Mac current.
+
+Delivery order is tracked in the issues labelled `scope`: the shared model
+(`EcosystemUpdating`, in `OpenFreshrCore/Ecosystem`), Homebrew formulae, the
+command line, macOS, then the language package managers.
 
 ## Executive Summary
 
@@ -173,8 +203,9 @@ would be hard to predict, poorly observable and potentially prone to collisions.
 
 ### 6. v1 covers GUI apps only
 
-**Decision:** v1 manages app bundles and associated GUI applications. Homebrew
-formulae and general CLI tools are not part of v1.
+**Decision (superseded 2026-09-21, see [Goal](#goal)):** v1 managed app bundles
+and associated GUI applications only. Homebrew formulae, macOS and language
+packages are now in scope, through the separate `EcosystemUpdating` model.
 
 **Rationale:** CLI software has a different detection, versioning and usage model.
 Homebrew already covers it well in the terminal. The restriction keeps the product
@@ -531,7 +562,6 @@ the **Team ID check before replacing an app**.
 
 ## Non-goals for v1
 
-- Managing Homebrew formulae and general CLI tools.
 - A custom native download, unpack, DMG, PKG and uninstallation engine.
 - A curated database modeled on MacUpdater.
 - Fully unattended updates without user oversight.
@@ -541,8 +571,9 @@ the **Team ID check before replacing an app**.
 - Enterprise-wide device management, policies or central telemetry.
 - Automatically updating discontinued or not reliably mappable apps.
 
-Formulae/CLI tools and a native installation engine remain possible later
-extensions, provided their benefit justifies the additional complexity.
+A native installation engine remains a possible later extension, provided its
+benefit justifies the additional complexity. Formulae and command-line packages
+are no longer a non-goal.
 
 ## Risks and open items
 
