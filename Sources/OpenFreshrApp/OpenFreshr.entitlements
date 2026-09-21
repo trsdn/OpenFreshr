@@ -24,15 +24,14 @@
     * Apple events — the app sends none (no NSAppleScript/osascript/AEDetermine),
       so com.apple.security.automation.apple-events is NOT requested.
     * Loading third-party code — the app loads no external dylibs or plug-ins, so
-      com.apple.security.cs.disable-library-validation is NOT requested. Sparkle,
-      when linked for a release, ships its framework and XPC services signed by
-      the SAME Developer ID team, so library validation still passes without this
-      exception (Sparkle only needs it for SANDBOXED hosts).
+      com.apple.security.cs.disable-library-validation is NOT requested. The one
+      dependency, AppUpdater, is compiled into the executable and its only
+      resource is a data bundle, so nothing extra is loaded.
     * No JIT / no unsigned executable memory / no DYLD env vars — none of the
       cs.allow-* hardened-runtime exceptions are needed.
 
   If a future capability genuinely requires an entitlement, add it here WITH a
-  justification comment and mirror it into docs/release/entitlements/openfreshr.plist
+  justification comment and mirror it into the broker's profiles/entitlements/openfreshr.plist
   so the notarization broker signs with the identical set.
 -->
 <plist version="1.0">

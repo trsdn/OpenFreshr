@@ -122,11 +122,13 @@ entitlement for anything it does:
 
 The shipping entitlements file is an empty `<dict/>` with these justifications as
 comments: [`Sources/OpenFreshrApp/OpenFreshr.entitlements`](../../Sources/OpenFreshrApp/OpenFreshr.entitlements).
-The broker copy [`entitlements/openfreshr.plist`](entitlements/openfreshr.plist)
-must stay byte-for-byte identical.
+The broker signs with its own copy,
+[`profiles/entitlements/openfreshr.plist`](https://github.com/trsdn/macos-notarization-broker/blob/main/profiles/entitlements/openfreshr.plist),
+never the repository's. [`entitlements/openfreshr.plist`](entitlements/openfreshr.plist)
+here is that file, without comments. Both must hold the same (empty) dictionary.
 
-If a future capability genuinely needs an entitlement, add it to **both** files
-with a justification comment in the same release cycle.
+If a future capability genuinely needs an entitlement, add it to the app's file
+and to the broker's profile in the same release cycle, and update this copy.
 
 ---
 
