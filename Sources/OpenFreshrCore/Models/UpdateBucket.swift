@@ -4,14 +4,15 @@ import Foundation
 /// package manager behind it.
 ///
 /// The cases answer the questions someone asks of a list of apps, in the order
-/// they matter: what can OpenFreshr update for me right now, what will update
-/// itself, what needs me, what can nobody tell, and what is fine.
+/// they matter: what can OpenFreshr update for me right now, which apps have
+/// their own updater, what needs me, what can nobody tell, and what is fine.
 public enum UpdateBucket: Int, CaseIterable, Comparable, Identifiable, Sendable {
     /// A newer version exists and OpenFreshr can install it with one action.
     case ready
-    /// A newer version exists, but the app has its own updater. OpenFreshr does not
-    /// start a second updater against it.
-    case updatesItself
+    /// A newer version exists and OpenFreshr cannot install it, but the app carries
+    /// its own updater. That says the app *can* update; it does not say it *will*,
+    /// so the person is told to open it rather than promised anything.
+    case ownUpdater
     /// A newer version exists, but OpenFreshr cannot install it. The person has to
     /// do it (usually at the vendor); ``AppUpdateReport/manualReason`` says why.
     case manual
@@ -42,10 +43,12 @@ extension AppUpdateReport {
     /// never disagree about it.
     public var bucket: UpdateBucket {
         if hasUpdate {
-            if isDefaultBatchSelectable { return .ready }
-            // Self-updating apps come before "manual": the app will look after
-            // itself, so nothing is asked of the person.
-            if isSelfUpdating { return .updatesItself }
+            // Whether OpenFreshr can install it decides the group, not whether the
+            // app has an updater of its own: a person who wants the Mac current
+            // should not be told "leave it" about something OpenFreshr can do. An
+            // app with its own updater is merely not preselected in a batch.
+            if sources.contains(where: { $0.isDrivable }) { return .ready }
+            if isSelfUpdating { return .ownUpdater }
             return .manual
         }
         if sources.contains(where: { $0.state == .upToDate }) { return .upToDate }

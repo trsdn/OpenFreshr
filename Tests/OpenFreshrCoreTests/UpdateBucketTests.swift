@@ -36,10 +36,15 @@ struct UpdateBucketTests {
         #expect(report([source(newer, command: command)]).bucket == .ready)
     }
 
-    @Test("A newer version on a self-updating app is left to the app, even when OpenFreshr could drive it")
-    func updatesItself() {
-        #expect(report([source(newer, command: command)], selfUpdating: true).bucket == .updatesItself)
-        #expect(report([source(newer)], selfUpdating: true).bucket == .updatesItself)
+    @Test("An app with its own updater is still ready when OpenFreshr can install the update")
+    func drivableOwnUpdaterIsReady() {
+        #expect(report([source(newer, command: command)], selfUpdating: true).bucket == .ready)
+    }
+
+    @Test("An app with its own updater that OpenFreshr cannot drive is listed as having one, not as looked after")
+    func ownUpdater() {
+        #expect(report([source(newer)], selfUpdating: true).bucket == .ownUpdater)
+        #expect(report([source(newer)], selfUpdating: true).manualReason == nil)
     }
 
     @Test("A newer version with no way to install it needs the person")
@@ -79,7 +84,7 @@ struct UpdateBucketTests {
 
     @Test("Buckets sort in the order a person cares about")
     func order() {
-        #expect(UpdateBucket.allCases.sorted() == [.ready, .updatesItself, .manual, .cannotTell, .upToDate])
+        #expect(UpdateBucket.allCases.sorted() == [.ready, .ownUpdater, .manual, .cannotTell, .upToDate])
     }
 
     @Test("Only the manual bucket carries a reason")
