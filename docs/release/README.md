@@ -159,7 +159,7 @@ Things that follow from this and are worth knowing before a release:
 3. **Builds from before the first updater release have no updater**, so anyone
    still running one installs a newer release by hand once.
 4. **OpenFreshr's own updates are separate from the managed-app updates.** The
-   menu item "Nach OpenFreshr-Updates suchen …" and the Settings toggle only ever
+   self-update menu items and the Settings toggle only ever
    affect OpenFreshr; the managed apps go through the window's trust gate.
 
 `OpenFreshrCore` still reads *other* apps' Sparkle appcasts to find their updates
