@@ -8,19 +8,28 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- **Selbst-Update über AppUpdater statt Sparkle.** OpenFreshr aktualisiert sich wie
-  OpenWritr und OpenSwitchr aus den eigenen GitHub-Releases. Angenommen wird nur
-  `OpenFreshr-<version>.dmg`, dessen App dieselbe Team-ID, Signing-Identifier und
-  Bundle-ID trägt. Es gibt keinen EdDSA-Schlüssel und keinen Appcast mehr.
-- Das Release-Profil für den Notarisierungs-Broker deklariert jetzt die
-  AppUpdater-Sperrdatei und das Ressourcenbündel.
+- **Self-update through AppUpdater instead of Sparkle.** Like OpenWritr and
+  OpenSwitchr, OpenFreshr now updates itself from its own GitHub Releases. Only
+  `OpenFreshr-<version>.dmg` is accepted, and only when its app carries the same
+  Team ID, signing identifier and bundle ID. There is no EdDSA key and no appcast
+  any more.
+- The release profile for the notarization broker now declares the AppUpdater
+  lock file and the resource bundle.
+- The documentation is in English. The UI is English with a German translation.
 
 ### Added
 
-- Einstellung „OpenFreshr automatisch aktualisieren“; geprüft wird höchstens einmal
-  täglich, installiert wird erst nach Bestätigung.
+- Setting "Update OpenFreshr automatically"; the check runs at most once a day,
+  and nothing is installed before you confirm.
+- `Info.plist` carries the copyright holder, the licence identifier and the
+  repository and issue-tracker URLs, and the repository has an app icon source
+  (`scripts/make-app-icon.swift`).
+- README sections on privacy, accessibility, compatibility and support.
 
-## [1.0.0] — 2025-09-01
+## [1.0.0] — not yet released
+
+The date of this entry is unknown because no tag or release exists yet; it is
+dated when the first release is cut.
 
 First release. OpenFreshr replaces the discontinued MacUpdater: it discovers the
 macOS apps you already have, keeps them current across three backends, installs
@@ -29,44 +38,45 @@ replaces an app, and lives in the menu bar.
 
 ### Added
 
-- **Bestandserkennung & Adoption (Phase 1).** Scans `/Applications` (and per-user
+- **Inventory and adoption (phase 1).** Scans `/Applications` (and per-user
   apps), matches each installed app to a Cask-catalog entry by bundle identifier,
   and adopts the installed version as the baseline.
-- **Update-Erkennung (Phase 2).** Determines the newest available version per app,
+- **Update detection (phase 2).** Determines the newest available version per app,
   including apps that publish through their own **Sparkle** appcast, and shows a
   clear, de-duplicated "update available" state with robust version comparison.
-- **Updates über drei Backends (Phase 3).** Performs updates through **Homebrew**,
-  the **Mac App Store** (`mas`), and **Microsoft AutoUpdate** (`msupdate`),
-  choosing the right backend per app.
-- **Vertrauenskette vor App-Ersatz (Phase 4).** Before any in-place replacement,
-  enforces code-signature validity, **Gatekeeper** assessment (`spctl`), and an
-  expected **Team ID** — a failed check blocks the replacement (fail-closed).
-- **Katalog-Entdeckung & Installation (Phase 5).** Browses the Cask catalog to
+- **Updates through three backends (phase 3).** Performs updates through
+  **Homebrew**, the **Mac App Store** (`mas`), and **Microsoft AutoUpdate**
+  (`msupdate`), choosing the right backend per app.
+- **Trust chain before app replacement (phase 4).** Before any in-place
+  replacement, enforces code-signature validity, **Gatekeeper** assessment
+  (`spctl`), and an expected **Team ID** — a failed check blocks the replacement
+  (fail-closed).
+- **Catalog discovery and installation (phase 5).** Browses the Cask catalog to
   discover and install apps the user does not have yet. All catalog data (live
   fetch, on-disk cache, and bundled snapshot) is ingested through a single
   hardened path so an outside source can never inject bundle identifiers, the
   auto-update flag, or artifacts.
-- **Menüleiste & Hintergrundstatus (Phase 6).** A `MenuBarExtra` surfaces the
+- **Menu bar and background status (phase 6).** A `MenuBarExtra` surfaces the
   count of pending updates and quick actions; the main window shows detail and
   runs a scan on appear. Optional launch-at-login via `SMAppService`.
 
-### Added — delivery hardening & self-update (Phase 7)
+### Added — delivery hardening & self-update (phase 7)
 
-- **Gehärteter Direktvertrieb.** The Xcode target enables the **hardened runtime**
-  and ships **non-sandboxed** (App Store distribution is an explicit non-goal,
-  because OpenFreshr must write to `/Applications`). Entitlements are an empty,
-  fully-justified `<dict/>` — OpenFreshr requests **zero** entitlements.
-- **Einheitliche Versionierung.** `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`
-  in `project.yml` are the single source of truth; `Info.plist` references them so
+- **Hardened direct distribution.** The Xcode target enables the **hardened
+  runtime** and ships **non-sandboxed** (App Store distribution is an explicit
+  non-goal, because OpenFreshr must write to `/Applications`). Entitlements are an
+  empty, fully-justified `<dict/>` — OpenFreshr requests **zero** entitlements.
+- **Single version source.** `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in
+  `project.yml` are the single source of truth; `Info.plist` references them so
   release scripts and the app agree on the version.
-- **Selbst-Update (Sparkle, Dogfooding).** A UI-free `SelfUpdateChecker` in
+- **Self-update (Sparkle, dogfooding).** A UI-free `SelfUpdateChecker` in
   `OpenFreshrCore` reuses the same appcast/version logic OpenFreshr applies to
-  other apps, and a "Nach OpenFreshr-Updates suchen …" command (in the app menu
-  and the menu bar, kept clearly separate from the managed-app check) drives it.
-  The Sparkle framework is integrated behind `#if canImport(Sparkle)` with an
+  other apps, and a command to check for OpenFreshr updates (in the app menu and
+  the menu bar, kept clearly separate from the managed-app check) drives it. The
+  Sparkle framework is integrated behind `#if canImport(Sparkle)` with an
   `NSAlert`/releases-page fallback; enabling the binary dependency is documented
-  in `docs/release/README.md`.
-- **Release-Dokumentation.** `AGENTS.md` and `docs/release/` document that
+  in `docs/release/README.md`. Superseded by AppUpdater, see `[Unreleased]`.
+- **Release documentation.** `AGENTS.md` and `docs/release/` document that
   notarization runs **only** through
   [trsdn/macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker)
   — never locally, no `notarytool`, no app-specific password — and ship the

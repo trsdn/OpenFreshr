@@ -1,334 +1,335 @@
-# Implementierungsplan: OpenFreshr
+# Implementation plan: OpenFreshr
 
-> Quelle: [PRD.md](PRD.md)  
-> Prinzip: Jede Phase ist ein schmaler, eigenständig startbarer Tracer Bullet mit
-> sichtbarem End-to-End-Nutzen. Noch kein Produktivcode ist Teil dieses Dokuments.
+> Source: [PRD.md](PRD.md)  
+> Principle: Each phase is a narrow, independently startable tracer bullet with
+> visible end-to-end user value. No production code is part of this document yet.
 
-## Dauerhafte Architekturentscheidungen
+## Lasting architecture decisions
 
-- **Plattform:** native macOS-App, SwiftUI, macOS 14+, zunächst Apple Silicon.
-- **Projektaufbau:** separat testbarer Swift-6-Core plus dünne App-Hülle. Deklaratives
-  XcodeGen-Projekt; die generierte Xcode-Projektdatei wird für reproduzierbare
-  Broker-Builds eingecheckt.
-- **Primäre UI:** Hauptfenster mit `NavigationSplitView`; „Installiert“ und
-  „Katalog“ sind stabile Hauptbereiche.
-- **Erkennung:** lokaler Inventory-Scan ist vollständig unabhängig von Homebrew.
-- **Quellenmodell:** eine App kann gleichzeitig mehrere Quellen besitzen; Konflikte
-  werden erhalten statt durch eine globale Priorität verborgen.
-- **Ausführung:** austauschbares `PackageBackend`; erste Backends sind Homebrew,
-  Mac App Store und Microsoft AutoUpdate.
-- **Matching:** exakte App-Artefakte und Bundle-IDs sind starke Signale.
-  Fuzzy-Namensmatches sind nur Vorschläge, bis der Nutzer sie bestätigt.
-- **Sicherheit:** strukturierte Prozessaufrufe ohne Shell-Interpolation;
-  Signaturprüfung, Gatekeeper und Team-ID-Vertrauen vor App-Ersatz.
-- **Privilegien:** kein privilegierter Helper in v1. Erhöhte Rechte bleiben beim
-  ausführenden Backend und dessen sichtbarem System-Prompt.
-- **Selbst-Updater:** Sparkle/Electron standardmäßig anzeigen, nicht anstoßen;
-  `msupdate` darf aktiv ausgeführt werden.
-- **Persistenz:** lokaler Cache für Katalog und Scan; lokaler Vertrauensspeicher für
-  Team IDs und bestätigte Match-Ausnahmen.
-- **Release:** Developer ID, Notarisierung, Stapling, DMG und Sparkle. Signing-Secrets
-  bleiben im bestehenden Notarisierungs-Broker, nicht in diesem Repository.
+- **Platform:** native macOS app, SwiftUI, macOS 14+, Apple Silicon first.
+- **Project structure:** separately testable Swift 6 core plus a thin app shell.
+  Declarative XcodeGen project; the generated Xcode project file is checked in for
+  reproducible broker builds.
+- **Primary UI:** main window with `NavigationSplitView`; "Installed" and
+  "Catalog" are stable main sections.
+- **Detection:** the local inventory scan is fully independent of Homebrew.
+- **Source model:** an app can have several sources at the same time; conflicts
+  are preserved rather than hidden by a global priority.
+- **Execution:** swappable `PackageBackend`; the first backends are Homebrew,
+  Mac App Store and Microsoft AutoUpdate.
+- **Matching:** exact app artifacts and bundle IDs are strong signals.
+  Fuzzy name matches are only suggestions until the user confirms them.
+- **Security:** structured process invocations without shell interpolation;
+  signature verification, Gatekeeper and Team ID trust before replacing an app.
+- **Privileges:** no privileged helper in v1. Elevated rights stay with the
+  executing backend and its visible system prompt.
+- **Self-updaters:** show Sparkle/Electron apps by default, do not trigger them;
+  `msupdate` may be run actively.
+- **Persistence:** local cache for catalog and scan; local trust store for
+  Team IDs and confirmed match exceptions.
+- **Release:** Developer ID, notarization, stapling, DMG and Sparkle. Signing
+  secrets stay in the existing notarization broker, not in this repository.
 
-## Qualitätsstrategie für alle Phasen
+## Quality strategy for all phases
 
-- Externes Verhalten an Modulgrenzen testen, keine privaten Details.
-- Dateisystem, Netz und Prozesse abstrahieren; Tests verändern keine echten Apps.
-- Reale, eingecheckte Fixtures aus anonymisierten Varianten des Coverage-Scans,
-  Cask-API-Antworten und Appcasts verwenden.
-- Jede Phase hat mindestens einen automatisierten End-to-End-Smoke-Test ihres
-  Nutzpfads sowie gezielte Fehlerfälle.
-- Nach echten Paketaktionen gilt ausschließlich ein erneuter Scan als
-  Erfolgsnachweis.
-
----
-
-## Phase 1: Bestand erkennen und Apps adoptieren
-
-**Abgedeckte User Stories:** 1–18, 41, 45–47
-
-### Nutzwert
-
-Der Nutzer startet OpenFreshr, sieht seine installierten GUI-Apps mit Version und
-Quelle und erhält die zentrale Vorschau: Welche manuell installierten Apps können
-sofort sicher in die Homebrew-Verwaltung übernommen werden? Er wählt einzelne Apps
-aus und stößt `brew install --cask --adopt` kontrolliert an.
-
-### End-to-End-Umfang
-
-- Native App-Hülle mit dem Bereich „Installiert“.
-- Scan von `/Applications`, `~/Applications` und `/Applications/Utilities`.
-- Normalisiertes App-Modell aus Bundle-Metadaten, MAS-Receipt, Sparkle- und
-  Electron-Markern.
-- Lokaler Cask-Katalog-Cache und Matching über App-Artefakt, Bundle-ID und
-  konservative Namensähnlichkeit.
-- Match-Erklärung und Konfidenz in der UI.
-- Anzeige von App, installierter Version, verfügbarer Version und Quelle.
-- Erkennung des Homebrew-Verwaltungsstatus, ohne den Scan davon abhängig zu machen.
-- Adoption-Vorschau mit Einzelauswahl; unsichere Matches sind nicht vorausgewählt
-  und nicht direkt ausführbar.
-- Ausführung über das Homebrew-Backend mit getrennten Prozessargumenten.
-- Fortschritt, Fehler und erneuter Scan pro Adoption.
-
-### Wichtige Produktregel
-
-Der Coverage-Scan enthält einen bekannten falschen Kandidaten:
-`Copilot.app` darf nicht allein aufgrund seines Namens dem Cask `copilot-money`
-zugeordnet oder von diesem adoptiert werden. Dieser Fall wird zu einem festen
-Regressionstest für den Resolver.
-
-### Akzeptanzkriterien
-
-- [ ] Die App startet und zeigt einen realen Scan des Referenzsystems.
-- [ ] Mindestens 100 von 109 relevanten Fremd-Apps erhalten eine nachvollziehbare
-      Quellenzuordnung.
-- [ ] Kontrollierte Vorschläge ermöglichen mindestens 104 Zuordnungen, ohne einen
-      Fuzzy-Treffer automatisch freizugeben.
-- [ ] Ohne Homebrew bleibt die Bestands- und Quellenansicht nutzbar.
-- [ ] Sicher zugeordnete, nicht verwaltete Casks erscheinen in der
-      Adoption-Vorschau.
-- [ ] Der Nutzer kann jede Adoption einzeln ein- oder ausschließen.
-- [ ] Die Vorschau zeigt App-Pfad, Cask-Token, Match-Grund und auszuführende Aktion.
-- [ ] Der bekannte `Copilot`/`copilot-money`-Fehlmatch wird blockiert.
-- [ ] Ein Prozessfehler bleibt der betroffenen App zugeordnet und ist wiederholbar.
-- [ ] Eine erfolgreiche Adoption wird erst nach einem erneuten Scan als erfolgreich
-      angezeigt.
+- Test external behavior at module boundaries, not private details.
+- Abstract the file system, network and processes; tests do not modify real apps.
+- Use real, checked-in fixtures from anonymized variants of the coverage scan,
+  cask API responses and appcasts.
+- Each phase has at least one automated end-to-end smoke test of its value path
+  as well as targeted failure cases.
+- After real package actions, only a fresh scan counts as proof of success.
 
 ---
 
-## Phase 2: Verfügbare Updates zuverlässig anzeigen
+## Phase 1: Detect the inventory and adopt apps
 
-**Abgedeckte User Stories:** 19–22, 39–41, 45, 47
+**User stories covered:** 1–18, 41, 45–47
 
-### Nutzwert
+### User value
 
-Die installierte Ansicht wird zum zentralen Update-Dashboard. Sie zeigt veraltete
-Apps, Quellkonflikte und selbst-updatende Apps, führt aber noch keine allgemeinen
-Updates aus.
+The user starts OpenFreshr, sees their installed GUI apps with version and
+source, and gets the central preview: which manually installed apps can be
+safely taken over into Homebrew management right away? They select individual
+apps and trigger `brew install --cask --adopt` in a controlled way.
 
-### End-to-End-Umfang
+### End-to-end scope
 
-- Aktualisierung und Cache-Alter für Cask-Katalog und Analytics sichtbar machen.
-- Verfügbare Cask-Versionen gegen installierte Versionen vergleichen.
-- Explizite Sparkle-Appcasts defensiv laden und passende Releases auswählen.
-- MAS- und MAU-Verfügbarkeit über ihre jeweiligen Tools ermitteln.
-- Quelle, Aktualität, Updatezustand und Unsicherheit pro App darstellen.
-- Filter „Updates“, „selbst-updatend“, „nicht zugeordnet“ und „Fehler“.
-- Manuelles Aktualisieren aller Metadaten und erneuter Scan.
-- Offline-Fallback auf den zuletzt erfolgreichen Bestand und Katalog mit klarer
-  Altersangabe.
-- Persistenter Prüf-Cache mit Zeitstempel, damit ein App-Neustart keine vollständige
-  Netzwerkprüfung erzwingt.
-- System-Ignorierliste für Apple-eigene und MDM-verwaltete Apps sowie
-  nutzerdefiniertes Ignorieren pro App oder pro Version.
+- Native app shell with the "Installed" section.
+- Scan of `/Applications`, `~/Applications` and `/Applications/Utilities`.
+- Normalized app model built from bundle metadata, MAS receipt, and Sparkle and
+  Electron markers.
+- Local cask catalog cache and matching via app artifact, bundle ID and
+  conservative name similarity.
+- Match explanation and confidence in the UI.
+- Display of app, installed version, available version and source.
+- Detection of the Homebrew management status, without making the scan depend
+  on it.
+- Adoption preview with individual selection; uncertain matches are not
+  preselected and cannot be run directly.
+- Execution through the Homebrew backend with separate process arguments.
+- Progress, errors and a fresh scan per adoption.
 
-### Akzeptanzkriterien
+### Key product rule
 
-- [ ] Jede App kann mehrere sichtbare Quellen und deren Status besitzen.
-- [ ] Ein nicht erreichbarer Dienst löscht keine zuletzt bekannten Daten.
-- [ ] Nicht vergleichbare Versionen werden als „unbekannt“ statt als Update
-      dargestellt.
-- [ ] Sparkle-/Electron-Apps sind als selbst-updatend gekennzeichnet.
-- [ ] Ein eingebettetes Sparkle-Framework ohne auslesbaren Feed erzeugt keine
-      erfundene verfügbare Version.
-- [ ] Veraltete Cache-Daten sind in der UI eindeutig erkennbar.
-- [ ] Ignorierte Apps und übersprungene Versionen bleiben einsehbar und rücknehmbar.
-- [ ] Alle Parser und Versionsfälle laufen reproduzierbar gegen lokale Fixtures.
+The coverage scan contains a known false candidate:
+`Copilot.app` must not be assigned to the cask `copilot-money` or adopted by it
+based on its name alone. This case becomes a fixed regression test for the
+resolver.
 
----
+### Acceptance criteria
 
-## Phase 3: Updates über drei Backends ausführen
-
-**Abgedeckte User Stories:** 20–27, 38, 41, 45–47
-
-### Nutzwert
-
-Der Nutzer wählt Updates aus und führt Homebrew-, Mac-App-Store- und
-Microsoft-AutoUpdate-Aktionen in einem konsistenten Ablauf aus.
-
-### End-to-End-Umfang
-
-- Einheitliche Vorschau für Updateaktionen unabhängig vom Backend.
-- Homebrew-Cask-Updates einschließlich `auto_updates` und `latest`.
-- Mac-App-Store-Updates über `mas`.
-- Microsoft-Updates über `msupdate`.
-- Selbst-updatende Sparkle-/Electron-Apps bleiben standardmäßig reine Hinweise.
-- Pro-App-Ausnahme „trotzdem über OpenFreshr aktualisieren“, sofern ein geeignetes
-  ausführbares Backend existiert.
-- Batch-Fortschritt mit unabhängigem Ergebnis je App.
-- Wiederholung fehlgeschlagener Aktionen ohne erneute Ausführung erfolgreicher Apps.
-- Erneuter Scan nach jeder abgeschlossenen Aktion.
-- Major-Upgrades werden erkannt, gesondert dargestellt und separat bestätigt.
-
-### Akzeptanzkriterien
-
-- [ ] Die Vorschau nennt App, Zielversion, Backend und Paketbezeichner.
-- [ ] Keine Aktion startet ohne explizite Nutzerfreigabe.
-- [ ] Homebrew-, MAS- und MAU-Aktionen liefern dasselbe verständliche Statusmodell.
-- [ ] Sparkle-/Electron-Apps werden nicht automatisch parallel aktualisiert.
-- [ ] Ein Major-Upgrade wird nie zusammen mit regulären Updates in einem Schritt
-      freigegeben.
-- [ ] Ein Fehler in einem Backend erzeugt keine falsche Erfolgsmeldung für andere
-      oder nachfolgende Apps.
-- [ ] Abbruch und Wiederholung sind deterministisch und getestet.
-- [ ] Nach dem Prozess entscheidet der lokale Scan über den tatsächlichen Zustand.
+- [ ] The app starts and shows a real scan of the reference system.
+- [ ] At least 100 of 109 relevant third-party apps receive a traceable source
+      assignment.
+- [ ] Controlled suggestions enable at least 104 assignments, without
+      automatically approving any fuzzy match.
+- [ ] Without Homebrew, the inventory and source view remain usable.
+- [ ] Confidently matched, unmanaged casks appear in the adoption preview.
+- [ ] The user can include or exclude each adoption individually.
+- [ ] The preview shows app path, cask token, match reason and the action to be
+      executed.
+- [ ] The known `Copilot`/`copilot-money` mismatch is blocked.
+- [ ] A process error stays attached to the affected app and is repeatable.
+- [ ] A successful adoption is shown as successful only after a fresh scan.
 
 ---
 
-## Phase 4: Vertrauenskette vor App-Ersatz durchsetzen
+## Phase 2: Show available updates reliably
 
-**Abgedeckte User Stories:** 28–32, 45–47
+**User stories covered:** 19–22, 39–41, 45, 47
 
-### Nutzwert
+### User value
 
-OpenFreshr schützt aktiv vor unerwarteten Herausgeberwechseln und macht
-Sicherheitsentscheidungen verständlich. Das ist ein sichtbares
-Alleinstellungsmerkmal gegenüber einem reinen Paketmanager-Frontend.
+The installed view becomes the central update dashboard. It shows outdated
+apps, source conflicts and self-updating apps, but does not yet run general
+updates.
 
-### End-to-End-Umfang
+### End-to-end scope
 
-- Team ID installierter Apps beim ersten Scan als Trust-on-first-use erfassen.
-- Signaturprüfung und Gatekeeper-Bewertung in den Aktionsablauf integrieren.
-- Team ID der neuen Version gegen den gespeicherten Vertrauenswert vergleichen.
-- Blockierende Konfliktansicht bei ungültiger Signatur, Gatekeeper-Ablehnung oder
-  Team-ID-Wechsel.
-- Expliziter, protokollierter Ausnahmeablauf für einen legitimen Team-ID-Wechsel.
-- Ansicht zum Prüfen und Zurücksetzen gespeicherter Vertrauensentscheidungen.
-- Klare Trennung zwischen OpenFreshr-Prüfung und Sicherheitsgarantien des Backends.
+- Make the refresh state and cache age visible for the cask catalog and
+  analytics.
+- Compare available cask versions against installed versions.
+- Load explicit Sparkle appcasts defensively and select matching releases.
+- Determine MAS and MAU availability through their respective tools.
+- Present source, freshness, update state and uncertainty per app.
+- Filters "Updates", "Self-updating", "Unmatched" and "Errors".
+- Manual refresh of all metadata and a fresh scan.
+- Offline fallback to the last successful inventory and catalog with a clear
+  age indication.
+- Persistent check cache with a timestamp, so an app restart does not force a
+  full network check.
+- System ignore list for Apple-owned and MDM-managed apps, as well as
+  user-defined ignoring per app or per version.
 
-### Akzeptanzkriterien
+### Acceptance criteria
 
-- [ ] Eine ungültige Signatur blockiert den App-Ersatz.
-- [ ] Eine Gatekeeper-Ablehnung blockiert den App-Ersatz.
-- [ ] Eine unveränderte Team ID erlaubt den normalen Ablauf.
-- [ ] Eine geänderte Team ID stoppt die Aktion vor dem Ersatz.
-- [ ] Die Warnung zeigt alte und neue Team ID sowie betroffene Bundle-ID.
-- [ ] Eine Ausnahme erfordert eine separate explizite Bestätigung und wird
-      nachvollziehbar gespeichert.
-- [ ] Ein Reset des Vertrauens führt beim nächsten Scan zu einer neuen
-      Erstbeobachtung, nicht zu implizitem Vertrauen.
-
----
-
-## Phase 5: Neue Apps im Katalog entdecken und installieren
-
-**Abgedeckte User Stories:** 33–41, 45–47
-
-### Nutzwert
-
-OpenFreshr wird vom Updater zum „App Store für den Rest des Mac“: Der Nutzer kann
-den Cask-Katalog durchsuchen, populäre Apps entdecken und eine ausgewählte GUI-App
-installieren.
-
-### End-to-End-Umfang
-
-- Zweiter Hauptbereich „Katalog“ im `NavigationSplitView`.
-- Lokaler Cache des Cask-Katalogs und der 365-Tage-Installationsstatistik.
-- Suche über Token, Name und Beschreibung.
-- Sortierung nach Popularität und Name.
-- Detailansicht mit Beschreibung, Homepage, Version, Artefakten und
-  Installationsstatus.
-- Kennzeichnung bereits installierter Apps und möglicher Zuordnungsunsicherheit.
-- Installationsvorschau mit Homebrew-Token und Zielwirkung.
-- Ausführung über `PackageBackend`, anschließend lokaler Scan und
-  Vertrauensinitialisierung.
-
-### Akzeptanzkriterien
-
-- [ ] Der vollständige Katalog bleibt bei ungefähr 7.715 Einträgen flüssig
-      durchsuchbar.
-- [ ] Popularitätsdaten beeinflussen die Sortierung nachvollziehbar.
-- [ ] Fehlende Analytics verhindern weder Suche noch alphabetische Sortierung.
-- [ ] Bereits installierte Apps werden nicht als unkritische Neuinstallation
-      angeboten.
-- [ ] Vor der Installation sind Backend, Cask-Token und Homepage sichtbar.
-- [ ] Nach erfolgreicher Installation erscheint die App in „Installiert“.
-- [ ] Eine Installation wird erst nach lokalem Scan als erfolgreich markiert.
+- [ ] Each app can have several visible sources and their status.
+- [ ] An unreachable service does not delete the last known data.
+- [ ] Non-comparable versions are shown as "unknown" rather than as an update.
+- [ ] Sparkle/Electron apps are marked as self-updating.
+- [ ] An embedded Sparkle framework without a readable feed does not produce an
+      invented available version.
+- [ ] Stale cache data is clearly recognizable in the UI.
+- [ ] Ignored apps and skipped versions remain viewable and can be undone.
+- [ ] All parsers and version cases run reproducibly against local fixtures.
 
 ---
 
-## Phase 6: Hintergrundstatus und Menüleiste
+## Phase 3: Run updates through three backends
 
-**Abgedeckte User Stories:** 40–43
+**User stories covered:** 20–27, 38, 41, 45–47
 
-### Nutzwert
+### User value
 
-Der Nutzer sieht verfügbare Updates ohne geöffnetes Hauptfenster und gelangt mit
-einem Klick zur relevanten Liste.
+The user selects updates and runs Homebrew, Mac App Store and Microsoft
+AutoUpdate actions in one consistent flow.
 
-### End-to-End-Umfang
+### End-to-end scope
 
-- Geplanter, ressourcenschonender Hintergrundscan ohne automatische Installation.
-- `MenuBarExtra` mit Anzahl verfügbarer Updates, letztem Scan und Fehlerstatus.
-- Direkter Sprung in die gefilterte Updateansicht des Hauptfensters.
-- Nutzersteuerung für Scanintervall und Startverhalten.
-- Klare Behandlung von Offline-Zustand und veralteten Daten.
+- Unified preview for update actions, independent of the backend.
+- Homebrew cask updates, including `auto_updates` and `latest`.
+- Mac App Store updates through `mas`.
+- Microsoft updates through `msupdate`.
+- Self-updating Sparkle/Electron apps remain notice-only by default.
+- Per-app exception "update via OpenFreshr anyway", provided a suitable
+  executable backend exists.
+- Batch progress with an independent result per app.
+- Retry of failed actions without re-running successful apps.
+- Fresh scan after each completed action.
+- Major upgrades are detected, shown separately and confirmed separately.
 
-### Akzeptanzkriterien
+### Acceptance criteria
 
-- [ ] Die Menüleiste zeigt dieselbe Updatezahl wie das Hauptfenster.
-- [ ] Ein Klick öffnet die passende gefilterte Ansicht.
-- [ ] Hintergrundscans starten keine Installation und keinen Selbst-Updater.
-- [ ] Wiederholte Scans verursachen keine parallelen Paketmanagerprozesse.
-- [ ] Scanintervall und Hintergrundverhalten können deaktiviert werden.
-- [ ] Energie- und Laufzeitkosten werden auf einem realen System gemessen und
-      dokumentiert.
+- [ ] The preview names app, target version, backend and package identifier.
+- [ ] No action starts without explicit user approval.
+- [ ] Homebrew, MAS and MAU actions deliver the same understandable status
+      model.
+- [ ] Sparkle/Electron apps are not automatically updated in parallel.
+- [ ] A major upgrade is never approved in a single step together with regular
+      updates.
+- [ ] An error in one backend does not produce a false success message for other
+      or subsequent apps.
+- [ ] Cancellation and retry are deterministic and tested.
+- [ ] After the process, the local scan decides the actual state.
 
 ---
 
-## Phase 7: Gehärteter Direktvertrieb und Selbst-Update
+## Phase 4: Enforce the chain of trust before replacing an app
 
-**Abgedeckte User Stories:** 44, 48
+**User stories covered:** 28–32, 45–47
 
-### Nutzwert
+### User value
 
-OpenFreshr kann außerhalb der Entwicklungsmaschine sicher installiert und über
-Sparkle aktualisiert werden. Damit dogfoodet das Produkt seinen eigenen
-Erkennungsfall.
+OpenFreshr actively protects against unexpected publisher changes and makes
+security decisions understandable. This is a visible unique selling point
+compared with a pure package manager frontend.
 
-### End-to-End-Umfang
+### End-to-end scope
 
-- Releasefähige App-Konfiguration mit Hardened Runtime und minimalen Entitlements.
-- Sparkle-Feed und signierte Selbst-Updates.
-- DMG-Erstellung mit Developer-ID-Signatur, Notarisierung und Stapling.
-- Integration in den vorhandenen macOS-Notarisierungs-Broker.
-- Secretloser Build und Preflight vor dem getrennten Signierschritt.
-- Dokumentierter Installations-, Verifikations- und Releaseablauf.
-- Smoke-Test eines Upgrades von der vorherigen veröffentlichten Version.
+- Capture the Team ID of installed apps at the first scan as trust on first use.
+- Integrate signature verification and Gatekeeper assessment into the action
+  flow.
+- Compare the Team ID of the new version against the stored trust value.
+- Blocking conflict view for an invalid signature, Gatekeeper rejection or
+  Team ID change.
+- Explicit, logged exception flow for a legitimate Team ID change.
+- View for reviewing and resetting stored trust decisions.
+- Clear separation between OpenFreshr's verification and the backend's security
+  guarantees.
 
-### Referenz für eine spätere Helper-Härtung
+### Acceptance criteria
 
-Sollte sich ein privilegierter Helper als notwendig erweisen, ist die Validierung des
-aufrufenden XPC-Clients der kritische und leicht falsch umgesetzte Teil. Eine
-tragfähige Referenzimplementierung liegt in `OpenUpdaterHelper/XPCAuditToken.m` bei
-[chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater) (MIT). Ein Helper,
-der den Audit Token des Clients nicht prüft, lässt sich von beliebigen lokalen
-Prozessen ansprechen und wäre eine Rechteausweitung mit Root-Rechten.
+- [ ] An invalid signature blocks the app replacement.
+- [ ] A Gatekeeper rejection blocks the app replacement.
+- [ ] An unchanged Team ID allows the normal flow.
+- [ ] A changed Team ID stops the action before the replacement.
+- [ ] The warning shows the old and new Team ID as well as the affected bundle
+      ID.
+- [ ] An exception requires a separate explicit confirmation and is stored in a
+      traceable way.
+- [ ] A trust reset leads to a new first observation on the next scan, not to
+      implicit trust.
 
-### Akzeptanzkriterien
+---
 
-- [ ] Das DMG besteht Gatekeeper- und Signaturprüfung auf einem sauberen Mac.
-- [ ] Die App läuft aus `/Applications` ohne dauerhaft privilegierten Helper.
-- [ ] Der Sparkle-Feed bietet nur korrekt signierte Releases an.
-- [ ] Ein Update von Version N auf N+1 erhält Einstellungen, Match-Ausnahmen und
-      Vertrauensspeicher.
-- [ ] Build und Preflight benötigen keine Signing-Secrets.
-- [ ] Signierung und Notarisierung erfolgen ausschließlich im Broker mit
-      menschlicher Freigabe.
-- [ ] Release-Artefakte enthalten Integritäts- und Provenienzangaben entsprechend
-      dem bestehenden App-Muster.
+## Phase 5: Discover and install new apps from the catalog
 
-## Nach v1 mögliche Erweiterungen
+**User stories covered:** 33–41, 45–47
 
-- Deklarative Fallback-Rezepte für Apps ohne jede automatische Quelle, orientiert am
-  Schema von [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
-  (`check` per JSON-Pfad oder HTML-Pattern, `download`, `arch`, `channels`). Auf dem
-  Referenzsystem betrifft das nur rund fünf Apps, überwiegend eingestellte Produkte —
-  der Nutzen rechtfertigt den Pflegeaufwand in v1 daher nicht.
-- Native Download-/Installations-Engine als weiteres `PackageBackend`.
-- Homebrew Formulae und CLI-Tools in einem getrennten Produktbereich.
-- Apple-`softwareupdate`-Aktionen, sofern UX und Abgrenzung zu Systemupdates
-  belastbar sind.
-- Weitere Katalogquellen und verifizierte Community-Zuordnungen.
-- Optionaler privilegierter Helper, aber nur bei gemessenem, wiederkehrendem Bedarf.
-- Richtlinien für unbeaufsichtigte Updates auf ausdrücklich freigegebenen Apps.
+### User value
+
+OpenFreshr turns from an updater into the "App Store for the rest of the Mac":
+the user can browse the cask catalog, discover popular apps and install a
+selected GUI app.
+
+### End-to-end scope
+
+- Second main section "Catalog" in the `NavigationSplitView`.
+- Local cache of the cask catalog and the 365-day install statistics.
+- Search by token, name and description.
+- Sorting by popularity and name.
+- Detail view with description, homepage, version, artifacts and install
+  status.
+- Marking of already installed apps and possible matching uncertainty.
+- Install preview with the Homebrew token and the intended effect.
+- Execution through `PackageBackend`, followed by a local scan and trust
+  initialization.
+
+### Acceptance criteria
+
+- [ ] The full catalog of roughly 7,715 entries stays smoothly searchable.
+- [ ] Popularity data influences sorting in a traceable way.
+- [ ] Missing analytics prevent neither search nor alphabetical sorting.
+- [ ] Already installed apps are not offered as an uncritical new installation.
+- [ ] Before installation, backend, cask token and homepage are visible.
+- [ ] After a successful installation, the app appears in "Installed".
+- [ ] An installation is marked as successful only after a local scan.
+
+---
+
+## Phase 6: Background status and menu bar
+
+**User stories covered:** 40–43
+
+### User value
+
+The user sees available updates without an open main window and reaches the
+relevant list with one click.
+
+### End-to-end scope
+
+- Scheduled, resource-friendly background scan without automatic installation.
+- `MenuBarExtra` with the number of available updates, last scan and error
+  status.
+- Direct jump to the filtered update view of the main window.
+- User control over scan interval and launch behavior.
+- Clear handling of the offline state and stale data.
+
+### Acceptance criteria
+
+- [ ] The menu bar shows the same update count as the main window.
+- [ ] A click opens the matching filtered view.
+- [ ] Background scans start no installation and no self-updater.
+- [ ] Repeated scans cause no parallel package manager processes.
+- [ ] Scan interval and background behavior can be disabled.
+- [ ] Energy and runtime costs are measured on a real system and documented.
+
+---
+
+## Phase 7: Hardened direct distribution and self-update
+
+**User stories covered:** 44, 48
+
+### User value
+
+OpenFreshr can be installed safely outside the development machine and updated
+through Sparkle. This way the product dogfoods its own detection case.
+
+### End-to-end scope
+
+- Release-ready app configuration with Hardened Runtime and minimal
+  entitlements.
+- Sparkle feed and signed self-updates.
+- DMG creation with Developer ID signature, notarization and stapling.
+- Integration into the existing macOS notarization broker.
+- Secretless build and preflight before the separate signing step.
+- Documented installation, verification and release flow.
+- Smoke test of an upgrade from the previously published version.
+
+### Reference for later helper hardening
+
+Should a privileged helper prove necessary, validating the calling XPC client is
+the critical and easily misimplemented part. A solid reference implementation
+lives in `OpenUpdaterHelper/XPCAuditToken.m` in
+[chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater) (MIT). A helper
+that does not check the client's audit token can be addressed by arbitrary local
+processes and would be a privilege escalation with root rights.
+
+### Acceptance criteria
+
+- [ ] The DMG passes Gatekeeper and signature verification on a clean Mac.
+- [ ] The app runs from `/Applications` without a permanently privileged helper.
+- [ ] The Sparkle feed offers only correctly signed releases.
+- [ ] An update from version N to N+1 preserves settings, match exceptions and
+      the trust store.
+- [ ] Build and preflight require no signing secrets.
+- [ ] Signing and notarization happen exclusively in the broker with human
+      approval.
+- [ ] Release artifacts contain integrity and provenance information following
+      the existing app pattern.
+
+## Possible extensions after v1
+
+- Declarative fallback recipes for apps without any automatic source, modeled on
+  the schema of [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
+  (`check` via JSON path or HTML pattern, `download`, `arch`, `channels`). On the
+  reference system this affects only about five apps, mostly discontinued
+  products — so the benefit does not justify the maintenance effort in v1.
+- Native download/installation engine as a further `PackageBackend`.
+- Homebrew formulae and CLI tools in a separate product area.
+- Apple `softwareupdate` actions, provided UX and the distinction from system
+  updates are solid.
+- Additional catalog sources and verified community matches.
+- Optional privileged helper, but only with measured, recurring need.
+- Policies for unattended updates on explicitly approved apps.
