@@ -154,7 +154,7 @@ public final class AppViewModel {
     }
 
     /// When the last successful check completed, mirrored from the persisted store
-    /// so the menu bar can show "zuletzt geprüft vor …". `nil` until the first check.
+    /// so the menu bar can show "last checked … ago". `nil` until the first check.
     public private(set) var lastSuccessfulCheck: Date?
 
     /// `true` once a detection has completed this session, so the menu bar knows to
@@ -374,29 +374,29 @@ public final class AppViewModel {
         refreshCatalog()
     }
 
-    /// A short German provenance line for the status bar, e.g.
-    /// "Katalog von heute 09:12" or "gebündelter Stand vom 3. Juni 2025".
+    /// A short provenance line for the status bar, e.g.
+    /// "Catalog from today 09:12" or "Bundled snapshot from June 3, 2025".
     public var catalogProvenanceText: String {
-        guard let origin = catalogOrigin else { return "Katalog wird geladen …" }
+        guard let origin = catalogOrigin else { return String(localized: "Loading catalog …") }
         let when = catalogFetchedAt.map { Self.relativeCatalogDate($0) }
         switch origin {
         case .network, .cache:
-            if let when { return "Katalog von \(when)" }
-            return "Katalog geladen"
+            if let when { return String(localized: "Catalog from \(when)") }
+            return String(localized: "Catalog loaded")
         case .bundledSnapshot:
-            if let when { return "gebündelter Stand vom \(when)" }
-            return "gebündelter Katalog"
+            if let when { return String(localized: "Bundled snapshot from \(when)") }
+            return String(localized: "Bundled catalog")
         case .empty:
-            return "Katalog wird geladen …"
+            return String(localized: "Loading catalog …")
         }
     }
 
     private static func describeCatalog(_ error: CatalogRefreshError) -> String {
         switch error.kind {
         case .network:
-            return "Abruf fehlgeschlagen – letzter Stand bleibt aktiv."
+            return String(localized: "Fetch failed – the last snapshot stays active.")
         case .ingestion:
-            return "Antwort unlesbar – letzter Stand bleibt aktiv."
+            return String(localized: "Response unreadable – the last snapshot stays active.")
         }
     }
 
@@ -405,12 +405,11 @@ public final class AppViewModel {
         calendar: Calendar = .current
     ) -> String {
         let time = DateFormatter()
-        time.locale = Locale(identifier: "de_DE")
-        time.dateFormat = "HH:mm"
-        if calendar.isDateInToday(date) { return "heute \(time.string(from: date))" }
-        if calendar.isDateInYesterday(date) { return "gestern \(time.string(from: date))" }
+        time.timeStyle = .short
+        time.dateStyle = .none
+        if calendar.isDateInToday(date) { return String(localized: "today \(time.string(from: date))") }
+        if calendar.isDateInYesterday(date) { return String(localized: "yesterday \(time.string(from: date))") }
         let full = DateFormatter()
-        full.locale = Locale(identifier: "de_DE")
         full.dateStyle = .long
         full.timeStyle = .none
         return full.string(from: date)
@@ -465,9 +464,13 @@ public final class AppViewModel {
         }
     }
 
+    /// The per-app outcome line for a confirmed update; compared against to tell
+    /// failures from successes, so it must stay the single source of that text.
+    private static var updatedMessage: String { String(localized: "Updated and confirmed by scan.") }
+
     private func failedOutcome(for bundlePath: String) -> Bool {
         guard let message = updateOutcomes[bundlePath] else { return false }
-        return !message.hasPrefix("Aktualisiert")
+        return message != Self.updatedMessage
     }
 
     /// Run a full inventory scan and classification off the main actor.
@@ -486,7 +489,9 @@ public final class AppViewModel {
         let reports = await Task.detached { coordinator.makeReports() }.value
         let available = await Task.detached { backend.isAvailable() }.value
 
-        self.reports = reports.sorted { $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending }
+        self.reports = reports.sorted {
+            $0.app.displayName.localizedCaseInsensitiveCompare($1.app.displayName) == .orderedAscending
+        }
         self.homebrewAvailable = available
 
         // Kick off update detection without holding the scan open: it re-scans,
@@ -518,7 +523,7 @@ public final class AppViewModel {
         self.updateReports = byPath
 
         // Phase 6: any completed detection — whether triggered by the window, the
-        // menu bar's "Jetzt prüfen", or the background scheduler — advances the
+        // menu bar's "Check Now", or the background scheduler — advances the
         // persisted schedule so a relaunch (or a background tick right afterwards)
         // does not immediately re-scan, and refreshes the status the menu bar caches
         // for display before this session's first scan.
@@ -563,7 +568,8 @@ public final class AppViewModel {
         acknowledgeTeamChange: Bool = false
     ) async {
         guard let item = UpdateCoordinator.updateItem(for: report, source: source),
-              let release = UpdateRelease(items: [item]) else { return }
+            let release = UpdateRelease(items: [item])
+        else { return }
         await run(
             release,
             acknowledgingTeamChanges: acknowledgeTeamChange ? [item.app.bundlePath] : []
@@ -607,11 +613,12 @@ public final class AppViewModel {
         let updated = result.updatedItems.count
         let failed = result.retryableItems.count
         if failed == 0 {
-            lastUpdateMessage = updated == 1
-                ? "1 App aktualisiert."
-                : "\(updated) Apps aktualisiert."
+            lastUpdateMessage =
+                updated == 1
+                ? String(localized: "1 app updated.")
+                : String(localized: "\(updated) apps updated.")
         } else {
-            lastUpdateMessage = "\(updated) aktualisiert, \(failed) fehlgeschlagen."
+            lastUpdateMessage = String(localized: "\(updated) updated, \(failed) failed.")
         }
 
         // Re-detect so states, versions and problems reflect the confirmed disk.
@@ -622,21 +629,21 @@ public final class AppViewModel {
     private static func message(for outcome: UpdateOutcome) -> String {
         switch outcome {
         case .updated:
-            return "Aktualisiert und per Scan bestätigt."
+            return Self.updatedMessage
         case let .notConfirmedByRescan(item):
             // The generic "reported success but rescan disagrees" line is right,
             // but a reinstall-driven item (receipt drift, or the reinstall step of
             // a take-over) has a *nameable* cause, so say it instead of leaving
             // the user stranded.
             if item.homebrewStrategy == .reinstall || item.homebrewStrategy == .adoptThenReinstall {
-                return "Homebrew führt diese App als aktuell, auf der Platte liegt aber eine ältere Version. "
-                    + "Die Neuinstallation meldete Erfolg, der Scan bestätigt ihn aber nicht — die App bringt "
-                    + "ihre Version vermutlich selbst mit (auto_updates). Bitte einmal manuell starten und "
-                    + "aktualisieren lassen; danach erneut prüfen."
+                return String(
+                    localized:
+                        "Homebrew lists this app as up to date, but an older version is on disk. The reinstall reported success, but the scan does not confirm it — the app probably brings its own version (auto_updates). Please launch it manually once and let it update; then check again."
+                )
             }
-            return "Das Werkzeug meldete Erfolg, der erneute Scan bestätigt ihn aber nicht."
+            return String(localized: "The tool reported success, but the renewed scan does not confirm it.")
         case let .caskError(_, message):
-            return "Abgebrochen (CaskError): \(message)"
+            return String(localized: "Aborted (CaskError): \(message)")
         case let .failed(_, reason):
             return reason.explanation
         case let .blockedByTrust(_, block):
@@ -658,21 +665,22 @@ public final class AppViewModel {
 
         switch result {
         case let .adopted(report):
-            lastAdoptionMessage = "\(app.displayName) wird jetzt von Homebrew verwaltet."
+            lastAdoptionMessage = String(localized: "\(app.displayName) is now managed by Homebrew.")
             // The coordinator already rescanned and re-classified this app to
             // confirm the adoption; reuse that verified report instead of
             // triggering a second full inventory scan.
             replace(report)
         case let .hardFailedWithCaskError(message):
-            lastAdoptionMessage = "Adoption abgebrochen (CaskError): \(message)"
+            lastAdoptionMessage = String(localized: "Adoption aborted (CaskError): \(message)")
         case .notConfirmedByRescan:
-            lastAdoptionMessage = "\(app.displayName): Homebrew meldete Erfolg, der erneute Scan bestätigt ihn aber nicht."
+            lastAdoptionMessage = String(
+                localized: "\(app.displayName): Homebrew reported success, but the renewed scan does not confirm it.")
         case let .failed(reason):
-            lastAdoptionMessage = "\(app.displayName): \(reason.explanation)"
+            lastAdoptionMessage = String(localized: "\(app.displayName): \(reason.explanation)")
         case let .notEligible(reason):
-            lastAdoptionMessage = "\(app.displayName) ist nicht adoptierbar: \(reason.explanation)"
+            lastAdoptionMessage = String(localized: "\(app.displayName) cannot be adopted: \(reason.explanation)")
         case let .blockedByTrust(block):
-            lastAdoptionMessage = "\(app.displayName): \(block.explanation)"
+            lastAdoptionMessage = String(localized: "\(app.displayName): \(block.explanation)")
         }
     }
 
@@ -741,12 +749,14 @@ public final class AppViewModel {
     ///   ``CaskCatalogProvider`` and ``FileCatalogCacheStore`` uphold this.
     private nonisolated static func loadBundledSnapshot() -> CaskCatalog? {
         guard let url = Bundle.main.url(forResource: "casks-snapshot", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
+            let data = try? Data(contentsOf: url)
+        else {
             return nil
         }
         // Date the snapshot by its bundled file so the "catalog is N old" hint is
         // honest about how stale the shipped data is.
-        let fetchedAt = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
+        let fetchedAt =
+            (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
             ?? .distantPast
         return try? CaskCatalogIngestion.decodeCatalog(fromAPIData: data, fetchedAt: fetchedAt)
     }
@@ -765,7 +775,8 @@ public final class AppViewModel {
 
     static func loadCheckInterval() -> UpdateCheckInterval {
         guard let raw = UserDefaults.standard.string(forKey: intervalDefaultsKey),
-              let parsed = UpdateCheckInterval(rawValue: raw) else { return .daily }
+            let parsed = UpdateCheckInterval(rawValue: raw)
+        else { return .daily }
         return parsed
     }
 
@@ -860,7 +871,7 @@ public final class AppViewModel {
         await runTrackedCheck(now: now, notify: true)
     }
 
-    /// The menu bar's "Jetzt prüfen": force a check now regardless of the schedule,
+    /// The menu bar's "Check Now": force a check now regardless of the schedule,
     /// still single-flight so it can never overlap a scheduled or in-flight check.
     /// The user is present, so it does not raise a notification.
     public func checkNow(now: Date = Date()) async {
@@ -891,14 +902,14 @@ public enum AppListFilter: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    /// The short, German control label.
+    /// The short control label.
     public var label: String {
         switch self {
-        case .all: return "Alle"
-        case .updates: return "Updates"
-        case .selfUpdating: return "Selbst-aktualisierend"
-        case .unassigned: return "Nicht zugeordnet"
-        case .problems: return "Fehler"
+        case .all: return String(localized: "All")
+        case .updates: return String(localized: "Updates")
+        case .selfUpdating: return String(localized: "Self-updating")
+        case .unassigned: return String(localized: "Unassigned")
+        case .problems: return String(localized: "Errors")
         }
     }
 

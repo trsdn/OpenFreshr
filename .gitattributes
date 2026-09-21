@@ -17,3 +17,9 @@ OpenFreshr.xcodeproj/** linguist-generated=true
 *.yml text eol=lf
 *.plist text eol=lf
 *.entitlements text eol=lf
+
+# Machine-produced data and lockfiles: regenerate, never edit by hand.
+# casks-snapshot.json comes from scripts/build-catalog-snapshot.py; Package.resolved
+# is written by SwiftPM (also the broker's byte-equal dependency lock).
+Sources/OpenFreshrApp/Resources/casks-snapshot.json linguist-generated=true
+**/Package.resolved linguist-generated=true

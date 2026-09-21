@@ -77,7 +77,8 @@ public enum VersionComparator {
     /// only ever asserted about two versions that genuinely compare.
     public static func isMajorChange(from installed: String, to available: String) -> Bool {
         guard let a = parse(installed), let b = parse(available),
-              let first = a.release.first, let second = b.release.first else {
+            let first = a.release.first, let second = b.release.first
+        else {
             return false
         }
         return first != second

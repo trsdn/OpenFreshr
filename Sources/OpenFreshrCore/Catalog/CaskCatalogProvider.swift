@@ -126,7 +126,8 @@ public struct CaskCatalogProvider: Sendable {
     /// half-trusted data.
     public func loadInitial() -> CaskCatalogLoad {
         if let cached = cacheStore.load(),
-           let catalog = try? ingest(cached.caskAPIData, fetchedAt: cached.fetchedAt) {
+            let catalog = try? ingest(cached.caskAPIData, fetchedAt: cached.fetchedAt)
+        {
             return CaskCatalogLoad(
                 catalog: catalog,
                 origin: .cache,

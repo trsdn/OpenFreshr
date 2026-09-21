@@ -3,6 +3,15 @@
 Guidance for any agent or contributor touching this repository. Keep it short;
 change it when the code changes.
 
+## Purpose
+
+OpenFreshr is a native macOS menu bar app that keeps the apps on a Mac up to
+date. It finds installed apps, matches them to Homebrew Cask, the Mac App Store,
+Microsoft AutoUpdate and Sparkle feeds, delegates each update to the tool that
+owns it, and verifies the code signature and Team ID before it replaces
+anything. It also discovers and installs apps from the Cask catalogue. What it
+does and why is in [`README.md`](README.md) and [`docs/PRD.md`](docs/PRD.md).
+
 ## Architecture
 
 - **`OpenFreshrCore` is UI-free.** No `import SwiftUI`, no `import AppKit`. It
@@ -91,74 +100,60 @@ bundled snapshot — share the one ingestion path).
 
 ## Commands
 
-- `make build` — `swift build` (core).
-- `make test` — `swift test` (core, fixtures only).
-- `make generate` — XcodeGen → `OpenFreshr.xcodeproj`.
-- `make app` — compile the SwiftUI shell (signing disabled).
+The build commands live in one place, the [README](README.md#build), and the
+`Makefile` is their source.
+
+**`make all` is the complete check.** It builds the core and runs the whole test
+suite; run it and get a pass before proposing any change. CI runs the same steps.
+
+## Forbidden and high-risk operations
+
+- **No history rewriting.** Never force-push (`--force`, `--force-with-lease`),
+  never amend or rebase commits that are already pushed, and never delete or
+  move a tag. `main` is protected by a ruleset that refuses force pushes and
+  deletion, but do not rely on it; propose changes through pull requests.
+- **No secrets.** Never commit, print or log a credential, and never ask for one.
+  The repository holds none; the workflows use only the per-run `GITHUB_TOKEN`.
+- **No local notarization or releases.** See the next section.
+- **No destructive commands** against `/Applications`, the user's Homebrew, or
+  `~/Library/Application Support/OpenFreshr`. Tests inject fakes for all of them.
+- **Do not hand-edit generated paths**: `OpenFreshr.xcodeproj/**` (regenerate
+  with `make generate`), `Sources/OpenFreshrApp/Resources/casks-snapshot.json`
+  (`scripts/build-catalog-snapshot.py`) and `Package.resolved`. They are marked
+  in `.gitattributes`.
+
+## Agent-authored changes
+
+A change written by an agent is reviewed by a human before it merges, like any
+other. Agents work on a branch and open a pull request; they do not push to
+`main`. Every commit an agent makes ends with a `Co-Authored-By:` trailer naming
+the model, and a pull request an agent opens says so in its description. The
+reviewer reads the diff and the `make all` result, not the agent's summary.
 
 ## Releases are notarized by the broker, never locally
 
 **Do not run `xcrun notarytool`, do not ask for an app-specific password, and do
 not suggest creating a `notarytool` keychain profile.** Apple credentials
 deliberately do not exist on this machine — this is a security decision, not an
-oversight.
-
-Notarization goes through **[trsdn/macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker)**,
+oversight. Notarization goes through
+**[trsdn/macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker)**,
 a manual GitHub Actions workflow that builds, signs, notarizes and staples in
 isolated jobs so that source-repository code never touches the signing secrets.
 
-To cut a release:
+The release procedure, the one-time broker profile, the entitlements reasoning
+and the self-update details are in [`docs/release/README.md`](docs/release/README.md),
+which is their only home. Two rules bind every change:
 
-1. Set `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in `project.yml`, run
-   `make generate`, and **commit** the regenerated `OpenFreshr.xcodeproj` with the
-   source. The broker builds the committed project; it cannot run XcodeGen.
-2. Tag the commit `vX.Y.Z` and push the tag.
-3. From a checkout of the broker: `scripts/request.sh openfreshr vX.Y.Z`
-   (or **Actions → Notarize macOS release → Run workflow** from `main`).
+- `OpenFreshr.xcodeproj` is committed on purpose because the broker cannot run
+  XcodeGen. Regenerate **and commit** it after changing `project.yml`.
+- The app ships hardened, non-sandboxed, with zero entitlements. Keep
+  `Sources/OpenFreshrApp/OpenFreshr.entitlements` in sync with the broker copy
+  `docs/release/entitlements/openfreshr.plist`.
 
-`request.sh` correlates the exact run, downloads only that artifact, and verifies
-`provenance.json` plus the release digests.
-
-### OpenFreshr must first be allowlisted as the `openfreshr` profile
-
-The broker only signs applications listed in its `profiles/apps.json`, and runs a
-per-app build adapter. **Neither exists for OpenFreshr yet.** The full,
-ready-to-paste material — the profile block (real `repository_id`, `team_id`
-`G69Z5BNY97`, `com.openfreshr.app`, arm64, min macOS 14, zip+dmg), the broker-owned
-entitlements plist, and the `openfreshr-xcode` adapter with its three `broker.py`
-edit sites — is prepared in [`docs/release/`](docs/release/README.md), which also
-lists the two remaining one-line edits (`request.sh` allowlist and the
-`notarize.yml` dispatch options). The broker's `CONTRIBUTING.md` requires an
-**issue first** for any profile or script change, then a reviewed PR.
-
-Consequences for this repository:
-
-- `OpenFreshr.xcodeproj` is committed on purpose. The broker's build job uses only
-  the preinstalled runner toolchain, so it cannot fetch `xcodegen`. Regenerate
-  **and commit** the project after changing `project.yml`.
-- The repository must stay readable by the broker workflow, which authenticates
-  with its own `github.token`.
-
-### The app ships hardened, non-sandboxed, with zero entitlements
-
-`ENABLE_HARDENED_RUNTIME=YES`, `ENABLE_APP_SANDBOX=NO`. It is not sandboxed because
-it must write to `/Applications` to replace apps in place; App Store distribution
-is an explicit non-goal. A non-sandboxed hardened app needs **no** entitlement to
-spawn `brew`/`mas`/`msupdate`/`codesign`/`spctl`, reach the network, register a
-login item, or post notifications, so `Sources/OpenFreshrApp/OpenFreshr.entitlements`
-is an empty `<dict/>` with the reasoning spelled out. Keep it in sync with the
-broker copy `docs/release/entitlements/openfreshr.plist`.
-
-### Self-update is AppUpdater, like the other apps
-
-OpenFreshr updates itself with mxcl/AppUpdater 4.1.2 from its own GitHub Releases,
-the same as OpenWritr and OpenSwitchr. `SelfUpdateController` (app target) drives
-it; `SelfUpdateState` and `SelfUpdateSchedule` in `OpenFreshrCore` hold the
-testable state and cadence. It is kept distinct from the managed-app "Jetzt
-prüfen" flow: the "Nach OpenFreshr-Updates suchen …" items and the Settings toggle
-only ever affect OpenFreshr. The updater accepts only an asset named
-`OpenFreshr-<semver>.dmg` whose app has the same Team ID, signing identifier and
-bundle identifier. There is no EdDSA key and no appcast. The package is pinned in
+OpenFreshr updates itself with mxcl/AppUpdater from its own GitHub Releases.
+`SelfUpdateController` (app target) drives it; `SelfUpdateState` and
+`SelfUpdateSchedule` in `OpenFreshrCore` hold the testable state and cadence. It
+stays distinct from the managed-app update check: the self-update menu items and
+the Settings toggle only ever affect OpenFreshr. The package is pinned in
 `project.yml` and the committed `Package.resolved`; the broker holds a byte-equal
-lock, so a dependency change needs the broker's lock refreshed first. See
-[`docs/release/README.md`](docs/release/README.md).
+lock, so a dependency change needs the broker's lock refreshed first.

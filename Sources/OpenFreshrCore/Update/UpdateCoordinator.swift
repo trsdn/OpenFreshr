@@ -24,10 +24,10 @@ public enum UpdateOutcome: Sendable {
     public var item: UpdateItem {
         switch self {
         case let .updated(item),
-             let .notConfirmedByRescan(item),
-             let .caskError(item, _),
-             let .failed(item, _),
-             let .blockedByTrust(item, _):
+            let .notConfirmedByRescan(item),
+            let .caskError(item, _),
+            let .failed(item, _),
+            let .blockedByTrust(item, _):
             return item
         }
     }
@@ -217,8 +217,9 @@ public struct UpdateCoordinator: Sendable {
     /// version → `.unparsable`; otherwise the newest advertised version.
     private static func probeFeed(_ feed: String, using fetcher: any HTTPFetching) async -> SparkleOutcome {
         guard let url = URL(string: feed),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "https" || scheme == "http" else {
+            let scheme = url.scheme?.lowercased(),
+            scheme == "https" || scheme == "http"
+        else {
             return .unreachable
         }
         guard let data = try? await fetcher.data(from: url) else { return .unreachable }
@@ -276,14 +277,16 @@ public struct UpdateCoordinator: Sendable {
 
         // Managed → the single path allowed to produce an executable upgrade.
         if let managedToken = matches.first(where: { facts.managedTokens.contains($0.caskToken) })?.caskToken,
-           let cask = facts.index.cask(for: managedToken) {
+            let cask = facts.index.cask(for: managedToken)
+        {
             // Disk is always the authority on whether an update is due. When one
             // is, decide *which* brew verb actually lands it: an ordinary backlog
             // upgrades, but a receipt that has already reached the cask version
             // while the disk lags behind is drift — `brew upgrade` would no-op, so
             // reinstall instead.
             let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
-            let strategy: HomebrewUpdateStrategy? = state.hasUpdate
+            let strategy: HomebrewUpdateStrategy? =
+                state.hasUpdate
                 ? (Self.isReceiptDrift(token: managedToken, caskVersion: cask.version, facts: facts)
                     ? .reinstall : .upgrade)
                 : nil
@@ -303,7 +306,8 @@ public struct UpdateCoordinator: Sendable {
         // update into one drivable action; otherwise report the plain state (a
         // pure take-over without an update stays a secondary action elsewhere).
         guard case let .eligible(eligibleToken) = facts.resolver.eligibility(for: app, matches: matches),
-              let cask = facts.index.cask(for: eligibleToken) else {
+            let cask = facts.index.cask(for: eligibleToken)
+        else {
             return nil
         }
         let state = UpdateResolver.state(installed: app.displayVersion, available: cask.version)
@@ -356,8 +360,9 @@ public struct UpdateCoordinator: Sendable {
     /// cask, so `state.hasUpdate` is already false and no action is taken.
     private static func isReceiptDrift(token: String, caskVersion: String?, facts: Facts) -> Bool {
         guard let caskVersion,
-              let receipt = facts.receiptVersions[token],
-              let order = VersionComparator.compare(installed: receipt, available: caskVersion) else {
+            let receipt = facts.receiptVersions[token],
+            let order = VersionComparator.compare(installed: receipt, available: caskVersion)
+        else {
             return false
         }
         return order == .same || order == .newer
@@ -480,10 +485,11 @@ public struct UpdateCoordinator: Sendable {
     ) async -> UpdateBatchResult {
         var outcomes: [UpdateOutcome] = []
         for item in release.items {
-            outcomes.append(perform(
-                item,
-                acknowledgingTeamChange: acknowledgingTeamChanges.contains(item.app.bundlePath)
-            ))
+            outcomes.append(
+                perform(
+                    item,
+                    acknowledgingTeamChange: acknowledgingTeamChanges.contains(item.app.bundlePath)
+                ))
         }
         return UpdateBatchResult(outcomes: outcomes)
     }
@@ -583,8 +589,10 @@ public struct UpdateCoordinator: Sendable {
     /// is no longer offered. Trusts data, never the backend's success claim.
     private func reconfirm(_ item: UpdateItem) -> Bool {
         let apps = scanner.scan(directories: scanDirectories)
-        guard let app = apps.first(where: { $0.bundlePath == item.app.bundlePath })
-            ?? apps.first(where: { $0.bundleName == item.app.bundleName }) else {
+        guard
+            let app = apps.first(where: { $0.bundlePath == item.app.bundlePath })
+                ?? apps.first(where: { $0.bundleName == item.app.bundleName })
+        else {
             return false
         }
 
@@ -616,9 +624,10 @@ public struct UpdateCoordinator: Sendable {
     /// source into a unit of work.
     public static func updateItem(for report: AppUpdateReport, source: SourceUpdate) -> UpdateItem? {
         guard source.isDrivable,
-              let backend = source.backend,
-              let command = source.command,
-              case let .updateAvailable(available, isMajor) = source.state else {
+            let backend = source.backend,
+            let command = source.command,
+            case let .updateAvailable(available, isMajor) = source.state
+        else {
             return nil
         }
         return UpdateItem(

@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// A modal confirmation for a single fresh install.
 ///
@@ -19,11 +19,11 @@ struct InstallSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("App installieren")
+            Text("Install App")
                 .font(.title2.bold())
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("\(result.displayName) wird über Homebrew neu installiert.")
+                Text("\(result.displayName) will be installed via Homebrew.")
                 if let command = model.installCommandPreview(for: cask) {
                     Text(command)
                         .font(.system(.callout, design: .monospaced))
@@ -33,7 +33,7 @@ struct InstallSheet: View {
                         .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
                 } else {
                     Label(
-                        "Ohne verfügbares Homebrew kann kein Installationsbefehl gebildet werden.",
+                        "Without Homebrew available, no install command can be built.",
                         systemImage: "exclamationmark.triangle"
                     )
                     .foregroundStyle(.orange)
@@ -43,9 +43,7 @@ struct InstallSheet: View {
 
             if result.isInstallerOnly {
                 Label(
-                    "Dieser Cask liefert kein App-Bundle, sondern startet einen pkg-/Installer "
-                        + "mit Rechteabfrage (Administratorkennwort). Der Erfolg wird über den "
-                        + "Homebrew-Eintrag bestätigt, nicht über eine gefundene App.",
+                    "This cask does not provide an app bundle, but starts a pkg/installer with an authorization prompt (administrator password). Success is confirmed via the Homebrew entry, not via a found app.",
                     systemImage: "exclamationmark.triangle.fill"
                 )
                 .foregroundStyle(.orange)
@@ -54,8 +52,7 @@ struct InstallSheet: View {
 
             if result.isInstalled {
                 Label(
-                    "Diese App ist bereits vorhanden. Eine erneute Installation ist normalerweise "
-                        + "nicht nötig.",
+                    "This app is already present. A reinstall is normally not necessary.",
                     systemImage: "checkmark.seal"
                 )
                 .foregroundStyle(.secondary)
@@ -63,8 +60,7 @@ struct InstallSheet: View {
             }
 
             Label(
-                "Nach der Installation wird ein Scan ausgeführt. Erfolg wird nur gemeldet, wenn die "
-                    + "App danach tatsächlich gefunden wird.",
+                "A scan runs after the installation. Success is only reported if the app is actually found afterwards.",
                 systemImage: "magnifyingglass"
             )
             .foregroundStyle(.secondary)
@@ -73,7 +69,7 @@ struct InstallSheet: View {
             if isInFlight {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Installation läuft …").foregroundStyle(.secondary)
+                    Text("Installing …").foregroundStyle(.secondary)
                 }
             }
 
@@ -81,9 +77,9 @@ struct InstallSheet: View {
 
             HStack {
                 Spacer()
-                Button("Abbrechen", role: .cancel) { dismiss() }
+                Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Installieren") {
+                Button("Install") {
                     Task {
                         await model.install(cask)
                         dismiss()

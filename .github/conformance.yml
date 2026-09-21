@@ -6,52 +6,52 @@
 # disagrees with its evidence is worse than no record.
 
 standard_version: "1.15.0"
-assessed_on: "2026-09-20"
+assessed_on: "2026-09-21"
 state: "Needs work"
 evidence: "docs/self-assessment.md"
 
 criteria:
   # --- Baseline ---------------------------------------------------------
   B01: pass
-  B02: partial
+  B02: pass
   B03: pass
   B04: pass
   B05: pass
   B06: pass
   B07: pass
   B08: pass
-  B09: partial
+  B09: pass
   B10: pass
   B11: pass
   B12: pass
-  B13: partial
+  B13: pass
   B14: na
   B15: pass
-  B16: fail
+  B16: pass
 
   # --- Public Repositories ----------------------------------------------
   P01: pass
   P02: pass
-  P03: partial
+  P03: pass
   P04: pass
-  P05: partial
+  P05: pass
   P06: pass
   P07: pass
-  P08: fail
-  P09: fail
+  P08: partial
+  P09: partial
   P10: pass
   P11: pass
 
   # --- Software Repositories --------------------------------------------
   S01: pass
   S02: pass
-  S03: partial
+  S03: pass
   S04: pass
   S05: pass
   S06: na
   S07: pass
   S08: pass
-  S09: fail
+  S09: pass
   S10: pass
   S11: pass
   S12: pass
@@ -66,7 +66,7 @@ criteria:
   D06: na
 
   # --- Package And Release Repositories ---------------------------------
-  R01: partial
+  R01: pass
   R02: pass
   R03: na
   R04: na
@@ -103,37 +103,37 @@ criteria:
 
   # --- Agent Readiness ---------------------------------------------------
   G01: pass
-  G02: partial
-  G03: partial
+  G02: pass
+  G03: pass
   G04: pass
-  G05: partial
-  G06: partial
-  G07: fail
+  G05: pass
+  G06: pass
+  G07: pass
   G08: pass
 
   # --- Language And Localization ----------------------------------------
-  L01: fail
-  L02: fail
-  L03: fail
+  L01: pass
+  L02: pass
+  L03: pass
   L04: na
   L05: pass
   L06: na
-  L07: partial
+  L07: pass
 
   # --- Accessibility -----------------------------------------------------
   X01: pass
-  X02: partial
+  X02: pass
   X03: pass
   X04: na
-  X05: fail
+  X05: pass
 
   # --- Data Protection And Privacy ---------------------------------------
-  Y01: fail
-  Y02: fail
+  Y01: pass
+  Y02: pass
   Y03: pass
-  Y04: fail
+  Y04: pass
   Y05: pass
-  Y06: fail
+  Y06: pass
 
   # --- Archived Repositories (actively developed) ------------------------
   A01: na

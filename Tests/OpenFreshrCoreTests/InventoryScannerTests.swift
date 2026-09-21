@@ -1,4 +1,5 @@
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The inventory scan: plist parsing, marker detection, the noise filter and the

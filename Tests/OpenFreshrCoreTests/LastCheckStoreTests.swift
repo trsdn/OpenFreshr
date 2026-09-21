@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The last-check persistence, both doubles. The decisive test is
@@ -14,9 +15,9 @@ struct LastCheckStoreTests {
     /// `/tmp`, never the user's real Application Support.
     private func scratchURL(_ name: String) -> URL {
         let base = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()      // OpenFreshrCoreTests
-            .deletingLastPathComponent()      // Tests
-            .deletingLastPathComponent()      // package root
+            .deletingLastPathComponent()  // OpenFreshrCoreTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // package root
             .appendingPathComponent(".build/last-check-tests", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base.appendingPathComponent("\(name)-\(UUID().uuidString).json", isDirectory: false)
@@ -97,15 +98,17 @@ struct LastCheckStoreTests {
         let schedule = UpdateCheckSchedule(interval: .daily)
 
         // One minute after launch — the day has not elapsed, so no check is due.
-        #expect(schedule.isDue(
-            lastSuccessfulCheck: reloaded.lastSuccessfulCheck(),
-            now: epoch.addingTimeInterval(60)
-        ) == false)
+        #expect(
+            schedule.isDue(
+                lastSuccessfulCheck: reloaded.lastSuccessfulCheck(),
+                now: epoch.addingTimeInterval(60)
+            ) == false)
 
         // A full day later it becomes due again.
-        #expect(schedule.isDue(
-            lastSuccessfulCheck: reloaded.lastSuccessfulCheck(),
-            now: epoch.addingTimeInterval(86_400)
-        ) == true)
+        #expect(
+            schedule.isDue(
+                lastSuccessfulCheck: reloaded.lastSuccessfulCheck(),
+                now: epoch.addingTimeInterval(86_400)
+            ) == true)
     }
 }

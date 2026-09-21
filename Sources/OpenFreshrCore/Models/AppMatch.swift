@@ -53,11 +53,11 @@ public enum MatchReason: Hashable, Sendable, Codable {
     public var explanation: String {
         switch self {
         case let .appArtifact(target):
-            return "Cask liefert das App-Artefakt \(target)"
+            return String(localized: "Cask provides the app artifact \(target)")
         case let .bundleIdentifierInStanza(identifier):
-            return "Bundle-ID \(identifier) taucht in einer Cleanup-Stanza auf"
+            return String(localized: "Bundle ID \(identifier) appears in a cleanup stanza")
         case let .nameSimilarity(caskName):
-            return "Name ähnelt dem Cask \(caskName)"
+            return String(localized: "Name resembles the cask \(caskName)")
         }
     }
 }

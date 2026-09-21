@@ -23,13 +23,21 @@ SIGN_IDENTITY ?= Developer ID Application
 DEVELOPMENT_TEAM ?= $(shell security find-identity -v -p codesigning \
 	| grep -m1 "$(SIGN_IDENTITY)" | sed -n 's/.*(\([A-Z0-9]\{10\}\)).*/\1/p')
 
-.PHONY: all build test generate app run clean
+.PHONY: all build lint format test generate app run clean
 
-all: build test
+all: build lint test
 
 ## Build the UI-free core.
 build:
 	$(SWIFT) build
+
+## Check formatting with the toolchain's swift-format, configured by .swift-format.
+## `make format` rewrites the files instead of only reporting.
+lint:
+	$(SWIFT) format lint --strict --recursive Sources Tests
+
+format:
+	$(SWIFT) format --in-place --recursive Sources Tests
 
 ## Run the core test suite (fixtures only; never touches /Applications or brew).
 test:

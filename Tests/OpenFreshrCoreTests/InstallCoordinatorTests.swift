@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The install coordinator (Phase 5): **install → local scan → confirm**. Success
@@ -15,13 +16,15 @@ struct InstallCoordinatorTests {
         _ token: String = "example",
         target: String = "Example.app"
     ) -> Cask {
-        Cask(token: token, names: [token.capitalized],
-             artifacts: [CaskArtifact(kind: .app, target: target)])
+        Cask(
+            token: token, names: [token.capitalized],
+            artifacts: [CaskArtifact(kind: .app, target: target)])
     }
 
     private func pkgCask(_ token: String = "installeronly") -> Cask {
-        Cask(token: token, names: [token.capitalized],
-             artifacts: [CaskArtifact(kind: .pkg)])
+        Cask(
+            token: token, names: [token.capitalized],
+            artifacts: [CaskArtifact(kind: .pkg)])
     }
 
     private func installedApp(_ path: String) -> InstalledApp {
@@ -48,12 +51,12 @@ struct InstallCoordinatorTests {
         #expect(app.bundlePath == "/Applications/Example.app")
         #expect(result.didInstall)
         #expect(backend.installCalls == ["example"])
-        #expect(scanner.scanCount == 1)   // exactly one confirming rescan
+        #expect(scanner.scanCount == 1)  // exactly one confirming rescan
     }
 
     @Test
     func backendSuccessIsNotConfirmedWhenRescanMissesTheApp() {
-        let backend = FakeBackend(managed: [])   // install "succeeds"…
+        let backend = FakeBackend(managed: [])  // install "succeeds"…
         let scanner = ScriptedScanner(apps: [])  // …but nothing is on disk
         let coordinator = InstallCoordinator(
             scanner: scanner, backend: backend, scanDirectories: scanDirectories
@@ -110,7 +113,7 @@ struct InstallCoordinatorTests {
             return
         }
         #expect(message.contains("CaskError"))
-        #expect(scanner.scanCount == 0)   // a hard fail never pretends to rescan
+        #expect(scanner.scanCount == 0)  // a hard fail never pretends to rescan
     }
 
     @Test
@@ -122,7 +125,7 @@ struct InstallCoordinatorTests {
         )
 
         #expect(coordinator.install(appCask("example")) == .alreadyInstalled(token: "example"))
-        #expect(backend.installCalls.isEmpty)   // nothing ran
+        #expect(backend.installCalls.isEmpty)  // nothing ran
     }
 
     // MARK: - invalid token: refused, never reaching `brew install`
@@ -145,8 +148,9 @@ struct InstallCoordinatorTests {
             scanner: scanner, backend: backend, scanDirectories: scanDirectories
         )
 
-        let hostile = Cask(token: "--force", names: ["Evil"],
-                           artifacts: [CaskArtifact(kind: .app, target: "Evil.app")])
+        let hostile = Cask(
+            token: "--force", names: ["Evil"],
+            artifacts: [CaskArtifact(kind: .app, target: "Evil.app")])
         let result = coordinator.install(hostile)
 
         guard case let .failed(reason) = result, case .invalidCaskToken = reason else {

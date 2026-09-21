@@ -40,19 +40,23 @@ public enum IneligibilityReason: Hashable, Sendable, Codable {
     public var explanation: String {
         switch self {
         case .noCaskMatch:
-            return "Kein passendes Cask gefunden"
+            return String(localized: "No matching cask found")
         case .onlyWeakMatches:
-            return "Nur schwache Treffer (Bundle-ID/Name) — kein sicherer Kandidat"
+            return String(localized: "Only weak matches (bundle ID/name) — no safe candidate")
         case let .strongMatchVetoed(token):
-            return "Artefakt-Treffer \(token) durch Veto entwertet (Bundle-ID widerspricht der Cask-Identität)"
+            return String(
+                localized: "Artifact match \(token) invalidated by veto (bundle ID contradicts the cask identity)")
         case let .caskIsInstallerOnly(token):
-            return "Cask \(token) installiert per pkg/installer — nicht verlustfrei adoptierbar"
+            return String(localized: "Cask \(token) installs via pkg/installer — cannot be adopted losslessly")
         case let .identityNotConfirmed(token):
-            return "Identität nicht bestätigt: Bundle-ID nicht in der Cask-Identität von \(token) und Cask aktualisiert sich selbst — Adoption zu riskant"
+            return String(
+                localized:
+                    "Identity not confirmed: bundle ID is not in the cask identity of \(token) and the cask updates itself — adoption too risky"
+            )
         case .managedByMacAppStore:
-            return "Wird bereits über den Mac App Store verwaltet"
+            return String(localized: "Already managed through the Mac App Store")
         case let .alreadyHomebrewManaged(token):
-            return "Wird bereits von Homebrew (\(token)) verwaltet"
+            return String(localized: "Already managed by Homebrew (\(token))")
         }
     }
 }
@@ -106,13 +110,13 @@ public enum AdoptionOutcomePrediction: Hashable, Sendable, Codable {
     public var explanation: String {
         switch self {
         case .succeedsUnconditionally:
-            return "auto_updates: Adoption gelingt bedingungslos (Versionscheck übersprungen)"
+            return String(localized: "auto_updates: adoption succeeds unconditionally (version check skipped)")
         case .succeeds:
-            return "Versionen passen — Adoption sollte gelingen"
+            return String(localized: "Versions match — adoption should succeed")
         case .abortsWithCaskError:
-            return "Versionen weichen ab — Homebrew bricht mit CaskError ab, App bleibt unangetastet"
+            return String(localized: "Versions differ — Homebrew aborts with a CaskError, the app stays untouched")
         case .unknown:
-            return "Ausgang unklar (Versionsangaben fehlen)"
+            return String(localized: "Outcome unclear (version information missing)")
         }
     }
 }

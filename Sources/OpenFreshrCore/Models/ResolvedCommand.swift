@@ -34,8 +34,8 @@ public struct ResolvedCommand: Hashable, Sendable {
         guard !token.isEmpty else { return "''" }
         let isSafe = token.unicodeScalars.allSatisfy { scalar in
             switch scalar.value {
-            case 48...57, 65...90, 97...122: return true            // 0-9 A-Z a-z
-            case 0x40, 0x2B, 0x2E, 0x5F, 0x2D, 0x2F, 0x3D, 0x3A: return true // @ + . _ - / = :
+            case 48...57, 65...90, 97...122: return true  // 0-9 A-Z a-z
+            case 0x40, 0x2B, 0x2E, 0x5F, 0x2D, 0x2F, 0x3D, 0x3A: return true  // @ + . _ - / = :
             default: return false
             }
         }

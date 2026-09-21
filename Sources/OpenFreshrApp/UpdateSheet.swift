@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The "Alle Updates" preview: a per-app, checkbox-driven confirmation modelled
 /// on ``AdoptionSheet``.
@@ -29,7 +29,7 @@ struct UpdateSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Alle Updates")
+            Text("All Updates")
                 .font(.title2.bold())
 
             if viewModel.allUpdateItems.isEmpty {
@@ -57,7 +57,7 @@ struct UpdateSheet: View {
                         .truncationMode(.middle)
                 }
                 Spacer()
-                Button("Schließen", role: .cancel) { dismiss() }
+                Button("Close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
         }
@@ -68,12 +68,13 @@ struct UpdateSheet: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Keine ausführbaren Updates", systemImage: "checkmark.circle")
+            Label("No Executable Updates", systemImage: "checkmark.circle")
                 .font(.headline)
-            Text("Es wurde für keine App ein über OpenFreshr ausführbares Update erkannt. "
-                 + "Selbst-aktualisierende Apps erscheinen hier nur, wenn ein Backend sie ansteuern kann.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            Text(
+                "No update that OpenFreshr can execute was detected for any app. Self-updating apps only appear here if a backend can drive them."
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
     }
 
@@ -82,10 +83,10 @@ struct UpdateSheet: View {
     private var regularSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Reguläre Updates")
+                Text("Regular Updates")
                     .font(.headline)
                 Spacer()
-                Button("Ausgewählte aktualisieren (\(selectedRegular.count))") {
+                Button("Update Selected (\(selectedRegular.count))") {
                     Task { await runRegular() }
                 }
                 .buttonStyle(.borderedProminent)
@@ -93,7 +94,7 @@ struct UpdateSheet: View {
             }
 
             if regularItems.isEmpty {
-                Text("Keine regulären Updates.")
+                Text("No regular updates.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } else {
@@ -114,15 +115,15 @@ struct UpdateSheet: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Label("Major-Upgrades", systemImage: "exclamationmark.triangle.fill")
+                    Label("Major Upgrades", systemImage: "exclamationmark.triangle.fill")
                         .font(.headline)
                         .foregroundStyle(.orange)
-                    Text("Die erste Versionskomponente ändert sich. Getrennt und bewusst bestätigen.")
+                    Text("The first version component changes. Confirm separately and deliberately.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Major-Upgrades durchführen (\(selectedMajor.count))") {
+                Button("Perform Major Upgrades (\(selectedMajor.count))") {
                     Task { await runMajor() }
                 }
                 .buttonStyle(.borderedProminent)
@@ -205,7 +206,7 @@ private struct UpdateItemRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            Toggle("", isOn: $isSelected)
+            Toggle(isOn: $isSelected) { Text("Select for update") }
                 .toggleStyle(.checkbox)
                 .labelsHidden()
                 .disabled(inFlight)
@@ -225,7 +226,7 @@ private struct UpdateItemRow: View {
                 }
 
                 if isSelfUpdating {
-                    Label("Selbst-aktualisierend — opt-in", systemImage: "arrow.triangle.2.circlepath")
+                    Label("Self-updating — opt-in", systemImage: "arrow.triangle.2.circlepath")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -241,7 +242,7 @@ private struct UpdateItemRow: View {
 
                 if item.homebrewStrategy == .adoptThenReinstall {
                     Label(
-                        "Nicht von Homebrew verwaltet — wird zuerst übernommen, dann aktualisiert (zwei Schritte, eine Aktion).",
+                        "Not managed by Homebrew — adopted first, then updated (two steps, one action).",
                         systemImage: "square.and.arrow.down.on.square"
                     )
                     .font(.caption2)
@@ -252,7 +253,7 @@ private struct UpdateItemRow: View {
                 if inFlight {
                     HStack(spacing: 6) {
                         ProgressView().controlSize(.small)
-                        Text("läuft …").font(.caption2).foregroundStyle(.secondary)
+                        Text("running …").font(.caption2).foregroundStyle(.secondary)
                     }
                 } else if let outcome = viewModel.updateOutcomes[item.app.bundlePath] {
                     Text(outcome)

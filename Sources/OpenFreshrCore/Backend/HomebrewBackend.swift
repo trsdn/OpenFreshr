@@ -74,10 +74,12 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
 
     public func managedTokens() -> Set<String> {
         guard let brewURL = brewURL() else { return [] }
-        guard let result = try? processRunner.run(
-            executableURL: brewURL,
-            arguments: ["list", "--cask", "-1"]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: brewURL,
+                arguments: ["list", "--cask", "-1"]
+            )
+        else {
             return []
         }
         guard result.didSucceed else { return [] }
@@ -106,15 +108,18 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
     /// reason about and stays on the plain upgrade path.
     public func managedReceiptVersions() -> [String: String] {
         guard let brewURL = brewURL() else { return [:] }
-        guard let result = try? processRunner.run(
-            executableURL: brewURL,
-            arguments: ["list", "--cask", "--versions"]
-        ), result.didSucceed else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: brewURL,
+                arguments: ["list", "--cask", "--versions"]
+            ), result.didSucceed
+        else {
             return [:]
         }
         var versions: [String: String] = [:]
         for line in result.standardOutput.split(whereSeparator: { $0.isNewline }) {
-            let fields = line
+            let fields =
+                line
                 .split(whereSeparator: { $0 == " " || $0 == "\t" })
                 .map(String.init)
                 .filter { !$0.isEmpty }

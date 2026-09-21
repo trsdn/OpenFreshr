@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The Homebrew backend: explicit `brew` discovery, a separated argument vector
@@ -169,7 +170,8 @@ struct HomebrewBackendTests {
             ProcessResult(
                 exitCode: 1,
                 standardOutput: "",
-                standardError: "Error: It seems there is already an App at '/Applications/Example.app'; run with --adopt to gain control."
+                standardError:
+                    "Error: It seems there is already an App at '/Applications/Example.app'; run with --adopt to gain control."
             )
         }
         let backend = HomebrewBackend(
@@ -198,7 +200,8 @@ struct HomebrewBackendTests {
         )
 
         guard case let .failed(reason) = backend.adopt(app: sampleApp(), caskToken: "example"),
-              case let .processFailed(exitCode, _) = reason else {
+            case let .processFailed(exitCode, _) = reason
+        else {
             Issue.record("a non-CaskError non-zero exit must be a processFailed failure")
             return
         }

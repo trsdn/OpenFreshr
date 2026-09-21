@@ -130,13 +130,15 @@ public final class JSONFileTrustStore: TrustStoring, @unchecked Sendable {
 
     /// The default on-disk location: `Application Support/OpenFreshr/trust-store.json`.
     public static func defaultURL(fileManager: FileManager = .default) -> URL {
-        let base = (try? fileManager.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )) ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
-        return base
+        let base =
+            (try? fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )) ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
+        return
+            base
             .appendingPathComponent("OpenFreshr", isDirectory: true)
             .appendingPathComponent("trust-store.json", isDirectory: false)
     }
@@ -197,8 +199,8 @@ public final class JSONFileTrustStore: TrustStoring, @unchecked Sendable {
 
     private static func load(from url: URL, fileManager: FileManager) -> [String: TrustRecord] {
         guard fileManager.fileExists(atPath: url.path),
-              let data = try? Data(contentsOf: url),
-              let decoded = try? decoder().decode([TrustRecord].self, from: data)
+            let data = try? Data(contentsOf: url),
+            let decoded = try? decoder().decode([TrustRecord].self, from: data)
         else {
             return [:]
         }

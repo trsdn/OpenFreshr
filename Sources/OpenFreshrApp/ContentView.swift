@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// The top-level layout: a list of installed apps on the left, the selected
 /// app's provenance, update state and adoption verdict on the right.
@@ -32,9 +32,9 @@ struct ContentView: View {
                     AppDetailView(report: report)
                 } else {
                     ContentUnavailableView(
-                        "Keine App ausgewählt",
+                        "No App Selected",
                         systemImage: "shippingbox",
-                        description: Text("Wähle links eine App, um Quellen, Updates und Adoptionsstatus zu sehen.")
+                        description: Text("Select an app on the left to see sources, updates and adoption status.")
                     )
                 }
             case .catalog:
@@ -42,28 +42,33 @@ struct ContentView: View {
                     CatalogDetailView(result: result, model: catalogModel)
                 } else {
                     ContentUnavailableView(
-                        "Keine App ausgewählt",
+                        "No App Selected",
                         systemImage: "square.grid.2x2",
-                        description: Text("Suche links im Katalog und wähle eine App, um Details und Installation zu sehen.")
+                        description: Text(
+                            "Search the catalog on the left and select an app to see details and installation.")
                     )
                 }
             }
         }
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Picker("Bereich", selection: $section) {
+                Picker("Section", selection: $section) {
                     ForEach(AppSection.allCases) { item in
                         Label(item.label, systemImage: item.symbol).tag(item)
                     }
                 }
                 .pickerStyle(.segmented)
-                .help("Zwischen installierten Apps und dem Katalog wechseln")
+                .help("Switch between installed apps and the catalog")
             }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showingUpdateSheet = true
                 } label: {
-                    Label("Alle Updates \(updateCount > 0 ? "(\(updateCount))" : "")", systemImage: "arrow.down.circle")
+                    Label(
+                        updateCount > 0
+                            ? String(localized: "All Updates (\(updateCount))") : String(localized: "All Updates"),
+                        systemImage: "arrow.down.circle"
+                    )
                 }
                 .disabled(viewModel.allUpdateItems.isEmpty)
             }
@@ -71,7 +76,7 @@ struct ContentView: View {
                 Button {
                     Task { await viewModel.scan() }
                 } label: {
-                    Label("Neu scannen", systemImage: "arrow.clockwise")
+                    Label("Rescan", systemImage: "arrow.clockwise")
                 }
                 .disabled(viewModel.isScanning)
             }
@@ -79,7 +84,7 @@ struct ContentView: View {
                 Button {
                     showingTrustSheet = true
                 } label: {
-                    Label("Vertrauensspeicher", systemImage: "shield.lefthalf.filled")
+                    Label("Trust Store", systemImage: "shield.lefthalf.filled")
                 }
             }
         }
@@ -110,9 +115,10 @@ struct ContentView: View {
     /// loaded catalog plus the installed inventory so that a fresh install (which
     /// changes the inventory) re-marks the catalog's "installiert" state.
     private var catalogConfigureID: String {
-        let stamp = viewModel.loadedCatalog.map {
-            "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
-        } ?? "none"
+        let stamp =
+            viewModel.loadedCatalog.map {
+                "\($0.fetchedAt.timeIntervalSince1970)-\($0.casks.count)"
+            } ?? "none"
         var hasher = Hasher()
         for report in viewModel.reports {
             hasher.combine(report.app.bundleName)
@@ -145,7 +151,8 @@ private struct StatusBar: View {
     var body: some View {
         HStack(spacing: 12) {
             Label(
-                viewModel.homebrewAvailable ? "Homebrew verfügbar" : "Homebrew nicht gefunden",
+                viewModel.homebrewAvailable
+                    ? String(localized: "Homebrew available") : String(localized: "Homebrew not found"),
                 systemImage: viewModel.homebrewAvailable ? "checkmark.seal" : "exclamationmark.triangle"
             )
             .foregroundStyle(viewModel.homebrewAvailable ? Color.secondary : Color.orange)
@@ -156,10 +163,10 @@ private struct StatusBar: View {
 
             if viewModel.isScanning {
                 ProgressView().controlSize(.small)
-                Text("Scan läuft …").foregroundStyle(.secondary)
+                Text("Scanning …").foregroundStyle(.secondary)
             } else if viewModel.isCheckingUpdates {
                 ProgressView().controlSize(.small)
-                Text("Prüfe auf Updates …").foregroundStyle(.secondary)
+                Text("Checking for updates …").foregroundStyle(.secondary)
             }
 
             Spacer()
@@ -191,7 +198,7 @@ private struct CatalogStatusView: View {
             switch viewModel.catalogStatus {
             case .loading:
                 ProgressView().controlSize(.small)
-                Text("Aktualisiere Katalog …").foregroundStyle(.secondary)
+                Text("Updating catalog …").foregroundStyle(.secondary)
             case .upToDate:
                 Label(viewModel.catalogProvenanceText, systemImage: catalogSymbol)
                     .foregroundStyle(.secondary)
@@ -213,15 +220,15 @@ private struct CatalogStatusView: View {
                 Button {
                     viewModel.refreshCatalog()
                 } label: {
-                    Label("Jetzt aktualisieren", systemImage: "arrow.clockwise")
+                    Label("Update Now", systemImage: "arrow.clockwise")
                 }
                 Button {
                     viewModel.invalidateCatalogCache()
                 } label: {
-                    Label("Cache leeren und neu laden", systemImage: "trash")
+                    Label("Clear Cache and Reload", systemImage: "trash")
                 }
             } label: {
-                Label("Katalog aktualisieren", systemImage: "arrow.clockwise")
+                Label("Update Catalog", systemImage: "arrow.clockwise")
                     .labelStyle(.iconOnly)
             } primaryAction: {
                 viewModel.refreshCatalog()
@@ -229,7 +236,7 @@ private struct CatalogStatusView: View {
             .menuStyle(.borderlessButton)
             .fixedSize()
             .disabled(isRefreshing)
-            .help("Katalog aktualisieren")
+            .help("Update Catalog")
         }
     }
 

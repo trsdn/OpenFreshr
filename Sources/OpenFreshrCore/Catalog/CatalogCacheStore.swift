@@ -96,9 +96,11 @@ public struct FileCatalogCacheStore: CatalogCacheStoring, @unchecked Sendable {
         if let directory {
             self.directory = directory
         } else {
-            let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            let base =
+                fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
                 ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
-            self.directory = base
+            self.directory =
+                base
                 .appendingPathComponent("OpenFreshr", isDirectory: true)
                 .appendingPathComponent("CatalogCache", isDirectory: true)
         }
@@ -120,8 +122,9 @@ public struct FileCatalogCacheStore: CatalogCacheStoring, @unchecked Sendable {
         // partial or unreadable cache degrades to `nil` (→ snapshot fallback),
         // it never throws and never fabricates data.
         guard let metaData = try? Data(contentsOf: metaURL),
-              let meta = try? JSONDecoder().decode(Meta.self, from: metaData),
-              let caskData = try? Data(contentsOf: caskURL) else {
+            let meta = try? JSONDecoder().decode(Meta.self, from: metaData),
+            let caskData = try? Data(contentsOf: caskURL)
+        else {
             return nil
         }
         let analyticsData = meta.hasAnalytics ? try? Data(contentsOf: analyticsURL) : nil

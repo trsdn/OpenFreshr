@@ -60,7 +60,8 @@ public struct MatchResolver: Sendable {
 
         // 2. Weak signal: bundle identifier seen in the cask (primary or cleanup).
         if let bundleID = app.bundleIdentifier?.lowercased(), !bundleID.isEmpty {
-            let tokens = (index.primaryIdentityTokens[bundleID] ?? [])
+            let tokens =
+                (index.primaryIdentityTokens[bundleID] ?? [])
                 + (index.cleanupIdentityTokens[bundleID] ?? [])
             for token in tokens {
                 guard seenTokens.insert(token).inserted else { continue }
@@ -145,17 +146,20 @@ public struct MatchResolver: Sendable {
         // Same-app rename guard: a shared organisational domain marks the same
         // vendor under a renamed id.
         if let appDomain = Self.organizationDomain(of: bundleID),
-           identities.contains(where: { Self.organizationDomain(of: $0) == appDomain }) {
+            identities.contains(where: { Self.organizationDomain(of: $0) == appDomain })
+        {
             return false
         }
 
         // Cross-organisation rename: a declared id whose final label still names
         // this app is its pre-rename identity, not a foreign one.
         let appNameKey = CaskIndex.normalizeName(app.displayName)
-        if !appNameKey.isEmpty, identities.contains(where: { identity in
-            let leaf = identity.split(separator: ".").last.map(String.init) ?? identity
-            return CaskIndex.normalizeName(leaf) == appNameKey
-        }) {
+        if !appNameKey.isEmpty,
+            identities.contains(where: { identity in
+                let leaf = identity.split(separator: ".").last.map(String.init) ?? identity
+                return CaskIndex.normalizeName(leaf) == appNameKey
+            })
+        {
             return false
         }
 

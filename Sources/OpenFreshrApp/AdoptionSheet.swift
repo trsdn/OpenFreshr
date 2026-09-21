@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// A modal confirmation for a single adoption.
 ///
@@ -15,13 +15,13 @@ struct AdoptionSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("App übernehmen")
+            Text("Adopt App")
                 .font(.title2.bold())
 
             if let token = report.eligibility.caskToken {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("\(report.app.displayName) wird künftig von Homebrew verwaltet.")
-                    Text("brew install --cask --adopt \(token)")
+                    Text("\(report.app.displayName) will be managed by Homebrew from now on.")
+                    Text(verbatim: "brew install --cask --adopt \(token)")
                         .font(.system(.callout, design: .monospaced))
                         .textSelection(.enabled)
                         .padding(8)
@@ -35,7 +35,7 @@ struct AdoptionSheet: View {
                         .font(.callout)
                 }
             } else {
-                Text("Diese App ist nicht adoptierbar.")
+                Text("This app cannot be adopted.")
                     .foregroundStyle(.secondary)
             }
 
@@ -44,8 +44,7 @@ struct AdoptionSheet: View {
             // a second updater will keep running, so warn explicitly here.
             if report.app.isMicrosoftAutoUpdateManaged {
                 Label(
-                    "Diese App wird auch von Microsoft AutoUpdate (MAU) verwaltet. "
-                        + "Nach der Übernahme aktualisieren Homebrew und MAU sie parallel.",
+                    "This app is also managed by Microsoft AutoUpdate (MAU). After adoption, Homebrew and MAU update it in parallel.",
                     systemImage: "exclamationmark.triangle.fill"
                 )
                 .foregroundStyle(.orange)
@@ -55,7 +54,7 @@ struct AdoptionSheet: View {
             if isInFlight {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Übernahme läuft …").foregroundStyle(.secondary)
+                    Text("Adopting …").foregroundStyle(.secondary)
                 }
             }
 
@@ -63,9 +62,9 @@ struct AdoptionSheet: View {
 
             HStack {
                 Spacer()
-                Button("Abbrechen", role: .cancel) { dismiss() }
+                Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Übernehmen") {
+                Button("Adopt") {
                     Task {
                         await viewModel.adopt(report.app)
                         dismiss()

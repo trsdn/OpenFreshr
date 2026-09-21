@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Trust-on-first-use policy, exercised entirely through fakes: an
@@ -8,8 +9,10 @@ import Testing
 /// changed-team-blocks / opt-in-logs / reset cycle the spec calls out by name.
 struct TrustGateTests {
 
-    private func app(_ path: String = "/Applications/Figma.app",
-                     id: String? = "com.figma.Desktop") -> InstalledApp {
+    private func app(
+        _ path: String = "/Applications/Figma.app",
+        id: String? = "com.figma.Desktop"
+    ) -> InstalledApp {
         InstalledApp(bundlePath: path, bundleIdentifier: id)
     }
 
@@ -20,7 +23,8 @@ struct TrustGateTests {
     @Test
     func firstObservationRecordsBaselineAndAllows() {
         let store = InMemoryTrustStore()
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
 
         let decision = gate.authorize(app(), now: epoch)
 
@@ -36,7 +40,8 @@ struct TrustGateTests {
     func firstUseWithoutReadableTeamAllowsButAnchorsNothing() {
         // A verified Apple app with `TeamIdentifier=not set` → nil team.
         let store = InMemoryTrustStore()
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Safari.app", team: nil), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Safari.app", team: nil), store: store)
 
         let decision = gate.authorize(app("/Applications/Safari.app", id: "com.apple.Safari"), now: epoch)
 
@@ -49,10 +54,12 @@ struct TrustGateTests {
     @Test
     func sameTeamPasses() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "T1234ABCDE",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "T1234ABCDE",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
 
         #expect(gate.authorize(app(), now: epoch) == .allowed)
         // Baseline is unchanged.
@@ -64,10 +71,12 @@ struct TrustGateTests {
     @Test
     func changedTeamBlocksWithoutOptIn() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
 
         let decision = gate.authorize(app(), acknowledgeTeamChange: false, now: epoch)
 
@@ -84,10 +93,12 @@ struct TrustGateTests {
     @Test
     func changedTeamWithOptInAllowsAdvancesBaselineAndLogsChange() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
         let later = epoch.addingTimeInterval(3600)
 
         let decision = gate.authorize(app(), acknowledgeTeamChange: true, now: later)
@@ -96,7 +107,7 @@ struct TrustGateTests {
         let record = store.record(for: "com.figma.desktop")
         #expect(record?.teamIdentifier == "NEWTEAM222")
         #expect(record?.origin == .userConfirmedChange)
-        #expect(record?.firstObservedAt == epoch)          // first-observed preserved
+        #expect(record?.firstObservedAt == epoch)  // first-observed preserved
         #expect(record?.updatedAt == later)
         #expect(record?.confirmedChanges.count == 1)
         #expect(record?.confirmedChanges.first?.previousTeamIdentifier == "OLDTEAM111")
@@ -108,12 +119,14 @@ struct TrustGateTests {
     @Test
     func resetMakesNextObservationAFreshFirstUseNotImplicitReTrust() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
 
-        gate.resetTrust(bundleIdentifier: "com.figma.Desktop")   // pass raw id; gate normalises
+        gate.resetTrust(bundleIdentifier: "com.figma.Desktop")  // pass raw id; gate normalises
         #expect(store.record(for: "com.figma.desktop") == nil)
 
         // The previously-diverging team now records cleanly as a new baseline,
@@ -126,10 +139,12 @@ struct TrustGateTests {
     @Test
     func resetAllForgetsEveryDecision() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.a.app", teamIdentifier: "AAA",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse),
-            TrustRecord(bundleIdentifier: "com.b.app", teamIdentifier: "BBB",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.a.app", teamIdentifier: "AAA",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse),
+            TrustRecord(
+                bundleIdentifier: "com.b.app", teamIdentifier: "BBB",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse),
         ])
         let gate = TrustGate(inspector: FakeCodeSignatureInspector(infos: [:]), store: store)
 
@@ -173,7 +188,8 @@ struct TrustGateTests {
             ]),
             store: InMemoryTrustStore())
 
-        #expect(gate.authorize(app("/Applications/Foo.app", id: "com.foo.app")) == .blocked(.gatekeeperRejected("nope")))
+        #expect(
+            gate.authorize(app("/Applications/Foo.app", id: "com.foo.app")) == .blocked(.gatekeeperRejected("nope")))
     }
 
     @Test
@@ -196,7 +212,8 @@ struct TrustGateTests {
             ]),
             store: InMemoryTrustStore())
 
-        #expect(gate.authorize(app("/Applications/Foo.app", id: "com.foo.app"))
+        #expect(
+            gate.authorize(app("/Applications/Foo.app", id: "com.foo.app"))
                 == .allowedWithoutVerification(.signatureToolUnavailable))
     }
 
@@ -205,12 +222,15 @@ struct TrustGateTests {
         // Verified now, but the current team is unreadable while a baseline exists:
         // the comparison cannot run, so degrade instead of passing or blocking.
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.foo.app", teamIdentifier: "T",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.foo.app", teamIdentifier: "T",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Foo.app", team: nil), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Foo.app", team: nil), store: store)
 
-        #expect(gate.authorize(app("/Applications/Foo.app", id: "com.foo.app"))
+        #expect(
+            gate.authorize(app("/Applications/Foo.app", id: "com.foo.app"))
                 == .allowedWithoutVerification(.teamIdentifierUnreadable))
     }
 
@@ -219,7 +239,8 @@ struct TrustGateTests {
     @Test
     func evaluateDoesNotRecordBaseline() {
         let store = InMemoryTrustStore()
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "T1234ABCDE"), store: store)
 
         let evaluation = gate.evaluate(app())
 
@@ -232,10 +253,12 @@ struct TrustGateTests {
     @Test
     func evaluateSurfacesPendingTeamChange() {
         let store = InMemoryTrustStore(records: [
-            TrustRecord(bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
-                        firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
+            TrustRecord(
+                bundleIdentifier: "com.figma.desktop", teamIdentifier: "OLDTEAM111",
+                firstObservedAt: epoch, updatedAt: epoch, origin: .firstUse)
         ])
-        let gate = TrustGate(inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
+        let gate = TrustGate(
+            inspector: FakeCodeSignatureInspector.verified("/Applications/Figma.app", team: "NEWTEAM222"), store: store)
 
         let evaluation = gate.evaluate(app())
 

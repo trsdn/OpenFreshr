@@ -1,602 +1,587 @@
 # Product Requirements Document: OpenFreshr
 
-**Status:** Entwurf  
-**Zielplattform:** macOS 14+, Apple Silicon  
-**Primärer Nutzer:** zunächst der Entwickler selbst  
-**Produktidee:** Ein „App Store für den Rest des Mac“, der installierte GUI-Apps erkennt,
-Updates transparent macht und neue Apps finden und installieren kann.
+**Status:** Draft  
+**Target platform:** macOS 14+, Apple Silicon  
+**Primary user:** initially the developer themselves  
+**Product idea:** An "App Store for the rest of the Mac" that detects installed GUI apps,
+makes updates transparent, and can find and install new apps.
 
 ## Executive Summary
 
-MacUpdater wurde zum 1. Januar 2026 eingestellt. Sein Kernnutzen – Updates für
-außerhalb des Mac App Store installierte Apps sichtbar und ausführbar zu machen –
-bleibt relevant. Ein reiner Nachbau würde jedoch zu kurz greifen: OpenFreshr soll
-zusätzlich einen durchsuchbaren Katalog bieten und neue Apps installieren können.
+MacUpdater was discontinued on 1 January 2026. Its core value – making updates for
+apps installed outside the Mac App Store visible and executable – remains relevant.
+A pure clone would fall short, however: OpenFreshr should additionally offer a
+searchable catalog and be able to install new apps.
 
-OpenFreshr kombiniert lokale, von Homebrew unabhängige Erkennung mit mehreren
-Updatequellen. Für die Ausführung verwendet es zunächst etablierte Paket-Backends:
-Homebrew Cask, Mac App Store und Microsoft AutoUpdate. Sparkle- und andere
-Selbst-Update-Mechanismen werden erkannt und transparent dargestellt, aber nicht
-ungefragt parallel angestoßen.
+OpenFreshr combines local detection that is independent of Homebrew with several
+update sources. For execution it initially uses established package backends:
+Homebrew Cask, Mac App Store and Microsoft AutoUpdate. Sparkle and other
+self-update mechanisms are detected and shown transparently, but not triggered in
+parallel without asking.
 
-Die Messung auf dem Zielsystem zeigt, dass eine eigene kuratierte App-Datenbank nicht
-erforderlich ist: Von 109 relevanten Fremd-Apps erkennt der vorhandene Scan 100
-automatisch. Durch kontrolliertes Fuzzy-Matching lassen sich voraussichtlich vier
-weitere Kandidaten zuordnen; damit liegt die erwartete Abdeckung bei rund 95 Prozent.
-Der wichtigste erste Nutzen ist die sichere Übernahme bereits installierter,
-Homebrew-bekannter Apps mittels `brew install --cask --adopt`.
+Measurement on the target system shows that a custom curated app database is not
+needed: of 109 relevant third-party apps, the existing scan detects 100
+automatically. Controlled fuzzy matching is expected to map four further candidates,
+bringing the expected coverage to about 95 percent. The most important first benefit
+is the safe adoption of already installed, Homebrew-known apps using
+`brew install --cask --adopt`.
 
-### Erfolgskriterien
+### Success criteria
 
-- Mindestens 100 der 109 im Referenzscan relevanten Fremd-Apps werden einer oder
-  mehreren Quellen zugeordnet.
-- Kontrolliertes Fuzzy-Matching erhöht die überprüfbare Zuordnung auf mindestens
-  104 von 109 Apps, ohne einen falschen Cask automatisch zu übernehmen.
-- OpenFreshr funktioniert für Erkennung und Anzeige auch dann, wenn Homebrew nicht
-  installiert oder vorübergehend nicht verfügbar ist.
-- Der Nutzer kann in Phase 1 erkannte, noch nicht von Homebrew verwaltete Apps
-  einzeln prüfen, auswählen und mit `--adopt` übernehmen.
-- Keine Installation oder Adoption erfolgt allein aufgrund eines unsicheren
-  Namensmatches.
-- Vor jedem durch OpenFreshr ausgeführten App-Ersatz werden Signatur, Gatekeeper-
-  Bewertung und Team-ID-Vertrauen geprüft.
-- Jede Produktphase liefert einen eigenständig startbaren und demonstrierbaren
-  End-to-End-Nutzen.
+- At least 100 of the 109 third-party apps relevant in the reference scan are mapped
+  to one or more sources.
+- Controlled fuzzy matching raises the verifiable mapping to at least 104 of 109
+  apps, without automatically adopting a wrong cask.
+- OpenFreshr works for detection and display even when Homebrew is not installed or
+  temporarily unavailable.
+- In phase 1 the user can individually review, select and adopt detected apps that
+  are not yet managed by Homebrew, using `--adopt`.
+- No installation or adoption happens solely because of an uncertain name match.
+- Before every app replacement performed by OpenFreshr, the signature, Gatekeeper
+  assessment and Team ID trust are checked.
+- Every product phase delivers a standalone, launchable and demonstrable end-to-end
+  benefit.
 
 ## Problem
 
-macOS verteilt GUI-Apps über mehrere voneinander unabhängige Kanäle:
+macOS distributes GUI apps through several mutually independent channels:
 
 - Mac App Store
-- direkt geladene Apps mit Sparkle oder proprietärem Selbst-Updater
+- directly downloaded apps with Sparkle or a proprietary self-updater
 - Homebrew Casks
 - Microsoft AutoUpdate
 - Apple Software Update
-- manuelle Downloads ohne Updateinfrastruktur
+- manual downloads without update infrastructure
 
-Dadurch fehlt eine gemeinsame Sicht auf installierte Versionen, verfügbare Updates
-und Bezugsquellen. Selbst-updatende Apps informieren zu unterschiedlichen
-Zeitpunkten, manuell installierte Apps werden leicht vergessen, und das Entdecken
-neuer Apps findet getrennt vom Updateprozess statt.
+As a result there is no shared view of installed versions, available updates and
+sources. Self-updating apps notify at different times, manually installed apps are
+easily forgotten, and discovering new apps happens separately from the update
+process.
 
-MacUpdater löste einen Teil davon durch eine große kuratierte Datenbank. Diese
-Datenbank ist weder realistisch nachzubauen noch für den persönlichen Anwendungsfall
-nötig. Die vorhandene Recherche belegt, dass offene Metadaten und lokale
-Bundle-Eigenschaften den Großteil der installierten Apps abdecken.
+MacUpdater solved part of this with a large curated database. That database is
+neither realistic to rebuild nor necessary for the personal use case. The existing
+research shows that open metadata and local bundle properties cover the majority of
+installed apps.
 
-## Zielgruppe
+## Target audience
 
-### Primär
+### Primary
 
-Ein technisch erfahrener macOS-Nutzer mit vielen Apps aus unterschiedlichen Quellen,
-der Kontrolle, Transparenz und Sicherheitsprüfungen höher gewichtet als vollständig
-unbeaufsichtigte Automatisierung.
+A technically experienced macOS user with many apps from different sources, who
+weights control, transparency and security checks higher than fully unattended
+automation.
 
-### Später
+### Later
 
-Fortgeschrittene macOS-Nutzer, die Apps außerhalb des Mac App Store zentral
-entdecken, installieren und aktuell halten möchten, ohne die zugrunde liegenden
-Paketmanager selbst bedienen zu müssen.
+Advanced macOS users who want to discover, install and keep up to date apps outside
+the Mac App Store in one place, without having to operate the underlying package
+managers themselves.
 
-## Lösung
+## Solution
 
-OpenFreshr ist eine native SwiftUI-App mit zwei primären Bereichen:
+OpenFreshr is a native SwiftUI app with two primary areas:
 
-- **Installiert:** erkannte Apps, installierte und verfügbare Version, Quelle,
-  Vertrauensstatus und mögliche Aktionen.
-- **Katalog:** durchsuchbare und nach Popularität sortierbare GUI-App-Auswahl aus
-  dem Homebrew-Cask-Katalog.
+- **Installed:** detected apps, installed and available version, source, trust status
+  and possible actions.
+- **Catalog:** a searchable GUI app selection from the Homebrew Cask catalog,
+  sortable by popularity.
 
-Die lokale Erkennung scannt App-Bundles und führt Informationen aus `Info.plist`,
-MAS-Receipts, Sparkle-Metadaten, Bundle-Struktur und bekannten Quellen in einem
-normalisierten App-Modell zusammen. Sie ist nicht von Homebrew abhängig.
+Local detection scans app bundles and merges information from `Info.plist`, MAS
+receipts, Sparkle metadata, bundle structure and known sources into a normalized app
+model. It does not depend on Homebrew.
 
-Ausführbare Aktionen laufen über austauschbare Paket-Backends. Version 1 verwendet
-Homebrew Cask, `mas` und Microsoft AutoUpdate. Eine spätere native
-Download-/Installations-Engine kann ergänzt werden, ohne Scan, Matching, UI oder
-Vertrauensmodell neu zu bauen.
+Executable actions run through interchangeable package backends. Version 1 uses
+Homebrew Cask, `mas` and Microsoft AutoUpdate. A later native download/installation
+engine can be added without rebuilding scan, matching, UI or the trust model.
 
-## Entscheidungen & Annahmen
+## Decisions & Assumptions
 
-Alle folgenden Entscheidungen sind **vorläufig, bestätigt durch: —**. Sie sind
-bewusst isoliert dokumentiert, damit einzelne Entscheidungen später geändert werden
-können, ohne das gesamte Produktkonzept neu aufzubauen.
+All of the following decisions are **provisional, confirmed by: —**. They are
+deliberately documented in isolation so that individual decisions can be changed
+later without rebuilding the entire product concept.
 
-### 1. Homebrew für Ausführung, nicht für Erkennung
+### 1. Homebrew for execution, not for detection
 
-**Entscheidung:** Homebrew ist eine erlaubte harte Abhängigkeit für Cask-Installation,
-Adoption, Update und Deinstallation. App-Scan, Quellenzuordnung und
-Versionsdarstellung funktionieren ohne Homebrew. Ausführungswege werden hinter
-einem `PackageBackend` mit zunächst `HomebrewBackend`, `MASBackend` und `MAUBackend`
-gekapselt.
+**Decision:** Homebrew is an allowed hard dependency for cask installation,
+adoption, update and uninstallation. App scan, source mapping and version display
+work without Homebrew. Execution paths are encapsulated behind a `PackageBackend`
+with initially `HomebrewBackend`, `MASBackend` and `MAUBackend`.
 
-**Begründung:** Homebrew löst Download, Checksummenprüfung, DMG-/PKG-/ZIP-Verarbeitung,
-Quarantäne und Deinstallation bereits. Eine eigene Engine wäre die größte
-Angriffsfläche des Produkts. Die Backend-Grenze verhindert zugleich eine dauerhafte
-architektonische Bindung.
+**Rationale:** Homebrew already solves download, checksum verification, DMG/PKG/ZIP
+handling, quarantine and uninstallation. A custom engine would be the product's
+largest attack surface. At the same time, the backend boundary prevents a permanent
+architectural lock-in.
 
-**Verworfene Alternative:** Eine native Installations-Engine ab Phase 1. Sie wäre
-deutlich aufwendiger, sicherheitskritischer und würde den ersten Nutzwert verzögern.
+**Rejected alternative:** A native installation engine from phase 1. It would be
+considerably more expensive, more security-critical, and would delay the first
+useful value.
 
-### 2. Direktvertrieb ohne privilegierten Helper in v1
+### 2. Direct distribution without a privileged helper in v1
 
-**Entscheidung:** OpenFreshr wird mit Developer ID signiert, notarisiert und als DMG
-direkt vertrieben. Selbst-Updates erfolgen über Sparkle. Ein `SMAppService`-Helper
-gehört nicht zu v1. Falls ein Cask erhöhte Rechte benötigt, verantwortet Homebrew
-den sichtbaren `sudo`-Prompt.
+**Decision:** OpenFreshr is signed with Developer ID, notarized and distributed
+directly as a DMG. Self-updates are done via Sparkle. An `SMAppService` helper is
+not part of v1. If a cask requires elevated privileges, Homebrew is responsible for
+the visible `sudo` prompt.
 
-**Begründung:** Die App muss nach `/Applications` schreiben und kann deshalb nicht
-sinnvoll in der Mac-App-Store-Sandbox betrieben werden. Für die meisten App-Bundles
-ist kein dauerhaft privilegierter Prozess nötig. OpenFreshr nutzt mit Sparkle selbst
-einen Mechanismus, den es bei anderen Apps erkennt.
+**Rationale:** The app must write to `/Applications` and therefore cannot sensibly
+run in the Mac App Store sandbox. For most app bundles no permanently privileged
+process is needed. With Sparkle, OpenFreshr itself uses a mechanism that it detects
+in other apps.
 
-**Verworfene Alternative:** Ein privilegierter Helper ab v1. Er erhöht
-Angriffsfläche, Signierungsaufwand und Betriebsrisiko, bevor sein Bedarf gemessen ist.
+**Rejected alternative:** A privileged helper from v1. It increases attack surface,
+signing effort and operational risk before its need has been measured.
 
-### 3. Hauptfenster zuerst, Menüleiste später
+### 3. Main window first, menu bar later
 
-**Entscheidung:** Das Hauptfenster verwendet SwiftUI und `NavigationSplitView`.
-„Installiert“ und „Katalog“ sind die primären Bereiche. Ein `MenuBarExtra` folgt
-später als kompakte Status- und Einstiegsebene.
+**Decision:** The main window uses SwiftUI and `NavigationSplitView`. "Installed"
+and "Catalog" are the primary areas. A `MenuBarExtra` follows later as a compact
+status and entry layer.
 
-**Begründung:** Ein Katalog mit rund 7.715 Casks benötigt Suche, Filter, Details und
-Vergleichsfläche. Dieser Entdeckungsweg ist ein wesentliches Unterscheidungsmerkmal
-gegenüber MacUpdater.
+**Rationale:** A catalog of about 7,715 casks needs search, filters, details and
+comparison space. This discovery path is a key differentiator from MacUpdater.
 
-**Verworfene Alternative:** Eine reine Menüleisten-App. Sie ist für Updatehinweise
-geeignet, aber nicht für ernsthaftes Katalog-Browsing.
+**Rejected alternative:** A pure menu bar app. It is suitable for update notices but
+not for serious catalog browsing.
 
-### 4. Signaturprüfung und Team-ID-Vertrauen
+### 4. Signature verification and Team ID trust
 
-**Entscheidung:** Vor jedem von OpenFreshr veranlassten Ersatz eines App-Bundles
-werden `codesign --verify --strict`, Gatekeeper via `spctl --assess --type execute`
-und die Team ID geprüft. Die beim ersten Scan gefundene Team ID wird pro Bundle-ID
-als Trust-on-first-use gespeichert. Ein Team-ID-Wechsel stoppt die automatische
-Aktion und erfordert eine deutliche Warnung sowie explizites Opt-in.
+**Decision:** Before every replacement of an app bundle initiated by OpenFreshr,
+`codesign --verify --strict`, Gatekeeper via `spctl --assess --type execute` and the
+Team ID are checked. The Team ID found in the first scan is stored per bundle ID as
+trust on first use. A Team ID change stops the automatic action and requires a
+prominent warning as well as an explicit opt-in.
 
-**Begründung:** Ein gültig signiertes Paket kann trotzdem von einem anderen
-Entwickler stammen. Der Team-ID-Vergleich reduziert das Risiko einer
-Supply-Chain-Übernahme oder falschen Cask-Zuordnung und macht Vertrauen sichtbar.
+**Rationale:** A validly signed package can still come from a different developer.
+Comparing the Team ID reduces the risk of a supply-chain takeover or a wrong cask
+mapping and makes trust visible.
 
-**Verworfene Alternative:** Allein auf Homebrew-Checksummen und Gatekeeper vertrauen.
-Das erkennt keinen unerwarteten Wechsel des signierenden Herausgebers.
+**Rejected alternative:** Relying solely on Homebrew checksums and Gatekeeper. That
+does not detect an unexpected change of the signing publisher.
 
-### 5. Selbst-Updater anzeigen, nicht parallel auslösen
+### 5. Show self-updaters, do not trigger them in parallel
 
-**Entscheidung:** Sparkle- und Electron-/Squirrel-basierte Apps werden als
-„aktualisiert sich selbst“ gekennzeichnet. OpenFreshr stößt deren eigenen Updater
-nicht heimlich an. Der Nutzer kann pro App ausdrücklich eine Aktualisierung über
-OpenFreshr wählen. Microsoft AutoUpdate darf über `msupdate` ausgelöst werden.
+**Decision:** Sparkle- and Electron/Squirrel-based apps are labeled "updates
+itself". OpenFreshr does not secretly trigger their own updater. The user can
+explicitly choose, per app, to update via OpenFreshr. Microsoft AutoUpdate may be
+triggered via `msupdate`.
 
-**Begründung:** Zwei konkurrierende Updatewege können laufende Apps oder Bundles
-beschädigen. `msupdate` ist dagegen die vorgesehene zentrale MAU-Schnittstelle.
+**Rationale:** Two competing update paths can damage running apps or bundles.
+`msupdate`, by contrast, is the intended central MAU interface.
 
-**Verworfene Alternative:** Jeden erkannten Selbst-Updater automatisch anstoßen.
-Das wäre schwer vorhersehbar, schlecht beobachtbar und potenziell kollisionsanfällig.
+**Rejected alternative:** Automatically triggering every detected self-updater. That
+would be hard to predict, poorly observable and potentially prone to collisions.
 
-### 6. v1 umfasst ausschließlich GUI-Apps
+### 6. v1 covers GUI apps only
 
-**Entscheidung:** v1 verwaltet App-Bundles und zugehörige GUI-Anwendungen. Homebrew
-Formulae und allgemeine CLI-Tools sind nicht Teil von v1.
+**Decision:** v1 manages app bundles and associated GUI applications. Homebrew
+formulae and general CLI tools are not part of v1.
 
-**Begründung:** CLI-Software hat ein anderes Erkennungs-, Versions- und
-Nutzungsmodell. Homebrew deckt sie im Terminal bereits gut ab. Die Beschränkung hält
-das Produktmodell verständlich und den ersten Lieferumfang fokussiert.
+**Rationale:** CLI software has a different detection, versioning and usage model.
+Homebrew already covers it well in the terminal. The restriction keeps the product
+model understandable and the first delivery scope focused.
 
-**Verworfene Alternative:** GUI-Apps und CLI-Tools von Beginn an gemeinsam
-verwalten. Das würde Navigation, Modelle und Sicherheitsprüfungen verbreitern, ohne
-den primären Bedarf besser zu lösen.
+**Rejected alternative:** Managing GUI apps and CLI tools together from the start.
+That would broaden navigation, models and security checks without better solving
+the primary need.
 
 ## User Stories
 
-1. Als Nutzer möchte ich alle relevanten GUI-Apps in meinen üblichen
-   Programme-Ordnern scannen, damit ich eine vollständige Bestandsaufnahme erhalte.
-2. Als Nutzer möchte ich Shortcuts-Droplets und bekannte Artefakte ausblenden können,
-   damit die Liste nicht durch irrelevante Bundles verfälscht wird.
-3. Als Nutzer möchte ich pro App Name, Bundle-ID, installierte Version und Pfad
-   sehen, damit ich einen Treffer nachvollziehen kann.
-4. Als Nutzer möchte ich erkennen, ob eine App aus dem Mac App Store stammt, damit
-   der richtige Updateweg verwendet wird.
-5. Als Nutzer möchte ich Sparkle-Metadaten und vorhandene Sparkle-Frameworks erkennen,
-   damit selbst-updatende Apps sichtbar werden.
-6. Als Nutzer möchte ich Electron-/Squirrel-Apps erkennen, damit konkurrierende
-   Updatewege vermieden werden.
-7. Als Nutzer möchte ich Microsoft-Apps erkennen, die von MAU verwaltet werden,
-   damit sie zentral über `msupdate` aktualisiert werden können.
-8. Als Nutzer möchte ich Cask-Kandidaten anhand App-Name, Artefaktname, Bundle-ID
-   und kontrolliertem Fuzzy-Matching erhalten, damit möglichst viele Apps zugeordnet
-   werden.
-9. Als Nutzer möchte ich die Begründung und Konfidenz eines Matches sehen, damit ich
-   unsichere Zuordnungen beurteilen kann.
-10. Als Nutzer möchte ich falsche Matches ablehnen und eine korrekte Zuordnung
-    speichern können, damit zukünftige Scans stabiler werden.
-11. Als Nutzer möchte ich unsichere Matches nie automatisch adoptieren oder
-    aktualisieren lassen, damit ähnlich benannte, aber fremde Apps nicht ersetzt
-    werden.
-12. Als Nutzer möchte ich ohne installiertes Homebrew trotzdem Scan- und
-    Updateinformationen sehen, damit die App nicht wertlos wird.
-13. Als Nutzer möchte ich sehen, welche erkannten Apps bereits durch Homebrew
-    verwaltet werden, damit ich ihren Zustand verstehe.
-14. Als Nutzer möchte ich eine Vorschau aller adoptierbaren Apps sehen, damit keine
-    Paketmanageränderung überraschend erfolgt.
-15. Als Nutzer möchte ich adoptierbare Apps einzeln auswählen, damit ich die Kontrolle
-    über den Homebrew-State behalte.
-16. Als Nutzer möchte ich eine ausgewählte App mit `brew install --cask --adopt`
-    übernehmen, damit sie zukünftig regulär aktualisiert werden kann.
-17. Als Nutzer möchte ich pro Adoption den ausgeführten Befehl, Status und Fehler
-    sehen, damit die Aktion überprüfbar bleibt.
-18. Als Nutzer möchte ich fehlendes oder defektes Homebrew verständlich angezeigt
-    bekommen, damit ich das Problem gezielt beheben kann.
-19. Als Nutzer möchte ich verfügbare Versionen aus den jeweiligen Quellen sehen,
-    damit ich veraltete Apps erkenne.
-20. Als Nutzer möchte ich Quellkonflikte sehen, wenn mehrere Mechanismen dieselbe
-    App abdecken, damit kein verdeckter Updateweg gewählt wird.
-21. Als Nutzer möchte ich selbst-updatende Apps gekennzeichnet sehen, damit ich weiß,
-    warum OpenFreshr nicht automatisch eingreift.
-22. Als Nutzer möchte ich pro selbst-updatender App ausdrücklich Homebrew als
-    bevorzugten Weg wählen können, damit ich Ausnahmen bewusst steuere.
-23. Als Nutzer möchte ich Mac-App-Store-Updates über `mas` ausführen können, damit
-    die installierte Ansicht mehrere Quellen bündelt.
-24. Als Nutzer möchte ich Microsoft-Updates über `msupdate` ausführen können, damit
-    Office und verwandte Apps konsistent aktualisiert werden.
-25. Als Nutzer möchte ich Homebrew-Cask-Updates ausführen können, einschließlich
-    `auto_updates`- und `latest`-Casks, damit bekannte Updates nicht ausgelassen
-    werden.
-26. Als Nutzer möchte ich vor einer Aktualisierung eine Zusammenfassung der
-    betroffenen Apps und Quellen sehen, damit ich den Vorgang freigeben kann.
-27. Als Nutzer möchte ich fehlgeschlagene Aktionen erneut ausführen können, ohne
-    erfolgreiche Aktionen zu wiederholen, damit Batch-Updates beherrschbar bleiben.
-28. Als Nutzer möchte ich die Signatur einer neuen App-Version prüfen lassen, damit
-    beschädigte oder manipulierte Bundles abgewiesen werden.
-29. Als Nutzer möchte ich eine Gatekeeper-Ablehnung als harten Fehler sehen, damit
-    nicht vertrauenswürdige Software nicht gestartet wird.
-30. Als Nutzer möchte ich bei einer geänderten Team ID einen Update-Stopp und eine
-    verständliche Warnung erhalten, damit ich einen Herausgeberwechsel bewusst
-    prüfen kann.
-31. Als Nutzer möchte ich einen legitimen Team-ID-Wechsel explizit bestätigen
-    können, damit ein geprüfter Eigentümerwechsel nicht dauerhaft blockiert.
-32. Als Nutzer möchte ich sehen, wann und warum eine Vertrauensentscheidung getroffen
-    wurde, damit Sicherheitsentscheidungen auditierbar sind.
-33. Als Nutzer möchte ich den Cask-Katalog durchsuchen, damit ich neue Apps außerhalb
-    des Mac App Store finde.
-34. Als Nutzer möchte ich Katalogeinträge nach Popularität sortieren, damit häufig
-    verwendete und wahrscheinlich gepflegte Apps leichter auffindbar sind.
-35. Als Nutzer möchte ich Name, Beschreibung, Homepage, Version und Installationsart
-    eines Katalogeintrags sehen, damit ich vor der Installation informiert bin.
-36. Als Nutzer möchte ich installierte Apps im Katalog erkennen, damit ich keine
-    Duplikate installiere.
-37. Als Nutzer möchte ich eine neue GUI-App über das passende Backend installieren,
-    damit Entdecken und Installieren in einem Ablauf stattfinden.
-38. Als Nutzer möchte ich vor der Installation sehen, welches Backend und welcher
-    Paketbezeichner verwendet werden, damit die Aktion transparent ist.
-39. Als Nutzer möchte ich veraltete oder nicht erreichbare Katalogdaten erkennen,
-    damit ich Suchergebnisse richtig einordne.
-40. Als Nutzer möchte ich auch offline meinen zuletzt bekannten App-Bestand sehen,
-    damit ein Netzwerkfehler nicht die gesamte App unbrauchbar macht.
-41. Als Nutzer möchte ich den Scan manuell neu starten können, damit Änderungen
-    sofort sichtbar werden.
-42. Als Nutzer möchte ich später über die Menüleiste die Anzahl verfügbarer Updates
-    sehen, damit ich ohne geöffnetes Hauptfenster informiert bin.
-43. Als Nutzer möchte ich von der Menüleiste direkt zur gefilterten Updateansicht
-    springen, damit Hinweise handlungsorientiert sind.
-44. Als Nutzer möchte ich OpenFreshr über Sparkle aktualisieren, damit das Werkzeug
-    selbst denselben sicheren Direktvertriebsweg nutzt.
-45. Als Entwickler möchte ich Scan, Matching, Versionsvergleich, Vertrauen und
-    Paket-Ausführung als getrennte Module testen können, damit Quellen oder Backends
-    austauschbar bleiben.
-46. Als Entwickler möchte ich externe Prozesse mit strukturierten Argumenten und
-    ohne Shell-Interpolation starten, damit App-Namen oder Paketbezeichner keine
-    Befehle einschleusen können.
-47. Als Entwickler möchte ich Quellantworten und Appcasts gegen feste Test-Fixtures
-    prüfen, damit Formatänderungen früh erkannt werden.
-48. Als Entwickler möchte ich Releases reproduzierbar bauen, signieren, notarisierten
-    und als DMG veröffentlichen, damit Nutzer Herkunft und Integrität prüfen können.
+1. As a user, I want to scan all relevant GUI apps in my usual Applications folders,
+   so that I get a complete inventory.
+2. As a user, I want to be able to hide Shortcuts droplets and known artifacts, so
+   that the list is not distorted by irrelevant bundles.
+3. As a user, I want to see name, bundle ID, installed version and path for each
+   app, so that I can understand a match.
+4. As a user, I want to see whether an app comes from the Mac App Store, so that the
+   right update path is used.
+5. As a user, I want Sparkle metadata and existing Sparkle frameworks to be
+   detected, so that self-updating apps become visible.
+6. As a user, I want Electron/Squirrel apps to be detected, so that competing update
+   paths are avoided.
+7. As a user, I want Microsoft apps managed by MAU to be detected, so that they can
+   be updated centrally via `msupdate`.
+8. As a user, I want to receive cask candidates based on app name, artifact name,
+   bundle ID and controlled fuzzy matching, so that as many apps as possible are
+   mapped.
+9. As a user, I want to see the reasoning and confidence of a match, so that I can
+   assess uncertain mappings.
+10. As a user, I want to be able to reject wrong matches and save a correct mapping,
+    so that future scans become more stable.
+11. As a user, I want uncertain matches never to be adopted or updated
+    automatically, so that similarly named but unrelated apps are not replaced.
+12. As a user, I want to still see scan and update information without Homebrew
+    installed, so that the app does not become worthless.
+13. As a user, I want to see which detected apps are already managed by Homebrew, so
+    that I understand their state.
+14. As a user, I want to see a preview of all adoptable apps, so that no package
+    manager change happens unexpectedly.
+15. As a user, I want to select adoptable apps individually, so that I keep control
+    over the Homebrew state.
+16. As a user, I want to adopt a selected app with `brew install --cask --adopt`, so
+    that it can be updated normally in the future.
+17. As a user, I want to see the executed command, status and error for each
+    adoption, so that the action remains verifiable.
+18. As a user, I want missing or broken Homebrew to be displayed clearly, so that I
+    can fix the problem in a targeted way.
+19. As a user, I want to see available versions from the respective sources, so that
+    I can recognize outdated apps.
+20. As a user, I want to see source conflicts when several mechanisms cover the same
+    app, so that no hidden update path is chosen.
+21. As a user, I want self-updating apps to be labeled, so that I know why
+    OpenFreshr does not intervene automatically.
+22. As a user, I want to be able to explicitly choose Homebrew as the preferred path
+    for each self-updating app, so that I control exceptions deliberately.
+23. As a user, I want to be able to run Mac App Store updates via `mas`, so that the
+    installed view bundles multiple sources.
+24. As a user, I want to be able to run Microsoft updates via `msupdate`, so that
+    Office and related apps are updated consistently.
+25. As a user, I want to be able to run Homebrew Cask updates, including
+    `auto_updates` and `latest` casks, so that known updates are not skipped.
+26. As a user, I want to see a summary of the affected apps and sources before an
+    update, so that I can approve the operation.
+27. As a user, I want to be able to re-run failed actions without repeating
+    successful ones, so that batch updates remain manageable.
+28. As a user, I want the signature of a new app version to be verified, so that
+    damaged or tampered bundles are rejected.
+29. As a user, I want to see a Gatekeeper rejection as a hard error, so that
+    untrusted software is not launched.
+30. As a user, I want to receive an update stop and an understandable warning when
+    the Team ID has changed, so that I can deliberately review a publisher change.
+31. As a user, I want to be able to explicitly confirm a legitimate Team ID change,
+    so that a verified change of ownership is not blocked permanently.
+32. As a user, I want to see when and why a trust decision was made, so that
+    security decisions are auditable.
+33. As a user, I want to search the cask catalog, so that I find new apps outside
+    the Mac App Store.
+34. As a user, I want to sort catalog entries by popularity, so that widely used and
+    probably maintained apps are easier to find.
+35. As a user, I want to see name, description, homepage, version and installation
+    type of a catalog entry, so that I am informed before installing.
+36. As a user, I want to recognize installed apps in the catalog, so that I do not
+    install duplicates.
+37. As a user, I want to install a new GUI app via the appropriate backend, so that
+    discovering and installing happen in one flow.
+38. As a user, I want to see which backend and package identifier will be used
+    before installation, so that the action is transparent.
+39. As a user, I want to recognize outdated or unreachable catalog data, so that I
+    can interpret search results correctly.
+40. As a user, I want to see my last known app inventory even offline, so that a
+    network error does not make the whole app unusable.
+41. As a user, I want to be able to restart the scan manually, so that changes are
+    visible immediately.
+42. As a user, I want to see the number of available updates in the menu bar later,
+    so that I am informed without the main window open.
+43. As a user, I want to jump from the menu bar directly to the filtered update
+    view, so that notices are action-oriented.
+44. As a user, I want to update OpenFreshr via Sparkle, so that the tool itself uses
+    the same secure direct-distribution path.
+45. As a developer, I want to be able to test scan, matching, version comparison,
+    trust and package execution as separate modules, so that sources or backends
+    remain interchangeable.
+46. As a developer, I want to launch external processes with structured arguments
+    and without shell interpolation, so that app names or package identifiers cannot
+    inject commands.
+47. As a developer, I want to check source responses and appcasts against fixed test
+    fixtures, so that format changes are detected early.
+48. As a developer, I want to build, sign, notarize and publish releases
+    reproducibly as a DMG, so that users can verify origin and integrity.
 
-## Funktionale Anforderungen
+## Functional requirements
 
-### App-Erkennung
+### App detection
 
-- Scan von `/Applications`, `~/Applications` und `/Applications/Utilities`.
-- Lesen von `CFBundleIdentifier`, `CFBundleShortVersionString`,
-  `CFBundleVersion`, `SUFeedURL` und relevanten Bundle-Strukturen.
-- Erkennung von MAS-Receipt, Sparkle-Framework und Electron-Framework.
-- Deduplizierung mehrfach gefundener Bundles anhand stabiler Identität und Pfad.
-- Lokale Erkennung darf keine Homebrew-Installation voraussetzen.
-- Der Scan darf unlesbare oder beschädigte Bundles nicht verschweigen; er zeigt
-  einen diagnostizierbaren Zustand.
+- Scan of `/Applications`, `~/Applications` and `/Applications/Utilities`.
+- Reading `CFBundleIdentifier`, `CFBundleShortVersionString`,
+  `CFBundleVersion`, `SUFeedURL` and relevant bundle structures.
+- Detection of MAS receipt, Sparkle framework and Electron framework.
+- Deduplication of bundles found multiple times based on stable identity and path.
+- Local detection must not require a Homebrew installation.
+- The scan must not conceal unreadable or damaged bundles; it shows a diagnosable
+  state.
 
-### Quellen und Matching
+### Sources and matching
 
-- Einlesen des Homebrew-Cask-Katalogs mit Token, Namen, Beschreibung, Homepage,
-  Version und Artefakten.
-- Berücksichtigung von App-Artefaktnamen sowie Bundle-IDs aus Uninstall- und
-  Zap-Metadaten.
-- Erkennung von Mac-App-Store-Apps über Receipt und Zuordnung zu `mas`.
-- Erkennung von MAU-fähigen Apps und Abfrage über `msupdate`.
-- Parsen expliziter Sparkle-Appcasts; ein eingebettetes Framework ohne Feed-URL
-  wird als Laufzeit-Selbst-Updater, nicht als sicher abfragbare Quelle behandelt.
-- Normalisierung von Namen und Versionen vor dem Vergleich.
-- Fuzzy-Matching erzeugt ausschließlich Vorschläge. Automatische Aktionen erfordern
-  einen starken Identitätsnachweis oder eine bestätigte Zuordnung.
-- Mehrere mögliche Quellen bleiben sichtbar; eine Prioritätsregel darf Konflikte
-  nicht verdecken.
+- Ingestion of the Homebrew Cask catalog with token, names, description, homepage,
+  version and artifacts.
+- Consideration of app artifact names as well as bundle IDs from uninstall and zap
+  metadata.
+- Detection of Mac App Store apps via receipt and mapping to `mas`.
+- Detection of MAU-capable apps and querying via `msupdate`.
+- Parsing explicit Sparkle appcasts; an embedded framework without a feed URL is
+  treated as a runtime self-updater, not as a reliably queryable source.
+- Normalization of names and versions before comparison.
+- Fuzzy matching produces suggestions only. Automatic actions require strong proof of
+  identity or a confirmed mapping.
+- Multiple possible sources remain visible; a priority rule must not conceal
+  conflicts.
 
-### Installierte Ansicht
+### Installed view
 
-- Darstellung von App, installierter Version, verfügbarer Version, Quelle,
-  Verwaltungsstatus, Match-Konfidenz und Vertrauensstatus.
-- Filter mindestens für „Updates“, „adoptierbar“, „selbst-updatend“,
-  „nicht zugeordnet“ und „Fehler“.
-- Detailansicht mit Match-Begründung, alternativen Quellen und möglichen Aktionen.
+- Display of app, installed version, available version, source, management status,
+  match confidence and trust status.
+- Filters for at least "Updates", "Adoptable", "Self-updating", "Unmatched" and
+  "Errors".
+- Detail view with match reasoning, alternative sources and possible actions.
 
 ### Adoption
 
-- Vorschau der noch nicht von Homebrew verwalteten, aber sicher zugeordneten Apps.
-- Einzelauswahl vor jeder Batch-Adoption.
-- Ausschluss unsicherer oder widersprüchlicher Matches aus der Vorauswahl.
-- Ausführung über strukturierte Prozessargumente, nicht über einen Shell-String.
-- Fortschritt und Ergebnis pro App; ein Fehler stoppt nicht zwingend unabhängige
-  Folgeaktionen, wird aber sichtbar und wiederholbar.
-- Kein automatisches Löschen oder Ersetzen außerhalb des von Homebrew vorgesehenen
-  Ablaufs.
+- Preview of apps that are not yet managed by Homebrew but are safely mapped.
+- Individual selection before every batch adoption.
+- Exclusion of uncertain or contradictory matches from the preselection.
+- Execution via structured process arguments, not via a shell string.
+- Progress and result per app; an error does not necessarily stop independent
+  follow-up actions, but is made visible and repeatable.
+- No automatic deletion or replacement outside the flow provided by Homebrew.
 
 ### Updates
 
-- Homebrew-Casks werden einschließlich `auto_updates` und `latest` berücksichtigt.
-- Mac-App-Store-Apps werden über `mas` aktualisiert.
-- Microsoft-Apps können über `msupdate` aktualisiert werden.
-- Selbst-updatende Apps werden standardmäßig nur angezeigt.
-- Nutzerfreigabe vor einer Updategruppe und sichtbarer Status pro App.
-- Nach jeder Aktion erfolgt ein erneuter lokaler Scan statt einer optimistischen
-  Erfolgsannahme.
-- Major-Upgrades werden gesondert gekennzeichnet und nicht mit regulären Updates
-  vermischt, da sie Lizenz, Dateiformate oder Systemvoraussetzungen ändern können.
-  Sie erfordern eine eigene Bestätigung mit sichtbarer Begründung.
-- Prüfergebnisse werden mit Zeitstempel zwischengespeichert, damit ein Neustart der
-  App keine vollständige Netzwerkprüfung auslöst. Das Cache-Alter ist sichtbar und
-  manuell invalidierbar.
+- Homebrew casks are considered including `auto_updates` and `latest`.
+- Mac App Store apps are updated via `mas`.
+- Microsoft apps can be updated via `msupdate`.
+- Self-updating apps are by default only displayed.
+- User approval before an update group and visible status per app.
+- After every action a fresh local scan is performed instead of an optimistic
+  assumption of success.
+- Major upgrades are labeled separately and not mixed with regular updates, since
+  they can change licensing, file formats or system requirements. They require their
+  own confirmation with a visible rationale.
+- Check results are cached with a timestamp so that restarting the app does not
+  trigger a full network check. The cache age is visible and can be invalidated
+  manually.
 
-### Ignorierlisten
+### Ignore lists
 
-- Apple-eigene und über MDM verwaltete Apps stehen auf einer System-Ignorierliste und
-  erscheinen nicht als Handlungsvorschlag.
-- Der Nutzer kann eine App dauerhaft ignorieren oder eine einzelne Version
-  überspringen.
-- Ignorierte Einträge bleiben einsehbar und rücknehmbar; sie werden nicht still
-  verborgen.
+- Apple's own apps and apps managed via MDM are on a system ignore list and do not
+  appear as suggested actions.
+- The user can ignore an app permanently or skip a single version.
+- Ignored entries remain viewable and revocable; they are not silently hidden.
 
-### Katalog und Neuinstallation
+### Catalog and new installation
 
-- Lokaler Cache des Cask-Katalogs und der 365-Tage-Installationsstatistik.
-- Suche über Token, Anzeigename und Beschreibung.
-- Sortierung nach Popularität und Name; weitere Filter können später folgen.
-- Detailansicht mit Quelle, Homepage, Version und relevanten Artefakten.
-- Installation ausschließlich nach Vorschau und expliziter Bestätigung.
+- Local cache of the cask catalog and the 365-day installation statistics.
+- Search across token, display name and description.
+- Sorting by popularity and name; further filters may follow later.
+- Detail view with source, homepage, version and relevant artifacts.
+- Installation only after preview and explicit confirmation.
 
-### Vertrauensspeicher
+### Trust store
 
-- Persistenz der beobachteten Team ID pro Bundle-ID mit Zeitstempel und Herkunft.
-- Protokoll explizit bestätigter Team-ID-Wechsel.
-- Lösch- oder Reset-Möglichkeit für gespeicherte Vertrauensentscheidungen.
-- Keine automatische Freigabe bei fehlender Signatur, Gatekeeper-Ablehnung oder
-  unerwartetem Team-ID-Wechsel.
+- Persistence of the observed Team ID per bundle ID with timestamp and origin.
+- Log of explicitly confirmed Team ID changes.
+- Ability to delete or reset stored trust decisions.
+- No automatic approval on a missing signature, Gatekeeper rejection or unexpected
+  Team ID change.
 
-## Nicht-funktionale Anforderungen
+## Non-functional requirements
 
-- Native macOS-App in Swift und SwiftUI; Ziel zunächst macOS 14+ auf Apple Silicon.
-- Swift-6-kompatibler, nebenläufigkeitssicherer Kern.
-- Lange Scans, Netzwerkanfragen und Paketprozesse blockieren nicht den Main Thread.
-- Ein abgebrochener oder fehlgeschlagener Prozess hinterlässt einen nachvollziehbaren
-  Zustand und keine Erfolgsmeldung.
-- Netzwerkantworten werden mit Zeitlimits, Größenlimits und expliziten Fehlern
-  verarbeitet.
-- Externe Befehle werden ausschließlich mit festen Executable-Pfaden beziehungsweise
-  validierter Tool-Auflösung und separaten Argumentlisten gestartet.
-- Kernlogik bleibt von SwiftUI getrennt und headless testbar.
-- Katalog- und Analyseantworten werden lokal gecacht; Herkunft und Abrufzeit sind
-  sichtbar.
-- Diagnoseprotokolle enthalten keine unnötigen personenbezogenen Daten und keine
-  geheimen Werte.
-- Barrierefreiheit, Tastaturnavigation und VoiceOver-Bezeichnungen werden für alle
-  primären Aktionen berücksichtigt.
+- Native macOS app in Swift and SwiftUI; initial target macOS 14+ on Apple Silicon.
+- Swift 6-compatible, concurrency-safe core.
+- Long scans, network requests and package processes do not block the main thread.
+- An aborted or failed process leaves a traceable state and no success message.
+- Network responses are handled with time limits, size limits and explicit errors.
+- External commands are launched only with fixed executable paths or validated tool
+  resolution and separate argument lists.
+- Core logic stays separate from SwiftUI and is testable headless.
+- Catalog and analysis responses are cached locally; origin and fetch time are
+  visible.
+- Diagnostic logs contain no unnecessary personal data and no secret values.
+- Accessibility, keyboard navigation and VoiceOver labels are considered for all
+  primary actions.
 
-## Sicherheitsanforderungen
+## Security requirements
 
-- Kein privilegierter, dauerhaft laufender Helper in v1.
-- Keine Shell-Interpolation für Toolaufrufe.
-- Keine automatische Aktion aufgrund eines reinen Fuzzy-Namensmatches.
-- Signatur- und Gatekeeper-Prüfung vor einem von OpenFreshr ausgeführten Ersatz.
-- Team-ID-Wechsel ist ein blockierender Vertrauenskonflikt mit explizitem Opt-in.
-- Homebrew übernimmt seine eigenen Checksummen-, Quarantäne- und Installerprüfungen;
-  OpenFreshr stellt deren Ergebnis nicht als eigenen Sicherheitsnachweis dar.
-- Appcast- und Katalogdaten gelten als nicht vertrauenswürdige Eingaben und werden
-  defensiv geparst.
-- URLs dürfen nur über unterstützte sichere Protokolle abgerufen werden; Weiterleitungen
-  und unerwartete Hosts müssen nachvollziehbar bleiben.
-- Die App zeigt vor einer Aktion den tatsächlichen Backend-Bezeichner und die
-  betroffene lokale App.
-- Fehlende oder mehrdeutige Bundle-Identität führt zu manueller Klärung, nicht zu
-  einem stillen Fallback.
-- Release-Artefakte werden per Developer ID signiert, notarisiert und gestapelt.
-- Der Release-Prozess soll dem bestehenden Muster der anderen Apps folgen:
-  secretloser Build und Preflight, getrennte Signierung mit menschlicher Freigabe
-  über den Notarisierungs-Broker.
+- No privileged, permanently running helper in v1.
+- No shell interpolation for tool invocations.
+- No automatic action based on a mere fuzzy name match.
+- Signature and Gatekeeper verification before a replacement performed by
+  OpenFreshr.
+- A Team ID change is a blocking trust conflict with explicit opt-in.
+- Homebrew performs its own checksum, quarantine and installer checks; OpenFreshr
+  does not present their result as its own security proof.
+- Appcast and catalog data are treated as untrusted input and parsed defensively.
+- URLs may only be fetched via supported secure protocols; redirects and unexpected
+  hosts must remain traceable.
+- Before an action, the app shows the actual backend identifier and the affected
+  local app.
+- Missing or ambiguous bundle identity leads to manual resolution, not to a silent
+  fallback.
+- Release artifacts are signed with Developer ID, notarized and stapled.
+- The release process should follow the existing pattern of the other apps:
+  secretless build and preflight, separate signing with human approval via the
+  notarization broker.
 
-## Datenmodell und Module
+## Data model and modules
 
-Die Architektur soll wenige tiefe, unabhängig testbare Module bilden:
+The architecture should form a few deep, independently testable modules:
 
-- **Inventory:** scannt App-Bundles und liefert normalisierte installierte Apps,
-  ohne Paketmanagerwissen.
-- **Source Catalog:** lädt und normalisiert Cask-, MAS-, MAU- und Sparkle-Metadaten.
-- **Resolver:** erzeugt nachvollziehbare Quellenkandidaten samt Match-Art,
-  Konfidenz und Konflikten.
-- **Versioning:** vergleicht herstellerabhängige Versionsdarstellungen konservativ.
-- **Trust:** ermittelt Signatur, Team ID und Gatekeeper-Status und verwaltet
-  Trust-on-first-use.
-- **Package Operations:** bietet eine einheitliche Backend-Schnittstelle für
-  Vorschau, Installation, Adoption und Update.
-- **Application Model:** orchestriert Scan, Aktualisierung, Aktionen und
-  Fehlerzustände für die UI.
-- **Catalog Experience:** Suche, Popularität, Details und Installationsablauf.
+- **Inventory:** scans app bundles and delivers normalized installed apps, without
+  package manager knowledge.
+- **Source Catalog:** loads and normalizes cask, MAS, MAU and Sparkle metadata.
+- **Resolver:** produces traceable source candidates including match type,
+  confidence and conflicts.
+- **Versioning:** conservatively compares vendor-specific version representations.
+- **Trust:** determines signature, Team ID and Gatekeeper status and manages
+  trust on first use.
+- **Package Operations:** provides a uniform backend interface for preview,
+  installation, adoption and update.
+- **Application Model:** orchestrates scan, refresh, actions and error states for
+  the UI.
+- **Catalog Experience:** search, popularity, details and installation flow.
 
-Diese Grenzen sind wichtiger als konkrete Dateinamen. Insbesondere dürfen
-`PackageBackend` und der lokale Scanner nicht miteinander verschmelzen.
+These boundaries matter more than concrete file names. In particular,
+`PackageBackend` and the local scanner must not merge with each other.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] OpenFreshr startet als native macOS-App und zeigt eine installierte Ansicht.
-- [ ] Ein Scan findet App-Bundles in allen definierten Verzeichnissen und bleibt
-      bei einem unlesbaren Bundle funktionsfähig.
-- [ ] Die Referenzdaten ergeben mindestens 100 automatisch zugeordnete Fremd-Apps.
-- [ ] Fuzzy-Vorschläge können die Referenzabdeckung auf mindestens 104 Apps erhöhen.
-- [ ] Ein absichtlich ähnlich benannter, aber falscher Cask wird nicht automatisch
-      übernommen.
-- [ ] Ohne Homebrew zeigt die App Bestand, Quellen und Versionsinformationen; nur
-      Homebrew-Aktionen sind deaktiviert und begründet.
-- [ ] Sicher zugeordnete, nicht verwaltete Casks erscheinen in einer
-      Adoption-Vorschau.
-- [ ] Der Nutzer kann Apps einzeln auswählen und Adoptionen einzeln nachvollziehen.
-- [ ] Jede Adoption wird nach Abschluss durch einen erneuten Scan verifiziert.
-- [ ] MAS-, MAU-, Sparkle- und Homebrew-Quellen können gleichzeitig an einer App
-      sichtbar sein.
-- [ ] Selbst-updatende Apps werden standardmäßig nicht durch OpenFreshr aktualisiert.
-- [ ] Ein ungültig signiertes oder von Gatekeeper abgelehntes Bundle wird blockiert.
-- [ ] Ein Team-ID-Wechsel wird blockiert, erklärt und nur nach expliziter
-      Bestätigung akzeptiert.
-- [ ] Der Katalog ist durchsuchbar und kann nach 365-Tage-Popularität sortiert werden.
-- [ ] Eine Kataloginstallation zeigt Backend und Token vor der Bestätigung.
-- [ ] OpenFreshr kann sich über einen signierten Sparkle-Feed selbst aktualisieren.
+- [ ] OpenFreshr starts as a native macOS app and shows an installed view.
+- [ ] A scan finds app bundles in all defined directories and stays functional when
+      a bundle is unreadable.
+- [ ] The reference data yield at least 100 automatically mapped third-party apps.
+- [ ] Fuzzy suggestions can raise the reference coverage to at least 104 apps.
+- [ ] A deliberately similarly named but wrong cask is not adopted automatically.
+- [ ] Without Homebrew the app shows inventory, sources and version information;
+      only Homebrew actions are disabled, with a stated reason.
+- [ ] Safely mapped, unmanaged casks appear in an adoption preview.
+- [ ] The user can select apps individually and trace adoptions individually.
+- [ ] Every adoption is verified by a fresh scan after completion.
+- [ ] MAS, MAU, Sparkle and Homebrew sources can be visible on one app at the same
+      time.
+- [ ] Self-updating apps are by default not updated by OpenFreshr.
+- [ ] An invalidly signed bundle, or one rejected by Gatekeeper, is blocked.
+- [ ] A Team ID change is blocked, explained and accepted only after explicit
+      confirmation.
+- [ ] The catalog is searchable and can be sorted by 365-day popularity.
+- [ ] A catalog installation shows backend and token before confirmation.
+- [ ] OpenFreshr can update itself via a signed Sparkle feed.
 
-## Testentscheidungen
+## Test decisions
 
-Tests prüfen beobachtbares Verhalten an stabilen Modulgrenzen, nicht private
-Implementierungsdetails.
+Tests verify observable behavior at stable module boundaries, not private
+implementation details.
 
-- **Inventory:** temporäre Bundle-Fixtures mit vollständigen, fehlenden und
-  beschädigten Plists; MAS-, Sparkle- und Electron-Marker.
-- **Resolver:** feste Cask- und App-Fixtures für exakte Namen, Bundle-ID-Treffer,
-  Fuzzy-Vorschläge, Mehrdeutigkeit und bekannte Fehlzuordnungen.
-- **Versioning:** reale Versionsformen aus dem Referenzscan, einschließlich
-  mehrteiliger und nicht rein numerischer Versionen.
-- **Trust:** signierte Test-Fixtures beziehungsweise abstrahierte
-  Prüfergebnisse für gleiche, geänderte und fehlende Team IDs.
-- **Package Operations:** Fake-Backends für Vorschau, Erfolg, Teilfehler, Abbruch
-  und Wiederholung; keine Tests sollen reale System-Apps verändern.
-- **Source Catalog:** gespeicherte API- und Appcast-Fixtures, damit Tests ohne Netz
-  reproduzierbar sind.
-- **End-to-End-Smoke-Test:** Scan einer kontrollierten Fixture-Struktur bis zur
-  UI-Darstellung und simulierten Adoption.
+- **Inventory:** temporary bundle fixtures with complete, missing and damaged
+  plists; MAS, Sparkle and Electron markers.
+- **Resolver:** fixed cask and app fixtures for exact names, bundle ID hits, fuzzy
+  suggestions, ambiguity and known mis-mappings.
+- **Versioning:** real version forms from the reference scan, including multi-part
+  and non-purely-numeric versions.
+- **Trust:** signed test fixtures or abstracted check results for identical, changed
+  and missing Team IDs.
+- **Package Operations:** fake backends for preview, success, partial failure, abort
+  and retry; no tests may modify real system apps.
+- **Source Catalog:** stored API and appcast fixtures so that tests are reproducible
+  without a network.
+- **End-to-end smoke test:** scan of a controlled fixture structure through to UI
+  presentation and simulated adoption.
 
-Das vorhandene Muster der Vergleichsprojekte wird übernommen: Kernlogik wird in
-einem separat testbaren Swift-Package beziehungsweise Core-Modul gehalten; Tests
-laufen headless. Das Xcode-Projekt wird aus einer deklarativen `project.yml`
-generiert und für den reproduzierbaren Release-Build eingecheckt.
+The existing pattern of the comparison projects is adopted: core logic is kept in a
+separately testable Swift package or core module; tests run headless. The Xcode
+project is generated from a declarative `project.yml` and checked in for the
+reproducible release build.
 
-## Stand der Technik
+## State of the art
 
-Zwei aktive Open-Source-Projekte verfolgen einen ähnlichen Zweck. Beide wurden am
-29.08.2026 geprüft, um Doppelarbeit zu vermeiden.
+Two active open-source projects pursue a similar purpose. Both were reviewed on
+29.08.2026 to avoid duplicated effort.
 
 ### chenasraf/OpenUpdater
 
-Swift, MIT, aktiv. Deckt GitHub Releases, Sparkle-Appcasts und direkte Downloads über
-**handgepflegte, crowdgesourcte YAML-Rezepte** ab.
+Swift, MIT, active. Covers GitHub Releases, Sparkle appcasts and direct downloads
+via **hand-maintained, crowdsourced YAML recipes**.
 
-Gemessen gegen dieselben 109 Fremd-Apps des Referenzsystems:
+Measured against the same 109 third-party apps of the reference system:
 
-| Ansatz | Abgedeckte Apps |
+| Approach | Apps covered |
 |---|---|
-| OpenUpdater: 53 Rezepte | 9 |
-| OpenUpdater: Rezepte + automatische Sparkle-Erkennung | 24 (22 %) |
-| OpenFreshr: vier bestehende Quellen | 100 (91 %) |
+| OpenUpdater: 53 recipes | 9 |
+| OpenUpdater: recipes + automatic Sparkle detection | 24 (22 %) |
+| OpenFreshr: four existing sources | 100 (91 %) |
 
-Die Abdeckung von OpenUpdater ist auf dem Referenzsystem eine **echte Teilmenge**: Es
-gibt keine App, die OpenUpdater abdeckt und OpenFreshr nicht.
+OpenUpdater's coverage on the reference system is a **true subset**: there is no
+app that OpenUpdater covers and OpenFreshr does not.
 
-Die Ursache ist strukturell, nicht qualitativ. Ein rezeptbasierter Ansatz reproduziert
-das Skalierungsproblem, an dem MacUpdater gescheitert ist: Jede unterstützte App
-erfordert dauerhafte manuelle Pflege. OpenFreshr verlagert diese Pflege an Instanzen,
-die sie ohnehin leisten — Homebrew, Apple, Microsoft und die Hersteller selbst.
+The cause is structural, not qualitative. A recipe-based approach reproduces the
+scaling problem on which MacUpdater failed: every supported app requires permanent
+manual maintenance. OpenFreshr shifts this maintenance to parties that already
+perform it anyway — Homebrew, Apple, Microsoft and the vendors themselves.
 
-**Übernommene Erkenntnisse:**
+**Insights adopted:**
 
-- Das deklarative Rezept-Schema (`check` mit JSON-Pfad oder HTML-Pattern, `download`,
-  `arch`, `channels`) ist eine gute Lösung für Apps ohne jede automatische Quelle und
-  dient als Vorlage für die Fallback-Rezepte in OpenFreshr.
-- Die Quellenabstraktion (`AppStoreSource`, `GitHubReleaseSource`, `SparkleSource`,
-  `HTTPVersionSource` hinter einem gemeinsamen Manager) bestätigt das hier gewählte
-  Backend-Protokoll unabhängig.
-- `XPCAuditToken` zeigt die korrekte Validierung des aufrufenden Clients in einem
-  privilegierten Helper — Referenz für die spätere Härtungsphase.
-- Drei Konzepte werden übernommen: gesonderte Behandlung von Major-Upgrades, ein
-  Cache für Prüfergebnisse und eine System-Ignorierliste.
+- The declarative recipe schema (`check` with JSON path or HTML pattern, `download`,
+  `arch`, `channels`) is a good solution for apps without any automatic source and
+  serves as a template for the fallback recipes in OpenFreshr.
+- The source abstraction (`AppStoreSource`, `GitHubReleaseSource`, `SparkleSource`,
+  `HTTPVersionSource` behind a common manager) independently confirms the backend
+  protocol chosen here.
+- `XPCAuditToken` shows the correct validation of the calling client in a privileged
+  helper — a reference for the later hardening phase.
+- Three concepts are adopted: separate handling of major upgrades, a cache for check
+  results and a system ignore list.
 
 ### jakejarvis/versioneer
 
-TypeScript, MIT, frühe Alpha. Ebenfalls ein nativer macOS-App-Updater, jedoch ohne
-Installation neuer Apps und ohne Signaturprüfung als Sicherheitsmerkmal.
+TypeScript, MIT, early alpha. Also a native macOS app updater, but without
+installing new apps and without signature verification as a security feature.
 
-### Abgrenzung
+### Differentiation
 
-Zwei Funktionen bietet keines der beiden Projekte und sie bleiben die Kernunterscheidung
-von OpenFreshr: **Installation neuer Apps aus einem durchsuchbaren Katalog** und die
-**Team-ID-Prüfung vor dem Ersetzen einer App**.
+Neither of the two projects offers two features, and they remain the core
+differentiators of OpenFreshr: **installing new apps from a searchable catalog** and
+the **Team ID check before replacing an app**.
 
-## Nicht-Ziele für v1
+## Non-goals for v1
 
-- Homebrew Formulae und allgemeine CLI-Tools verwalten.
-- Eine eigene native Download-, Entpack-, DMG-, PKG- und Deinstallations-Engine.
-- Eine kuratierte Datenbank nach dem Vorbild von MacUpdater.
-- Vollständig unbeaufsichtigte Updates ohne Nutzereinblick.
-- Ein dauerhaft privilegierter Helper.
-- Mac-App-Store-Vertrieb.
-- iOS-, iPadOS-, Windows- oder Linux-Unterstützung.
-- Unternehmensweite Geräteverwaltung, Richtlinien oder zentrale Telemetrie.
-- Automatisches Aktualisieren eingestellter oder nicht zuverlässig zuordenbarer Apps.
+- Managing Homebrew formulae and general CLI tools.
+- A custom native download, unpack, DMG, PKG and uninstallation engine.
+- A curated database modeled on MacUpdater.
+- Fully unattended updates without user oversight.
+- A permanently privileged helper.
+- Mac App Store distribution.
+- iOS, iPadOS, Windows or Linux support.
+- Enterprise-wide device management, policies or central telemetry.
+- Automatically updating discontinued or not reliably mappable apps.
 
-Formulae/CLI-Tools und eine native Installations-Engine bleiben mögliche spätere
-Erweiterungen, sofern ihr Nutzen die zusätzliche Komplexität rechtfertigt.
+Formulae/CLI tools and a native installation engine remain possible later
+extensions, provided their benefit justifies the additional complexity.
 
-## Risiken und offene Punkte
+## Risks and open items
 
-- **Falsche Zuordnung:** Der Rohscan enthält bereits einen plausiblen Fehlkandidaten
-  (`Copilot.app` zu `copilot-money`). Fuzzy-Matching muss deshalb erklärbar,
-  konservativ und für Aktionen standardmäßig nicht ausreichend sein.
-- **Cask-Drift:** Tokens, Artefakte und Maintainerentscheidungen können sich ändern.
-  Gespeicherte Zuordnungen brauchen erneute Plausibilitätsprüfung.
-- **Versionssemantik:** Hersteller verwenden uneinheitliche Versionsformate.
-  „Unbekannt“ ist besser als ein falsches Updateurteil.
-- **Homebrew-Verhalten:** `--adopt`, `--greedy` oder JSON-Strukturen können sich
-  ändern. Toolversion und Fähigkeiten müssen erkannt werden.
-- **MAS-Abhängigkeit:** `mas` ist ein separates Tool und kann Authentifizierung oder
-  App-Store-Zustand nicht vollständig kontrollieren.
-- **MAU-Abdeckung:** Nicht jede App mit Microsoft-Bundle-ID wird zwangsläufig durch
-  MAU verwaltet. Erkennung muss gegen `msupdate` bestätigt werden.
-- **Sparkle-Feeds:** Feeds können dynamisch erzeugt, architekturabhängig oder nicht
-  öffentlich sein. Ein eingebettetes Framework allein garantiert keinen lesbaren
-  Appcast.
-- **Laufende Apps:** Austausch aktiver Bundles kann fehlschlagen oder
-  inkonsistent werden. v1 benötigt klare Vorbedingungen und Hinweise zum Beenden.
-- **TOFU-Grenze:** Eine bereits kompromittierte Erstinstallation wird als
-  Ausgangsvertrauen gespeichert. Die UI muss diese Semantik klar benennen.
-- **Team-ID-Wechsel:** Legitime Übernahmen oder neue Signierzertifikate können
-  Warnungen erzeugen. Der Ausnahmeablauf darf nicht banalisiert werden.
-- **Apple-Apps:** `softwareupdate` bleibt zunächst Erkennungsquelle; konkrete
-  Ausführung und UX müssen separat validiert werden.
-- **Lizenz:** MIT, siehe [LICENSE](../LICENSE). Entschieden am 29.08.2026.
-- **Produktname:** Geprüft am 29.08.2026. Der ursprüngliche Arbeitstitel `OpenUpdatr`
-  kollidierte mit [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
-  (Swift, MIT, aktiv, gleicher Zweck) und wurde deshalb zu `OpenFreshr` geändert.
-  GitHub und npm sind für den neuen Namen frei. Eine markenrechtliche Prüfung steht
-  vor einer kommerziellen Nutzung weiterhin aus.
+- **Wrong mapping:** The raw scan already contains a plausible false candidate
+  (`Copilot.app` to `copilot-money`). Fuzzy matching must therefore be explainable,
+  conservative and, by default, insufficient for actions.
+- **Cask drift:** Tokens, artifacts and maintainer decisions can change. Stored
+  mappings need renewed plausibility checks.
+- **Version semantics:** Vendors use inconsistent version formats. "Unknown" is
+  better than a wrong update verdict.
+- **Homebrew behavior:** `--adopt`, `--greedy` or JSON structures can change. Tool
+  version and capabilities must be detected.
+- **MAS dependency:** `mas` is a separate tool and cannot fully control
+  authentication or App Store state.
+- **MAU coverage:** Not every app with a Microsoft bundle ID is necessarily managed
+  by MAU. Detection must be confirmed against `msupdate`.
+- **Sparkle feeds:** Feeds can be generated dynamically, architecture-dependent or
+  non-public. An embedded framework alone does not guarantee a readable appcast.
+- **Running apps:** Replacing active bundles can fail or become inconsistent. v1
+  needs clear preconditions and hints for quitting the app.
+- **TOFU limit:** An already compromised first installation is stored as the initial
+  trust. The UI must state this semantics clearly.
+- **Team ID change:** Legitimate takeovers or new signing certificates can produce
+  warnings. The exception flow must not be trivialized.
+- **Apple apps:** `softwareupdate` initially remains a detection source; concrete
+  execution and UX must be validated separately.
+- **License:** MIT, see [LICENSE](../LICENSE). Decided on 29.08.2026.
+- **Product name:** Checked on 29.08.2026. The original working title `OpenUpdatr`
+  collided with [chenasraf/OpenUpdater](https://github.com/chenasraf/OpenUpdater)
+  (Swift, MIT, active, same purpose) and was therefore changed to `OpenFreshr`.
+  GitHub and npm are free for the new name. A trademark review is still pending
+  before any commercial use.
 
 ## Rollout
 
-Die Umsetzung folgt vertikalen Tracer Bullets. Die erste Phase liefert bereits den
-zentralen Aha-Moment: vorhandene Apps werden erkannt und können kontrolliert in die
-Homebrew-Verwaltung übernommen werden. Spätere Phasen ergänzen echte Updates,
-Sicherheitsdurchsetzung, Kataloginstallation, zusätzliche Komfortfunktionen und
-schließlich den gehärteten Direktvertrieb.
+Implementation follows vertical tracer bullets. The first phase already delivers the
+central aha moment: existing apps are detected and can be adopted into Homebrew
+management in a controlled way. Later phases add real updates, security enforcement,
+catalog installation, additional convenience features and finally the hardened
+direct distribution.
 
-Details stehen in [PLAN.md](PLAN.md).
+Details are in [Implementation plan](PLAN.md).

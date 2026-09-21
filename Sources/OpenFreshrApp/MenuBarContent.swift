@@ -1,12 +1,12 @@
-import SwiftUI
 import AppKit
 import OpenFreshrCore
+import SwiftUI
 
 /// The menu-bar icon.
 ///
 /// It is a pure status glyph: a subtle outline when nothing is available, and a
 /// filled counter (the SF Symbol number, 1…50) when updates are waiting — the
-/// "Zähler bzw. hervorgehobenes Symbol" the spec asks for. It never carries an
+/// "counter or highlighted symbol" the spec asks for. It never carries an
 /// action; acting happens in the popover and, ultimately, the window.
 struct MenuBarLabel: View {
 
@@ -27,9 +27,9 @@ struct MenuBarLabel: View {
     private var accessibilityLabel: String {
         let count = viewModel.menuBarUpdateCount
         switch count {
-        case 0: return "OpenFreshr: keine Updates"
-        case 1: return "OpenFreshr: 1 Update verfügbar"
-        default: return "OpenFreshr: \(count) Updates verfügbar"
+        case 0: return String(localized: "OpenFreshr: no updates")
+        case 1: return String(localized: "OpenFreshr: 1 update available")
+        default: return String(localized: "OpenFreshr: \(count) updates available")
         }
     }
 }
@@ -39,7 +39,7 @@ struct MenuBarLabel: View {
 ///
 /// It is deliberately *not* a second execution path. There is no "update all"
 /// here: every replacement still flows through the window's preview and
-/// confirmation so the trust gate is never bypassed. "Fenster öffnen" simply
+/// confirmation so the trust gate is never bypassed. "Open Window" simply
 /// surfaces the window (pre-filtered to Updates) where that vetted flow lives.
 struct MenuBarContent: View {
 
@@ -76,8 +76,9 @@ struct MenuBarContent: View {
         HStack(spacing: 8) {
             Image(systemName: status.hasUpdates ? "arrow.down.circle.fill" : "checkmark.seal")
                 .foregroundStyle(status.hasUpdates ? Color.accentColor : Color.secondary)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text("OpenFreshr").font(.headline)
+                Text(verbatim: "OpenFreshr").font(.headline)
                 Text(headline(status))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -97,11 +98,11 @@ struct MenuBarContent: View {
     private func emptyOrCachedState(_ status: MenuBarStatus) -> some View {
         if status.availableUpdateCount > 0 {
             // We know a count from a previous session but have not re-scanned yet.
-            Text("Öffne das Fenster, um die Details zu sehen.")
+            Text("Open the window to see the details.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         } else {
-            Label("Alle Apps sind aktuell.", systemImage: "checkmark.circle")
+            Label("All apps are up to date.", systemImage: "checkmark.circle")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -127,7 +128,7 @@ struct MenuBarContent: View {
 
             let overflow = viewModel.appsWithAvailableUpdates.count - Self.maxListed
             if overflow > 0 {
-                Text("und \(overflow) weitere …")
+                Text("and \(overflow) more …")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -141,31 +142,31 @@ struct MenuBarContent: View {
                 openWindow(id: OpenFreshrScene.mainWindowID)
                 NSApp.activate(ignoringOtherApps: true)
             } label: {
-                Label("Fenster öffnen", systemImage: "macwindow")
+                Label("Open Window", systemImage: "macwindow")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             Button {
                 Task { await viewModel.checkNow() }
             } label: {
-                Label("Jetzt prüfen", systemImage: "arrow.clockwise")
+                Label("Check Now", systemImage: "arrow.clockwise")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .disabled(viewModel.menuBarStatus.isChecking)
 
             SettingsLink {
-                Label("Einstellungen …", systemImage: "gearshape")
+                Label("Settings …", systemImage: "gearshape")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             Divider()
 
             // OpenFreshr's own update, spelled out with the app name so it is
-            // never mistaken for the managed-app check ("Jetzt prüfen") above.
+            // never mistaken for the managed-app check ("Check Now") above.
             Button {
                 selfUpdate.checkFromMenu()
             } label: {
-                Label("Nach OpenFreshr-Updates suchen …", systemImage: "sparkles")
+                Label("Check for OpenFreshr Updates …", systemImage: "sparkles")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .disabled(!selfUpdate.canCheck)
@@ -175,7 +176,7 @@ struct MenuBarContent: View {
             Button(role: .destructive) {
                 NSApplication.shared.terminate(nil)
             } label: {
-                Label("OpenFreshr beenden", systemImage: "power")
+                Label("Quit OpenFreshr", systemImage: "power")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -184,19 +185,19 @@ struct MenuBarContent: View {
 
     private func headline(_ status: MenuBarStatus) -> String {
         switch status.availableUpdateCount {
-        case 0: return "Keine Updates verfügbar"
-        case 1: return "1 Update verfügbar"
-        default: return "\(status.availableUpdateCount) Updates verfügbar"
+        case 0: return String(localized: "No updates available")
+        case 1: return String(localized: "1 update available")
+        default: return String(localized: "\(status.availableUpdateCount) updates available")
         }
     }
 
     private func lastCheckedText(_ status: MenuBarStatus) -> String {
-        let cadence = "Prüfung: \(status.interval.label.lowercased())"
+        let cadence = String(localized: "Check: \(status.interval.label.lowercased())")
         guard let last = status.lastSuccessfulCheck else {
-            return "Noch nicht geprüft · \(cadence)"
+            return String(localized: "Not checked yet · \(cadence)")
         }
         let relative = Self.relativeFormatter.localizedString(for: last, relativeTo: Date())
-        return "Zuletzt geprüft \(relative) · \(cadence)"
+        return String(localized: "Last checked \(relative) · \(cadence)")
     }
 
     private func availableVersion(for report: AppUpdateReport) -> String? {
@@ -206,7 +207,6 @@ struct MenuBarContent: View {
     private static let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
-        formatter.locale = Locale(identifier: "de_DE")
         return formatter
     }()
 }

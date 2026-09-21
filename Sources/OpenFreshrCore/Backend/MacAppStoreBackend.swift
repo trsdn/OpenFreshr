@@ -58,10 +58,12 @@ public struct MacAppStoreBackend: PackageBackend {
     /// to `unbekannt`; it is never treated as "everything is up to date".
     public func outdated() -> [MasOutdatedEntry]? {
         guard let masURL = masURL() else { return nil }
-        guard let result = try? processRunner.run(
-            executableURL: masURL,
-            arguments: ["outdated"]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: masURL,
+                arguments: ["outdated"]
+            )
+        else {
             return nil
         }
         guard result.didSucceed else { return nil }

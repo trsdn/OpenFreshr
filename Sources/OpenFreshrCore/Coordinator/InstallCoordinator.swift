@@ -118,9 +118,11 @@ public struct InstallCoordinator: Sendable {
 
             if cask.shipsMovedArtifact {
                 let targets = Set(cask.movedArtifactTargets.map { $0.lowercased() })
-                guard let installedApp = apps.first(where: {
-                    targets.contains($0.bundleName.lowercased())
-                }) else {
+                guard
+                    let installedApp = apps.first(where: {
+                        targets.contains($0.bundleName.lowercased())
+                    })
+                else {
                     return .notConfirmedByRescan
                 }
                 // Record a first-use trust baseline for the freshly installed

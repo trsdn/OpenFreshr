@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// A single aggregate assertion over the **whole** regenerated fixture, derived
@@ -53,8 +54,9 @@ struct AggregateFixtureTests {
         let reports = try reports()
 
         func report(_ bundleName: String) throws -> AppReport {
-            try #require(reports.first { $0.app.bundleName == bundleName },
-                         "fixture is missing \(bundleName)")
+            try #require(
+                reports.first { $0.app.bundleName == bundleName },
+                "fixture is missing \(bundleName)")
         }
 
         // pkg-only: Microsoft Defender ships inside the microsoft-office suite
@@ -92,7 +94,8 @@ struct AggregateFixtureTests {
         )
 
         // noCaskMatch: a Microsoft internal app with no cask at all.
-        if case .ineligible(.noCaskMatch) = try report("Clawpilot.app").eligibility {} else {
+        if case .ineligible(.noCaskMatch) = try report("Clawpilot.app").eligibility {
+        } else {
             Issue.record("expected Clawpilot.app to be noCaskMatch")
         }
     }

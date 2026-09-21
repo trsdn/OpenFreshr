@@ -225,7 +225,7 @@ public enum CaskCatalogIngestion {
     /// same word (`com.cmuxterm.app`). Only <= 2-component tokens are rejected.
     private static let folderSuffixes = [
         ".app", ".pkg", ".bundle", ".framework", ".kext", ".plugin",
-        ".qlgenerator", ".prefpane", ".mdimporter", ".xpc"
+        ".qlgenerator", ".prefpane", ".mdimporter", ".xpc",
     ]
 
     private static let bundleIDRegex = try! NSRegularExpression(

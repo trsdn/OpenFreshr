@@ -174,16 +174,16 @@ final class SelfUpdateController {
             confirmInstall(version: version)
         case .upToDate:
             alert(
-                title: "OpenFreshr ist aktuell",
-                text: "Version \(currentVersion) ist die neueste verfügbare.")
+                title: String(localized: "OpenFreshr is up to date"),
+                text: String(localized: "Version \(currentVersion) is the latest available."))
             state = .idle
         case let .failed(message):
-            alert(title: "Update-Prüfung nicht möglich", text: message)
+            alert(title: String(localized: "Update check not possible"), text: message)
             state = .idle
         case let .installFailed(message):
             alert(
-                title: "Installation fehlgeschlagen",
-                text: "\(message)\n\nBitte OpenFreshr neu starten.")
+                title: String(localized: "Installation failed"),
+                text: String(localized: "\(message)\n\nPlease restart OpenFreshr."))
             state = .idle
         default:
             break
@@ -193,11 +193,11 @@ final class SelfUpdateController {
     private func confirmInstall(version: String) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "OpenFreshr \(version) ist bereit"
+        alert.messageText = String(localized: "OpenFreshr \(version) is ready")
         alert.informativeText =
-            "Installiert ist \(currentVersion). OpenFreshr wird ersetzt und startet neu."
-        alert.addButton(withTitle: "Installieren und neu starten")
-        alert.addButton(withTitle: "Später")
+            String(localized: "Installed is \(currentVersion). OpenFreshr will be replaced and restarts.")
+        alert.addButton(withTitle: String(localized: "Install and Restart"))
+        alert.addButton(withTitle: String(localized: "Later"))
         if alert.runModal() == .alertFirstButtonReturn {
             Task { await installAndRelaunch() }
         }
@@ -208,7 +208,7 @@ final class SelfUpdateController {
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = text
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: String(localized: "OK"))
         alert.runModal()
     }
 }

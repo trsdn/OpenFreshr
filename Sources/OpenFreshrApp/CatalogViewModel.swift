@@ -194,15 +194,15 @@ public final class CatalogViewModel {
     private static func outcome(for result: InstallResult, cask: Cask) -> CatalogInstallOutcome {
         switch result {
         case .installed:
-            return .init(state: .success, text: "Installiert und per Scan bestätigt.")
+            return .init(state: .success, text: String(localized: "Installed and confirmed by scan."))
         case .installedInstaller:
-            return .init(state: .success, text: "Installer ausgeführt; von Homebrew verwaltet.")
+            return .init(state: .success, text: String(localized: "Installer run; managed by Homebrew."))
         case .alreadyInstalled:
-            return .init(state: .info, text: "Bereits von Homebrew verwaltet – nichts zu tun.")
+            return .init(state: .info, text: String(localized: "Already managed by Homebrew – nothing to do."))
         case .notConfirmedByRescan:
             return .init(
                 state: .failure,
-                text: "Der Scan nach der Installation hat die App nicht gefunden. Bitte erneut versuchen."
+                text: String(localized: "The scan after the installation did not find the app. Please try again.")
             )
         case let .hardFailedWithCaskError(message):
             return .init(state: .failure, text: Self.trim(message))
@@ -216,10 +216,10 @@ public final class CatalogViewModel {
         case let .processFailed(exitCode, standardError):
             let detail = trim(standardError)
             return detail.isEmpty
-                ? "Installation fehlgeschlagen (Code \(exitCode))."
+                ? String(localized: "Installation failed (code \(exitCode)).")
                 : detail
         case .homebrewUnavailable, .toolUnavailable, .launchFailed,
-             .invalidCaskToken, .invalidIdentifier, .requiresAdoption:
+            .invalidCaskToken, .invalidIdentifier, .requiresAdoption:
             return reason.explanation
         }
     }

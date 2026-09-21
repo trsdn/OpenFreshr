@@ -4,6 +4,8 @@ options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
+  # English is the source language; German is a translation (Localizable.xcstrings).
+  developmentLanguage: en
 
 # The app shell consumes the UI-free core through the local Swift package. Only
 # the thin SwiftUI layer lives in the Xcode target; all logic stays in the
@@ -56,6 +58,8 @@ targets:
       # the bundle has to carry because it redistributes them.
       - path: THIRD_PARTY_NOTICES.txt
         buildPhase: resources
+      - path: Resources/AppIcon.icns
+        buildPhase: resources
     dependencies:
       - package: OpenFreshrCore
         product: OpenFreshrCore
@@ -64,6 +68,8 @@ targets:
     info:
       path: Sources/OpenFreshrApp/Info.plist
       properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, de]
         CFBundleDisplayName: OpenFreshr
         # Expanded from the single source in settings.base at build time, so the
         # version is defined in exactly one place.
@@ -71,7 +77,11 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.utilities
-        NSHumanReadableCopyright: "OpenFreshr"
+        NSHumanReadableCopyright: "Copyright © 2026 Torsten Mahr. Released under the MIT License."
+        CFBundleIconFile: AppIcon
+        OFRLicenseIdentifier: MIT
+        OFRRepositoryURL: https://github.com/trsdn/OpenFreshr
+        OFRIssueTrackerURL: https://github.com/trsdn/OpenFreshr/issues
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.openfreshr.app

@@ -1,0 +1,64 @@
+name: Repository stats
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 5 * * *"
+
+permissions:
+  contents: read
+
+# Two runs pushing to the same generated branch race each other.
+concurrency:
+  group: repo-stats
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    # The one workflow here with write access. It can only reach the generated
+    # `stats` branch, never `main` (which is protected), and holds no secret. The
+    # branch must exist before the first run: create it once from `main`.
+    permissions:
+      contents: write
+    uses: trsdn/.github/.github/workflows/repo-stats.yml@d99c090e092e4b4ef7f12fd58d191b3a33372860 # main after 1.13.0
+    with:
+      branch: stats
+      output-dir: .github/stats
+      theme: both
+      cards: repo-card
+      commit-message: "chore(stats): update repository stats"
+      generator-ref: d99c090e092e4b4ef7f12fd58d191b3a33372860
+
+  badges:
+    # Same limits as `stats`: write access only to the generated `stats` branch,
+    # no secret, no environment. Runs after `stats` so the two never push to that
+    # branch at the same time.
+    needs: stats
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+        with:
+          ref: main
+          path: source
+      - name: Check out the generated branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+        with:
+          ref: stats
+          path: target
+      - name: Render badges from their sources
+        run: python3 source/scripts/badges.py --out target/.github/badges-generated
+      - name: Commit changed badges
+        run: |
+          cd target
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- .github/badges-generated
+          if git diff --cached --quiet -- .github/badges-generated; then
+            echo "No badge changes."
+            exit 0
+          fi
+          git commit -m "chore(badges): update generated badges"
+          git push origin HEAD:stats

@@ -1,4 +1,5 @@
 import Testing
+
 @testable import OpenFreshrCore
 
 /// Tests for the pure state mapper. It is thin, but it is where the safety rule

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import OpenFreshrCore
 
 /// The production ``SystemCodeSignatureInspector`` exercised through a
@@ -31,7 +32,8 @@ struct CodeSignatureInspectorTests {
                 return ProcessResult(
                     exitCode: 0,
                     standardOutput: "",
-                    standardError: "Executable=/Applications/Example.app/Contents/MacOS/Example\nTeamIdentifier=EQHXZ8M8AV\n"
+                    standardError:
+                        "Executable=/Applications/Example.app/Contents/MacOS/Example\nTeamIdentifier=EQHXZ8M8AV\n"
                 )
             }
             return ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
@@ -47,12 +49,18 @@ struct CodeSignatureInspectorTests {
         #expect(info.wasDegradedByMissingTool == false)
 
         // Separated arguments, absolute paths, path terminator before the bundle.
-        #expect(runner.invocations.contains(.init(
-            executablePath: codesign, arguments: ["--verify", "--strict", "--", bundle])))
-        #expect(runner.invocations.contains(.init(
-            executablePath: codesign, arguments: ["-dv", "--", bundle])))
-        #expect(runner.invocations.contains(.init(
-            executablePath: spctl, arguments: ["--assess", "--type", "execute", "--", bundle])))
+        #expect(
+            runner.invocations.contains(
+                .init(
+                    executablePath: codesign, arguments: ["--verify", "--strict", "--", bundle])))
+        #expect(
+            runner.invocations.contains(
+                .init(
+                    executablePath: codesign, arguments: ["-dv", "--", bundle])))
+        #expect(
+            runner.invocations.contains(
+                .init(
+                    executablePath: spctl, arguments: ["--assess", "--type", "execute", "--", bundle])))
     }
 
     // MARK: - Unsigned
@@ -133,12 +141,15 @@ struct CodeSignatureInspectorTests {
 
     @Test
     func teamIdentifierNotSetNormalisesToNil() {
-        #expect(SystemCodeSignatureInspector.parseTeamIdentifier(
-            from: "TeamIdentifier=not set\n") == nil)
-        #expect(SystemCodeSignatureInspector.parseTeamIdentifier(
-            from: "Identifier=com.apple.Foo\nTeamIdentifier=UBF8T346G9\n") == "UBF8T346G9")
-        #expect(SystemCodeSignatureInspector.parseTeamIdentifier(
-            from: "no team here\n") == nil)
+        #expect(
+            SystemCodeSignatureInspector.parseTeamIdentifier(
+                from: "TeamIdentifier=not set\n") == nil)
+        #expect(
+            SystemCodeSignatureInspector.parseTeamIdentifier(
+                from: "Identifier=com.apple.Foo\nTeamIdentifier=UBF8T346G9\n") == "UBF8T346G9")
+        #expect(
+            SystemCodeSignatureInspector.parseTeamIdentifier(
+                from: "no team here\n") == nil)
     }
 
     /// `codesign` echoes the signing identifier, which the bundle controls. A
@@ -156,9 +167,9 @@ struct CodeSignatureInspectorTests {
     @Test
     func aRealTeamIdentifierLineIsStillReadAfterASmuggledOne() {
         let output = """
-        Identifier=com.evil.app TeamIdentifier=AAAAAAAAAA
-        TeamIdentifier=G69Z5BNY97
-        """
+            Identifier=com.evil.app TeamIdentifier=AAAAAAAAAA
+            TeamIdentifier=G69Z5BNY97
+            """
         #expect(SystemCodeSignatureInspector.parseTeamIdentifier(from: output) == "G69Z5BNY97")
     }
 }

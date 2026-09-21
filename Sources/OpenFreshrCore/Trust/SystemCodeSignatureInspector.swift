@@ -42,10 +42,12 @@ public struct SystemCodeSignatureInspector: CodeSignatureInspecting {
 
     private func verify(bundlePath: String) -> SignatureVerification {
         guard fileSystem.fileExists(atPath: codesignPath) else { return .toolUnavailable }
-        guard let result = try? processRunner.run(
-            executableURL: URL(fileURLWithPath: codesignPath),
-            arguments: ["--verify", "--strict", "--", bundlePath]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: URL(fileURLWithPath: codesignPath),
+                arguments: ["--verify", "--strict", "--", bundlePath]
+            )
+        else {
             return .toolUnavailable
         }
 
@@ -69,10 +71,12 @@ public struct SystemCodeSignatureInspector: CodeSignatureInspecting {
 
     private func readTeamIdentifier(bundlePath: String) -> String? {
         guard fileSystem.fileExists(atPath: codesignPath) else { return nil }
-        guard let result = try? processRunner.run(
-            executableURL: URL(fileURLWithPath: codesignPath),
-            arguments: ["-dv", "--", bundlePath]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: URL(fileURLWithPath: codesignPath),
+                arguments: ["-dv", "--", bundlePath]
+            )
+        else {
             return nil
         }
         // `codesign -dv` prints the display information to **stderr**, including a
@@ -107,10 +111,12 @@ public struct SystemCodeSignatureInspector: CodeSignatureInspecting {
 
     private func assess(bundlePath: String) -> GatekeeperAssessment {
         guard fileSystem.fileExists(atPath: spctlPath) else { return .toolUnavailable }
-        guard let result = try? processRunner.run(
-            executableURL: URL(fileURLWithPath: spctlPath),
-            arguments: ["--assess", "--type", "execute", "--", bundlePath]
-        ) else {
+        guard
+            let result = try? processRunner.run(
+                executableURL: URL(fileURLWithPath: spctlPath),
+                arguments: ["--assess", "--type", "execute", "--", bundlePath]
+            )
+        else {
             return .toolUnavailable
         }
         if result.didSucceed { return .accepted }

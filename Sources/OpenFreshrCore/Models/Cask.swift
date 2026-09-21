@@ -102,9 +102,10 @@ public struct Cask: Hashable, Sendable, Codable, Identifiable {
     /// `true` when the cask installs via `pkg`/`installer` and ships no moved
     /// artifact — an install-only cask that cannot be adopted losslessly.
     public var isInstallerOnly: Bool {
-        !shipsMovedArtifact && artifacts.contains {
-            $0.kind == .pkg || $0.kind == .installer
-        }
+        !shipsMovedArtifact
+            && artifacts.contains {
+                $0.kind == .pkg || $0.kind == .installer
+            }
     }
 
     /// All target file names of the cask's moved artifacts, e.g. `["Copilot.app"]`.

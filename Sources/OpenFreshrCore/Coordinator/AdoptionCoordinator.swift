@@ -225,8 +225,10 @@ public struct AdoptionCoordinator: Sendable {
             let postResolver = MatchResolver(index: index, managedTokens: postManaged)
             let apps = scanner.scan(directories: scanDirectories)
 
-            guard let rescanned = apps.first(where: { $0.bundlePath == app.bundlePath })
-                ?? apps.first(where: { $0.bundleName == app.bundleName }) else {
+            guard
+                let rescanned = apps.first(where: { $0.bundlePath == app.bundlePath })
+                    ?? apps.first(where: { $0.bundleName == app.bundleName })
+            else {
                 return .notConfirmedByRescan
             }
 

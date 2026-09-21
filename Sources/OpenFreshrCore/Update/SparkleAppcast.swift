@@ -32,7 +32,8 @@ public enum SparkleAppcast {
         using fetcher: any HTTPFetching
     ) async -> String? {
         guard let url = URL(string: feedURL),
-              url.scheme?.lowercased() == "https" else {
+            url.scheme?.lowercased() == "https"
+        else {
             return nil
         }
         guard let data = try? await fetcher.data(from: url) else { return nil }

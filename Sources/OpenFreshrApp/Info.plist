@@ -3,15 +3,22 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>OpenFreshr</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>de</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -25,6 +32,12 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>OpenFreshr</string>
+	<string>Copyright © 2026 Torsten Mahr. Released under the MIT License.</string>
+	<key>OFRIssueTrackerURL</key>
+	<string>https://github.com/trsdn/OpenFreshr/issues</string>
+	<key>OFRLicenseIdentifier</key>
+	<string>MIT</string>
+	<key>OFRRepositoryURL</key>
+	<string>https://github.com/trsdn/OpenFreshr</string>
 </dict>
 </plist>

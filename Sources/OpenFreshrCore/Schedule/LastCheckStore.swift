@@ -69,13 +69,15 @@ public final class JSONFileLastCheckStore: LastCheckStoring, @unchecked Sendable
     /// The default on-disk location:
     /// `Application Support/OpenFreshr/last-check.json`.
     public static func defaultURL(fileManager: FileManager = .default) -> URL {
-        let base = (try? fileManager.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )) ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
-        return base
+        let base =
+            (try? fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )) ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
+        return
+            base
             .appendingPathComponent("OpenFreshr", isDirectory: true)
             .appendingPathComponent("last-check.json", isDirectory: false)
     }
@@ -125,8 +127,8 @@ public final class JSONFileLastCheckStore: LastCheckStoring, @unchecked Sendable
 
     private static func load(from url: URL, fileManager: FileManager) -> Date? {
         guard fileManager.fileExists(atPath: url.path),
-              let data = try? Data(contentsOf: url),
-              let decoded = try? decoder().decode(Payload.self, from: data)
+            let data = try? Data(contentsOf: url),
+            let decoded = try? decoder().decode(Payload.self, from: data)
         else {
             return nil
         }

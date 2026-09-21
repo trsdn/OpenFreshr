@@ -1,5 +1,5 @@
-import SwiftUI
 import OpenFreshrCore
+import SwiftUI
 
 /// Which main area the window shows: the installed inventory (phases 1–4) or the
 /// catalog of installable apps (phase 5). A plain, additive switch so the two
@@ -12,8 +12,8 @@ enum AppSection: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .installed: return "Installiert"
-        case .catalog: return "Katalog"
+        case .installed: return String(localized: "Installed")
+        case .catalog: return String(localized: "Catalog")
         }
     }
 
@@ -35,8 +35,8 @@ struct CatalogSidebar: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("Apps im Katalog suchen", text: $model.query)
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
+                TextField("Search apps in the catalog", text: $model.query)
                     .textFieldStyle(.plain)
                     .onChange(of: model.query) { _, _ in model.search() }
                 if !model.query.isEmpty {
@@ -47,6 +47,7 @@ struct CatalogSidebar: View {
                         Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Clear search")
                 }
             }
             .padding(.horizontal, 12)
@@ -65,12 +66,12 @@ struct CatalogSidebar: View {
             .overlay {
                 if model.results.isEmpty && !model.isIndexing {
                     ContentUnavailableView(
-                        model.indexCount == 0 ? "Katalog wird geladen" : "Keine Treffer",
+                        model.indexCount == 0 ? String(localized: "Loading catalog") : String(localized: "No matches"),
                         systemImage: "magnifyingglass",
                         description: Text(
                             model.indexCount == 0
-                                ? "Sobald der Cask-Katalog geladen ist, kannst du hier suchen."
-                                : "Keine App passt zu „\(model.query)“."
+                                ? String(localized: "Once the cask catalog is loaded, you can search here.")
+                                : String(localized: "No app matches “\(model.query)”.")
                         )
                     )
                 }
@@ -83,13 +84,13 @@ struct CatalogSidebar: View {
         HStack(spacing: 6) {
             if model.isIndexing {
                 ProgressView().controlSize(.small)
-                Text("Suchindex wird aufgebaut …")
+                Text("Building search index …")
             } else if model.matchCount > model.results.count {
-                Text("\(model.results.count) von \(model.matchCount.formatted()) Treffern")
+                Text("\(model.results.count) of \(model.matchCount.formatted()) matches")
             } else if model.query.isEmpty {
-                Text("\(model.indexCount.formatted()) Apps durchsuchbar")
+                Text("\(model.indexCount.formatted()) apps searchable")
             } else {
-                Text("\(model.matchCount.formatted()) Treffer")
+                Text("\(model.matchCount.formatted()) matches")
             }
             Spacer()
         }
@@ -108,6 +109,7 @@ private struct CatalogRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: result.isInstallerOnly ? "shippingbox" : "app")
+                .accessibilityHidden(true)
                 .foregroundStyle(.secondary)
                 .imageScale(.large)
 
@@ -127,7 +129,7 @@ private struct CatalogRow: View {
                         .lineLimit(1)
                 }
                 if let count = result.installCount {
-                    Label("\(count.formatted()) Installationen/Jahr", systemImage: "chart.bar.fill")
+                    Label("\(count.formatted()) installs/year", systemImage: "chart.bar.fill")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
@@ -149,6 +151,7 @@ private struct CatalogRow: View {
             Image(systemName: outcomeSymbol(outcome.state))
                 .foregroundStyle(outcomeColor(outcome.state))
                 .help(outcome.text)
+                .accessibilityLabel(outcome.text)
         } else if result.isInstalled {
             CatalogInstalledBadge()
         }
@@ -174,7 +177,7 @@ private struct CatalogRow: View {
 /// A small capsule marking a catalog entry the machine already has.
 struct CatalogInstalledBadge: View {
     var body: some View {
-        Text("installiert")
+        Text("installed")
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -208,8 +211,8 @@ struct CatalogDetailView: View {
 
                 if result.isInstalled {
                     Label(
-                        result.installedBundleName.map { "Bereits installiert als \($0)." }
-                            ?? "Diese App ist bereits als installiert erkannt.",
+                        result.installedBundleName.map { String(localized: "Already installed as \($0).") }
+                            ?? String(localized: "This app is already recognized as installed."),
                         systemImage: "checkmark.seal"
                     )
                     .foregroundStyle(.green)
@@ -218,8 +221,7 @@ struct CatalogDetailView: View {
 
                 if result.isInstallerOnly {
                     Label(
-                        "Installer-Cask: installiert über pkg/Installer mit Rechteabfrage, nicht "
-                            + "über ein einfaches App-Bundle.",
+                        "Installer cask: installs via a pkg/installer with an authorization prompt, not via a simple app bundle.",
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .foregroundStyle(.orange)
@@ -242,7 +244,7 @@ struct CatalogDetailView: View {
                 Button {
                     showingInstallSheet = true
                 } label: {
-                    Label("Installieren", systemImage: "arrow.down.app")
+                    Label("Install", systemImage: "arrow.down.app")
                 }
                 .disabled(!appViewModel.homebrewAvailable || model.installInFlight.contains(cask.token))
             }
@@ -276,9 +278,12 @@ struct CatalogDetailView: View {
 
     private var factGrid: some View {
         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 8) {
-            fact("Version", cask.version ?? "unbekannt")
-            fact("Typ", artifactLabel)
-            fact("Popularität", result.installCount.map { "\($0.formatted()) Installationen/Jahr" } ?? "unbekannt")
+            fact("Version", cask.version ?? String(localized: "unknown"))
+            fact("Type", artifactLabel)
+            fact(
+                "Popularity",
+                result.installCount.map { String(localized: "\($0.formatted()) installs/year") }
+                    ?? String(localized: "unknown"))
             if let homepage = cask.homepage, let url = URL(string: homepage) {
                 GridRow {
                     Text("Homepage").foregroundStyle(.secondary)
@@ -297,12 +302,12 @@ struct CatalogDetailView: View {
 
     /// A human label for the cask's primary artifact kind.
     private var artifactLabel: String {
-        if cask.artifacts.contains(where: { $0.kind == .suite }) { return "Suite (App-Bundle)" }
-        if cask.artifacts.contains(where: { $0.kind == .app }) { return "App-Bundle" }
-        if cask.artifacts.contains(where: { $0.kind == .pkg }) { return "pkg-Installer" }
-        if cask.artifacts.contains(where: { $0.kind == .installer }) { return "Installer" }
-        if cask.artifacts.contains(where: { $0.kind == .binary }) { return "Binary" }
-        return "sonstiges Artefakt"
+        if cask.artifacts.contains(where: { $0.kind == .suite }) { return String(localized: "Suite (app bundle)") }
+        if cask.artifacts.contains(where: { $0.kind == .app }) { return String(localized: "App bundle") }
+        if cask.artifacts.contains(where: { $0.kind == .pkg }) { return String(localized: "pkg installer") }
+        if cask.artifacts.contains(where: { $0.kind == .installer }) { return String(localized: "Installer") }
+        if cask.artifacts.contains(where: { $0.kind == .binary }) { return String(localized: "Binary") }
+        return String(localized: "other artifact")
     }
 
     private func outcomeSymbol(_ state: CatalogInstallOutcome.State) -> String {
