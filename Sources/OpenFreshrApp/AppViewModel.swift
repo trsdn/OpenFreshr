@@ -96,6 +96,7 @@ public final class AppViewModel {
     /// Rebuilt alongside ``coordinator`` when the catalog loads. A value type, so
     /// swapping it is all the next update check needs to see the real catalog.
     private var updateCoordinator: UpdateCoordinator
+    @ObservationIgnored private var aiUpdateAssistant: any AIUpdateAssisting
     private let macAppStore: MacAppStoreBackend
     private let microsoftAutoUpdate: MicrosoftAutoUpdateBackend
     private let httpFetcher: any HTTPFetching
@@ -150,6 +151,40 @@ public final class AppViewModel {
             guard checkInterval != oldValue else { return }
             UserDefaults.standard.set(checkInterval.rawValue, forKey: Self.intervalDefaultsKey)
             backgroundChecker.updateInterval(checkInterval)
+        }
+    }
+
+    /// Which coding-agent CLI, if any, "Update with AI" hands a
+    /// ``UpdateBucket/manual`` app to. Off by default — this is opt-in, per the
+    /// weaker safety story documented on ``AIAgentKind``.
+    public var aiAgentKind: AIAgentKind = .none {
+        didSet {
+            guard aiAgentKind != oldValue else { return }
+            UserDefaults.standard.set(aiAgentKind.rawValue, forKey: Self.aiAgentKindDefaultsKey)
+        }
+    }
+
+    /// Appended after the agent's base invocation — starts at the one verified
+    /// autonomy flag for the selected agent and is fully editable, since GitHub
+    /// Copilot CLI in particular has no single "allow everything" flag to default
+    /// to (see ``AIAgentKind/defaultAutonomyArguments``).
+    public var aiAgentExtraArguments: String = "" {
+        didSet {
+            guard aiAgentExtraArguments != oldValue else { return }
+            UserDefaults.standard.set(aiAgentExtraArguments, forKey: Self.aiAgentExtraArgumentsDefaultsKey)
+        }
+    }
+
+    /// A person's override when the built-in candidate paths do not find the
+    /// selected agent's CLI. Keyed by agent so switching agents does not lose the
+    /// other's path.
+    public var aiAgentCustomPaths: [AIAgentKind: String] = [:] {
+        didSet {
+            guard aiAgentCustomPaths != oldValue else { return }
+            Self.saveAIAgentCustomPaths(aiAgentCustomPaths)
+            aiUpdateAssistant = SystemAIUpdateAssistant(
+                processRunner: SystemProcessRunner(), fileSystem: SystemFileSystem(),
+                customPaths: aiAgentCustomPaths)
         }
     }
 
@@ -225,6 +260,10 @@ public final class AppViewModel {
             MacOSUpdateEcosystem(processRunner: processRunner, fileSystem: fileSystem),
         ])
 
+        self.aiUpdateAssistant = SystemAIUpdateAssistant(
+            processRunner: processRunner, fileSystem: fileSystem,
+            customPaths: Self.loadAIAgentCustomPaths())
+
         // The live catalog provider: a real Application-Support cache plus the
         // bundled snapshot as the offline/first-run floor. The cache is read back
         // *only* through CaskCatalogIngestion (see the provider), so a tampered
@@ -283,6 +322,9 @@ public final class AppViewModel {
         self.lastKnownAvailableUpdateCount = UserDefaults.standard.integer(forKey: Self.lastKnownCountDefaultsKey)
         self.showsDockIcon = Self.loadShowsDockIcon()
         self.notifyOnNewUpdates = Self.loadNotifyOnNewUpdates()
+        self.aiAgentKind = Self.loadAIAgentKind()
+        self.aiAgentExtraArguments = Self.loadAIAgentExtraArguments()
+        self.aiAgentCustomPaths = Self.loadAIAgentCustomPaths()
         // Starting menu-bar-only: skip the first (auto-created, immediately
         // dismissed) window's scan so a headless relaunch stays quiet.
         self.suppressNextWindowScan = !Self.loadShowsDockIcon()
@@ -675,6 +717,52 @@ public final class AppViewModel {
         return remaining.isEmpty ? .upToDate : .outdated(remaining)
     }
 
+    /// Whether "Update with AI" can be offered right now: an agent is selected
+    /// and its CLI was actually found. Checked fresh each time rather than
+    /// cached, since Settings can change it, or the CLI can appear/disappear,
+    /// between checks.
+    public func isAIAgentAvailable() -> Bool {
+        aiAgentKind != .none && aiUpdateAssistant.resolvedPath(for: aiAgentKind) != nil
+    }
+
+    /// Hand a ``UpdateBucket/manual`` app's update to the configured agent CLI.
+    ///
+    /// Deliberately never offered for a source the trust gate has blocked — see
+    /// ``AIAgentKind`` — which the caller enforces by only ever calling this for
+    /// an app in the `.manual` bucket: such an app has no OpenFreshr-drivable
+    /// command at all, so there is no trust-gated replacement for this to route
+    /// around. The agent's own claim of success is exactly that — a claim — so
+    /// this still confirms by rescanning afterward, the same as every backend.
+    public func updateWithAI(_ report: AppUpdateReport) async {
+        let path = report.app.bundlePath
+        guard !updateInFlight.contains(path), let reason = report.manualReason else { return }
+        updateInFlight.insert(path)
+        defer { updateInFlight.remove(path) }
+
+        let request = AIUpdateRequest(
+            appName: report.app.displayName,
+            bundlePath: path,
+            installedVersion: report.app.displayVersion,
+            availableVersion: report.primarySource?.state.availableVersion,
+            reason: reason.explanation
+        )
+        let assistant = aiUpdateAssistant
+        let agent = aiAgentKind
+        let extraArguments = aiAgentExtraArguments.split(separator: " ").map(String.init)
+        let outcome = await Task.detached {
+            assistant.run(request, agent: agent, extraArguments: extraArguments, timeout: 300)
+        }.value
+
+        updateOutcomes[path] = outcome.output.isEmpty ? Self.updatedMessage : outcome.output
+
+        // Confirm by rescanning — the agent's own report of success is never
+        // trusted on its own, the same rule every other backend follows.
+        await checkForUpdates()
+        if outcome.didReportSuccess, let refreshed = updateReports[path], refreshed.bucket != .manual {
+            updateOutcomes[path] = Self.updatedMessage
+        }
+    }
+
     /// Run a batch of already-vetted items as one release. Returns `false` when
     /// the set could not be formed (it mixed major and regular upgrades) — the UI
     /// must keep those apart, so this is a guard, not an expected path.
@@ -871,6 +959,38 @@ public final class AppViewModel {
     static let showsDockIconDefaultsKey = "openfreshr.showsDockIcon"
     static let notifyOnNewUpdatesDefaultsKey = "openfreshr.notifyOnNewUpdates"
     static let lastKnownCountDefaultsKey = "openfreshr.lastKnownAvailableUpdateCount"
+    static let aiAgentKindDefaultsKey = "openfreshr.aiAgentKind"
+    static let aiAgentExtraArgumentsDefaultsKey = "openfreshr.aiAgentExtraArguments"
+    static let aiAgentCustomPathsDefaultsKey = "openfreshr.aiAgentCustomPaths"
+
+    static func loadAIAgentKind() -> AIAgentKind {
+        guard let raw = UserDefaults.standard.string(forKey: aiAgentKindDefaultsKey),
+            let parsed = AIAgentKind(rawValue: raw)
+        else { return .none }
+        return parsed
+    }
+
+    /// Seeded with the selected agent's one verified autonomy flag the first
+    /// time it is picked, so the field is never blank when it first appears —
+    /// but only the *last saved* text is ever read back, never recomputed from
+    /// the agent, so a person's edit always wins over the built-in default.
+    static func loadAIAgentExtraArguments() -> String {
+        UserDefaults.standard.string(forKey: aiAgentExtraArgumentsDefaultsKey) ?? ""
+    }
+
+    static func loadAIAgentCustomPaths() -> [AIAgentKind: String] {
+        guard let raw = UserDefaults.standard.dictionary(forKey: aiAgentCustomPathsDefaultsKey) as? [String: String]
+        else { return [:] }
+        return Dictionary(
+            uniqueKeysWithValues: raw.compactMap { key, value in
+                AIAgentKind(rawValue: key).map { ($0, value) }
+            })
+    }
+
+    static func saveAIAgentCustomPaths(_ paths: [AIAgentKind: String]) {
+        let raw = Dictionary(uniqueKeysWithValues: paths.map { ($0.key.rawValue, $0.value) })
+        UserDefaults.standard.set(raw, forKey: aiAgentCustomPathsDefaultsKey)
+    }
 
     static func loadCheckInterval() -> UpdateCheckInterval {
         guard let raw = UserDefaults.standard.string(forKey: intervalDefaultsKey),

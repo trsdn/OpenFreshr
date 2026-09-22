@@ -319,6 +319,7 @@ private struct UpdateRow: View {
     private var isUpdating: Bool { viewModel.updateInFlight.contains(path) }
     private var isMajor: Bool { update?.hasMajorUpdate == true }
     @State private var confirmingMajor = false
+    @State private var confirmingAI = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -371,10 +372,29 @@ private struct UpdateRow: View {
                 }
                 .help("Install the new version of \(report.app.displayName)")
             } else {
-                Button("Open") {
-                    NSWorkspace.shared.open(URL(fileURLWithPath: path))
+                HStack(spacing: 8) {
+                    if bucket == .manual && viewModel.isAIAgentAvailable() {
+                        Button("Update with AI") {
+                            confirmingAI = true
+                        }
+                        .confirmationDialog(
+                            "Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)?",
+                            isPresented: $confirmingAI
+                        ) {
+                            Button("Update with AI") { updateWithAI() }
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text(
+                                "It runs on its own, as you, without asking before each step. OpenFreshr does not check what it does, and only confirms afterward whether the app actually changed."
+                            )
+                        }
+                        .help("Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)")
+                    }
+                    Button("Open") {
+                        NSWorkspace.shared.open(URL(fileURLWithPath: path))
+                    }
+                    .help("Open \(report.app.displayName) to update it there")
                 }
-                .help("Open \(report.app.displayName) to update it there")
             }
         }
         .padding(.vertical, 4)
@@ -383,6 +403,11 @@ private struct UpdateRow: View {
     private func install() {
         guard let update, let source = update.sources.first(where: { $0.isDrivable }) else { return }
         Task { await viewModel.update(update, source: source) }
+    }
+
+    private func updateWithAI() {
+        guard let update else { return }
+        Task { await viewModel.updateWithAI(update) }
     }
 
     private var versionChange: String {

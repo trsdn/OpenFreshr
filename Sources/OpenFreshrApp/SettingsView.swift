@@ -115,9 +115,83 @@ struct SettingsView: View {
             }
             .formStyle(.grouped)
             .tabItem { Label("General", systemImage: "gearshape") }
+
+            Form {
+                Section {
+                    Picker("Agent", selection: $viewModel.aiAgentKind) {
+                        ForEach(AIAgentKind.allCases) { agent in
+                            Text(agent.label).tag(agent)
+                        }
+                    }
+                    .onChange(of: viewModel.aiAgentKind) { _, newValue in
+                        if viewModel.aiAgentExtraArguments.isEmpty {
+                            viewModel.aiAgentExtraArguments = newValue.defaultAutonomyArguments.joined(
+                                separator: " ")
+                        }
+                    }
+                    Text(
+                        "Off by default. For an app OpenFreshr cannot update itself, \"Update with AI\" hands that one app to this CLI and lets it act on its own, without asking before each step. It runs as you, never with more access than you already have — OpenFreshr does not check what it does, and only confirms afterward, by looking again, whether the app actually changed."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                } header: {
+                    Text("Update with AI")
+                }
+
+                if viewModel.aiAgentKind != .none {
+                    Section {
+                        LabeledContent("Status") {
+                            Text(agentStatusText)
+                                .foregroundStyle(viewModel.isAIAgentAvailable() ? Color.secondary : Color.orange)
+                        }
+                        TextField("Custom path", text: customPathBinding)
+                            .textFieldStyle(.roundedBorder)
+                        Text("Only needed when the CLI is not found automatically.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } header: {
+                        Text("Location")
+                    }
+
+                    Section {
+                        TextField("Arguments", text: $viewModel.aiAgentExtraArguments)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(.body, design: .monospaced))
+                        Text(
+                            "Appended after the prompt. Starts at the one flag that lets the agent act without asking each time; edit or clear it to change what it is allowed to do."
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    } header: {
+                        Text("Arguments")
+                    }
+                }
+            }
+            .formStyle(.grouped)
+            .tabItem { Label("AI", systemImage: "sparkles") }
         }
-        .frame(width: 460, height: 440)
+        .frame(width: 480, height: 520)
         .onAppear { launchAtLogin = SMAppService.mainApp.status == .enabled }
+    }
+
+    private var agentStatusText: String {
+        viewModel.isAIAgentAvailable()
+            ? String(localized: "Found") : String(localized: "Not found on this Mac")
+    }
+
+    private var customPathBinding: Binding<String> {
+        Binding(
+            get: { viewModel.aiAgentCustomPaths[viewModel.aiAgentKind] ?? "" },
+            set: { newValue in
+                var paths = viewModel.aiAgentCustomPaths
+                if newValue.isEmpty {
+                    paths.removeValue(forKey: viewModel.aiAgentKind)
+                } else {
+                    paths[viewModel.aiAgentKind] = newValue
+                }
+                viewModel.aiAgentCustomPaths = paths
+            }
+        )
     }
 
     /// Register or unregister the app as a login item, degrading gracefully: an
