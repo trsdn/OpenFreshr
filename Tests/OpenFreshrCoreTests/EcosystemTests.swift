@@ -353,6 +353,113 @@ struct NpmEcosystemTests {
     }
 }
 
+/// Verified directly against real `pnpm 10.33.3` (see ``PnpmEcosystem``'s doc
+/// comment): `pnpm outdated -g --json` shares npm's exact JSON contract and
+/// exit-code-1-means-outdated behaviour, so this suite mirrors
+/// ``NpmEcosystemTests`` case for case.
+@Suite("PnpmEcosystem")
+struct PnpmEcosystemTests {
+
+    private let pnpm = "/opt/homebrew/bin/pnpm"
+
+    private func ecosystem(
+        pnpmInstalled: Bool = true,
+        handler: @escaping @Sendable (URL, [String]) -> ProcessResult
+    ) -> (PnpmEcosystem, RecordingProcessRunner) {
+        var fileSystem = FakeFileSystem()
+        if pnpmInstalled { fileSystem.addExistingPath(pnpm) }
+        let runner = RecordingProcessRunner(handler: handler)
+        return (PnpmEcosystem(processRunner: runner, fileSystem: fileSystem), runner)
+    }
+
+    private let sample = """
+        {
+          "cowsay": {"current": "1.5.0", "wanted": "1.5.0", "latest": "1.6.0", "isDeprecated": false, "dependencyType": "dependencies"},
+          "typescript": {"current": "5.4.0", "wanted": "5.4.9", "latest": "5.6.0"}
+        }
+        """
+
+    @Test("It parses outdated packages, exit code 1 included, and prefers latest over wanted")
+    func parses() {
+        let (ecosystem, runner) = ecosystem { _, _ in
+            ProcessResult(exitCode: 1, standardOutput: self.sample, standardError: "")
+        }
+        let packages = ecosystem.check().packages
+        #expect(packages.map(\.name) == ["cowsay", "typescript"])
+        #expect(packages[0].available == "1.6.0")
+        #expect(runner.invocations.first?.arguments == ["outdated", "--global", "--json"])
+    }
+
+    @Test("Empty object, exit 0, is up to date")
+    func upToDate() {
+        let (ecosystem, _) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "{}", standardError: "") }
+        #expect(ecosystem.check() == .upToDate)
+    }
+
+    @Test("Exit 1 with stderr is a real failure, not \"outdated found\"")
+    func exitOneWithStderrIsFailure() {
+        let (ecosystem, _) = ecosystem { _, _ in
+            ProcessResult(exitCode: 1, standardOutput: "", standardError: "ERR_PNPM_FETCH_404")
+        }
+        #expect(ecosystem.check() == .unknown(.processFailed(exitCode: 1, standardError: "ERR_PNPM_FETCH_404")))
+    }
+
+    @Test("Output that is not the expected JSON is unknown, never up to date")
+    func garbage() {
+        let (ecosystem, _) = ecosystem { _, _ in
+            ProcessResult(exitCode: 1, standardOutput: "not json", standardError: "")
+        }
+        #expect(ecosystem.check() == .unknown(.unparsableOutput))
+    }
+
+    @Test("Without pnpm the ecosystem is unavailable and nothing runs")
+    func noPnpm() {
+        let (ecosystem, runner) = ecosystem(pnpmInstalled: false) { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        #expect(!ecosystem.isAvailable())
+        #expect(ecosystem.check() == .unavailable)
+        #expect(runner.invocations.isEmpty)
+    }
+
+    @Test("The update command targets @latest via `add`, unscoped and scoped alike")
+    func command() {
+        let (ecosystem, _) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "") }
+        let plain = OutdatedPackage(
+            ecosystem: .pnpm, name: "cowsay", installed: "1.5.0", available: "1.6.0", isMajor: false)
+        #expect(
+            ecosystem.resolveUpdateCommand(for: plain)?.arguments == ["add", "--global", "--", "cowsay@latest"])
+        let scoped = OutdatedPackage(
+            ecosystem: .pnpm, name: "@github/copilot", installed: "1.0.78", available: "1.0.87", isMajor: false)
+        #expect(
+            ecosystem.resolveUpdateCommand(for: scoped)?.arguments
+                == ["add", "--global", "--", "@github/copilot@latest"])
+    }
+
+    @Test("Names that could be parsed as flags are refused before any process runs")
+    func rejectsHostileNames() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        for name in ["-g", "--force", "a; rm -rf /", "UPPER", "", "left-pad\n", "@Scope/name"] {
+            let hostile = OutdatedPackage(ecosystem: .pnpm, name: name, installed: "1", available: "2", isMajor: false)
+            #expect(ecosystem.resolveUpdateCommand(for: hostile) == nil, "\(name)")
+            #expect(!ecosystem.update(hostile).didReportSuccess, "\(name)")
+        }
+        #expect(runner.invocations.isEmpty)
+    }
+
+    @Test("A package with the wrong ecosystem tag is refused, never routed to pnpm by name alone")
+    func refusesWrongEcosystemTag() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        let npmTagged = OutdatedPackage(
+            ecosystem: .npm, name: "cowsay", installed: "1.5.0", available: "1.6.0", isMajor: false)
+        #expect(ecosystem.resolveUpdateCommand(for: npmTagged) == nil)
+        #expect(!ecosystem.update(npmTagged).didReportSuccess)
+        #expect(runner.invocations.isEmpty)
+    }
+}
+
 @Suite("MacOSUpdateEcosystem")
 struct MacOSUpdateEcosystemTests {
 
