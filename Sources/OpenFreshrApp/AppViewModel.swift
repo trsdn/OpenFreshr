@@ -733,9 +733,9 @@ public final class AppViewModel {
     /// command at all, so there is no trust-gated replacement for this to route
     /// around. The agent's own claim of success is exactly that — a claim — so
     /// this still confirms by rescanning afterward, the same as every backend.
-    public func updateWithAI(_ report: AppUpdateReport) async {
+    public func updateWithAI(_ report: AppUpdateReport, bucket: UpdateBucket) async {
         let path = report.app.bundlePath
-        guard !updateInFlight.contains(path), let reason = report.manualReason else { return }
+        guard !updateInFlight.contains(path) else { return }
         updateInFlight.insert(path)
         defer { updateInFlight.remove(path) }
 
@@ -744,7 +744,7 @@ public final class AppViewModel {
             bundlePath: path,
             installedVersion: report.app.displayVersion,
             availableVersion: report.primarySource?.state.availableVersion,
-            reason: reason.explanation
+            reason: aiReason(for: report, bucket: bucket)
         )
         let assistant = aiUpdateAssistant
         let agent = aiAgentKind
@@ -758,8 +758,34 @@ public final class AppViewModel {
         // Confirm by rescanning — the agent's own report of success is never
         // trusted on its own, the same rule every other backend follows.
         await checkForUpdates()
-        if outcome.didReportSuccess, let refreshed = updateReports[path], refreshed.bucket != .manual {
+        if outcome.didReportSuccess, let refreshed = updateReports[path], !refreshed.hasUpdate {
             updateOutcomes[path] = Self.updatedMessage
+        }
+    }
+
+    /// What the agent is told about why it is being asked, per the bucket the
+    /// row was in when the person chose it. `.manual` states OpenFreshr's own
+    /// reason; the other buckets say plainly that the person chose the agent
+    /// over an available alternative, folding in the last recorded failure (a
+    /// trust block, a sudo refusal, …) when there is one, so the agent is not
+    /// left guessing at a "no automatic way" that is not actually true here.
+    private func aiReason(for report: AppUpdateReport, bucket: UpdateBucket) -> String {
+        if let manualReason = report.manualReason { return manualReason.explanation }
+        let path = report.app.bundlePath
+        let priorFailure = failedOutcome(for: path) ? updateOutcomes[path] : nil
+        switch bucket {
+        case .ready:
+            if let priorFailure {
+                return String(
+                    localized: "OpenFreshr's own attempt to update this failed: \(priorFailure)")
+            }
+            return String(
+                localized: "OpenFreshr could install this itself, but you chose the AI agent instead.")
+        case .ownUpdater:
+            return String(
+                localized: "This app has its own updater, but you chose the AI agent instead.")
+        case .manual, .cannotTell, .upToDate:
+            return String(localized: "No automatic way to update it.")
         }
     }
 
