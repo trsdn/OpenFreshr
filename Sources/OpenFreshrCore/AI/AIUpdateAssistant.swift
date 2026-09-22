@@ -56,16 +56,20 @@ public enum AIAgentKind: String, CaseIterable, Identifiable, Sendable, Codable {
     /// (`claude login` / `gh auth login`), the same as if the person ran them
     /// by hand.
     ///
-    /// GitHub Copilot CLI's own equivalent is a per-tool allowlist
-    /// (`--allow-tool 'shell(<pattern>)'`, e.g. `shell(brew)`), not a single
-    /// "allow everything" flag — no such flag was found in its `--help`, and
-    /// none is invented here. Its default scope is deliberately narrow; a
-    /// person who wants it broader sets that themselves in Settings.
+    /// GitHub Copilot CLI's `--allow-all-tools` is documented as *required for
+    /// non-interactive mode* — anything not covered by an allowlist is refused
+    /// outright when there is no terminal to ask on, observed directly as
+    /// "Permission denied and could not request permission from user" the one
+    /// time a narrower, hand-picked allowlist (`shell(brew)`) was tried here and
+    /// the agent reasonably needed a different tool (`plutil`) to look at the app
+    /// first. `--yolo` (equivalent to `--allow-all-tools --allow-all-paths
+    /// --allow-all-urls`) is the real, documented flag for this — not a broader
+    /// scope invented here.
     public var defaultAutonomyArguments: [String] {
         switch self {
         case .none: return []
         case .claudeCode: return ["--dangerously-skip-permissions"]
-        case .githubCopilot: return ["--allow-tool", "shell(brew)"]
+        case .githubCopilot: return ["--yolo"]
         }
     }
 }
