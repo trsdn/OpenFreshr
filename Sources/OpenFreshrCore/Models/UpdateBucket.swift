@@ -34,6 +34,18 @@ public enum ManualUpdateReason: Hashable, Sendable {
     /// No source offers a command OpenFreshr can run, for example because the
     /// backing tool is not installed.
     case noAutomaticWay
+
+    /// A plain sentence explaining the reason — the single home for this text so
+    /// the window and an AI-agent prompt (see `AIUpdateRequest`) never disagree
+    /// about why OpenFreshr itself could not do this.
+    public var explanation: String {
+        switch self {
+        case .homebrewCannotTakeOver:
+            return String(localized: "Homebrew cannot take this app over.")
+        case .noAutomaticWay:
+            return String(localized: "No automatic way to update it.")
+        }
+    }
 }
 
 extension AppUpdateReport {
