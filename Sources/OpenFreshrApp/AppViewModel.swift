@@ -220,7 +220,9 @@ public final class AppViewModel {
         self.httpFetcher = httpFetcher
 
         self.ecosystemCoordinator = EcosystemCoordinator(ecosystems: [
-            HomebrewFormulaEcosystem(processRunner: processRunner, fileSystem: fileSystem)
+            HomebrewFormulaEcosystem(processRunner: processRunner, fileSystem: fileSystem),
+            NpmEcosystem(processRunner: processRunner, fileSystem: fileSystem),
+            MacOSUpdateEcosystem(processRunner: processRunner, fileSystem: fileSystem),
         ])
 
         // The live catalog provider: a real Application-Support cache plus the
@@ -631,6 +633,12 @@ public final class AppViewModel {
             release,
             acknowledgingTeamChanges: acknowledgeTeamChange ? [item.app.bundlePath] : []
         )
+    }
+
+    /// Whether OpenFreshr can install `package` itself, for the row's Update-vs-Open
+    /// choice.
+    public func canAutomaticallyUpdate(_ package: OutdatedPackage) -> Bool {
+        ecosystemCoordinator.canAutomaticallyUpdate(package)
     }
 
     /// Install one outdated package and confirm the ecosystem's own report.

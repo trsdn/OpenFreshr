@@ -1111,6 +1111,16 @@
         }
       }
     },
+    "Install it in System Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installiere es in den Systemeinstellungen."
+          }
+        }
+      }
+    },
     "Install the new version of %@" : {
       "localizations" : {
         "de" : {
@@ -1851,12 +1861,32 @@
         }
       }
     },
+    "Open where %@ can be updated" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnen, wo %@ aktualisiert werden kann"
+          }
+        }
+      }
+    },
     "OpenFreshr %@ is ready" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OpenFreshr %@ ist bereit"
+          }
+        }
+      }
+    },
+    "OpenFreshr does not install this automatically." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr installiert das nicht automatisch."
           }
         }
       }

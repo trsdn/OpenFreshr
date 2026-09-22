@@ -173,6 +173,15 @@ public struct EcosystemCoordinator: Sendable {
         }
     }
 
+    /// Whether OpenFreshr can install `package` itself, i.e. its ecosystem is
+    /// configured and offers a command for it. `false` means the person has to
+    /// act themselves; a caller should offer to open the right place instead of
+    /// calling ``update(_:)``.
+    public func canAutomaticallyUpdate(_ package: OutdatedPackage) -> Bool {
+        guard let ecosystem = ecosystems.first(where: { $0.kind == package.ecosystem }) else { return false }
+        return ecosystem.resolveUpdateCommand(for: package) != nil
+    }
+
     /// Updates the given packages one after another, then checks each affected
     /// ecosystem again so a reported success is confirmed rather than trusted.
     public func update(_ packages: [OutdatedPackage]) async -> [PackageUpdateResult] {
