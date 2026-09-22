@@ -66,6 +66,13 @@ public enum BackendFailureReason: Sendable, Equatable {
     /// place to install it" instead of calling ``EcosystemUpdating/update(_:)`` at
     /// all.
     case requiresManualAction
+    /// The tool itself asked for elevated privileges mid-run (observed directly:
+    /// Homebrew's cask adoption can shell out to `sudo chmod` to fix up an
+    /// existing app's permissions before taking it over). OpenFreshr never
+    /// supplies a password and has no privileged helper, so the command was
+    /// refused by the OS, not by OpenFreshr — this names that plainly instead of
+    /// showing the raw `sudo: a password is required` transcript.
+    case requiresAdministratorPrivileges
 
     public var explanation: String {
         switch self {
@@ -86,6 +93,11 @@ public enum BackendFailureReason: Sendable, Equatable {
             return String(localized: "Requires adoption first — cask “\(token)” is not managed by brew (not executed).")
         case .requiresManualAction:
             return String(localized: "OpenFreshr does not install this automatically.")
+        case .requiresAdministratorPrivileges:
+            return String(
+                localized:
+                    "This needs administrator rights that OpenFreshr does not ask for. Please install it yourself."
+            )
         }
     }
 }

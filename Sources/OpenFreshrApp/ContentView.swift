@@ -145,28 +145,50 @@ struct ContentView: View {
 
     private func count(_ bucket: UpdateBucket) -> Int { groups[bucket]?.count ?? 0 }
 
+    /// A section with its own clickable header, not `Section(isExpanded:)`: on
+    /// macOS that control only draws a working disclosure triangle under
+    /// `.listStyle(.sidebar)`, and this list uses `.inset` — under `.inset` the
+    /// section quietly has no way to open it at all. A plain button always works,
+    /// regardless of list style.
     @ViewBuilder
     private func collapsible(
         _ bucket: UpdateBucket, isExpanded: Binding<Bool>, title: LocalizedStringKey,
         footer: LocalizedStringKey? = nil
     ) -> some View {
         if let reports = groups[bucket], !reports.isEmpty {
-            Section(isExpanded: isExpanded) {
-                ForEach(reports) { report in
-                    HStack(spacing: 10) {
-                        AppIcon(path: report.app.bundlePath, size: 24)
-                        Text(report.app.displayName)
-                        Spacer()
-                        Text(report.app.displayVersion ?? "")
-                            .foregroundStyle(.secondary)
+            Section {
+                if isExpanded.wrappedValue {
+                    ForEach(reports) { report in
+                        HStack(spacing: 10) {
+                            AppIcon(path: report.app.bundlePath, size: 24)
+                            Text(report.app.displayName)
+                            Spacer()
+                            Text(report.app.displayVersion ?? "")
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.callout)
                     }
-                    .font(.callout)
-                }
-                if let footer {
-                    Text(footer).font(.caption).foregroundStyle(.secondary)
+                    if let footer {
+                        Text(footer).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
             } header: {
-                Text(title)
+                Button {
+                    isExpanded.wrappedValue.toggle()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.right")
+                            .rotationEffect(.degrees(isExpanded.wrappedValue ? 90 : 0))
+                            .imageScale(.small)
+                        Text(title)
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(
+                    isExpanded.wrappedValue
+                        ? String(localized: "Collapse") : String(localized: "Expand"))
             }
         }
     }
@@ -199,12 +221,26 @@ private struct PackageRow: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(package.name)
-                    .font(.headline)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(package.name)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Text(package.ecosystem.label)
+                        .font(.caption2.weight(.medium))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(.quaternary, in: Capsule())
+                        .foregroundStyle(.secondary)
+                }
                 Text(versionChange)
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                if let description = package.description {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
                 if !canAutomaticallyUpdate {
                     Text(hint)
                         .font(.caption)
@@ -214,7 +250,7 @@ private struct PackageRow: View {
                     Text(problem)
                         .font(.caption)
                         .foregroundStyle(.orange)
-                        .lineLimit(3)
+                        .lineLimit(6)
                 }
             }
 
@@ -310,7 +346,7 @@ private struct UpdateRow: View {
                     Text(problem)
                         .font(.caption)
                         .foregroundStyle(.orange)
-                        .lineLimit(3)
+                        .lineLimit(6)
                 }
             }
 

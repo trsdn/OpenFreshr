@@ -185,6 +185,61 @@ struct HomebrewBackendTests {
         }
     }
 
+    // MARK: - Administrator privileges
+
+    /// A real transcript captured from `brew install --cask --adopt`: adoption can
+    /// shell out to `sudo chmod` to fix up an existing app's permissions, and it
+    /// fails this way with no TTY and no stored password — exactly OpenFreshr's
+    /// situation. This must be classified distinctly, not folded into a generic
+    /// non-zero exit, so the reason shown is "needs administrator rights", not a
+    /// raw sudo transcript.
+    @Test
+    func classifiesSudoRefusalAsRequiresAdministratorPrivileges() {
+        let runner = RecordingProcessRunner { _, _ in
+            ProcessResult(
+                exitCode: 1,
+                standardOutput: "",
+                standardError: """
+                    ==> Adopting existing App at '/Applications/Example.app'
+                    sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+                    sudo: a password is required
+                    Error: example: Failure while executing; `/usr/bin/sudo -E -- chmod -R a+rX,go-w /Applications/Example.app` exited with 1.
+                    """
+            )
+        }
+        let backend = HomebrewBackend(
+            processRunner: runner,
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        guard case let .failed(reason) = backend.adopt(app: sampleApp(), caskToken: "example") else {
+            Issue.record("a sudo refusal must be classified as a failure")
+            return
+        }
+        #expect(reason == .requiresAdministratorPrivileges)
+    }
+
+    @Test
+    func sudoRefusalIsNotMistakenForACaskError() {
+        let runner = RecordingProcessRunner { _, _ in
+            ProcessResult(
+                exitCode: 1,
+                standardOutput: "",
+                standardError: "sudo: a password is required\nError: CaskError-looking text is absent here"
+            )
+        }
+        let backend = HomebrewBackend(
+            processRunner: runner,
+            fileSystem: fileSystem(brewPaths: [appleSiliconBrew])
+        )
+
+        guard case let .failed(reason) = backend.update(identifier: "example", strategy: .upgrade) else {
+            Issue.record("expected a failed result")
+            return
+        }
+        #expect(reason == .requiresAdministratorPrivileges)
+    }
+
     @Test
     func classifiesOtherNonZeroExitAsProcessFailure() {
         let runner = RecordingProcessRunner { _, _ in

@@ -38,10 +38,15 @@ public enum TrustBlock: Sendable, Hashable {
         case .unsigned:
             return String(
                 localized: "The app bundle is not signed. OpenFreshr does not replace an unsigned app automatically.")
-        case let .signatureInvalid(message):
-            return String(localized: "The signature check failed (\(message)). The replacement is blocked.")
-        case let .gatekeeperRejected(message):
-            return String(localized: "Gatekeeper rejected the bundle (\(message)). The replacement is blocked.")
+        case .signatureInvalid:
+            return String(
+                localized:
+                    "The app's signature does not check out. OpenFreshr does not replace it automatically.")
+        case .gatekeeperRejected:
+            return String(
+                localized:
+                    "macOS itself refuses to run this app's signature (Gatekeeper). OpenFreshr does not replace it automatically."
+            )
         case .identityUnreadable:
             return String(
                 localized:
