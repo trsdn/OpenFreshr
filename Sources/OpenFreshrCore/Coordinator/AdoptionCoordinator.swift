@@ -28,6 +28,18 @@ public struct AppReport: Sendable, Identifiable {
 
     /// Convenience: the cask token this app may be adopted as, if any.
     public var adoptableCaskToken: String? { eligibility.caskToken }
+
+    /// The cask token Homebrew already manages this app as, or `nil` when no
+    /// source here is an actively-managing Homebrew cask. The single place "is
+    /// this app Homebrew-managed" is answered, so Uninstall is offered only
+    /// where it is true — never for an app merely *matched* to a cask, which
+    /// ``adoptableCaskToken`` (an unmanaged suggestion) can also be non-nil for.
+    public var managedCaskToken: String? {
+        for case let .homebrew(token, _, managed) in sources where managed {
+            return token
+        }
+        return nil
+    }
 }
 
 /// The result of an adoption attempt, confirmed by a rescan.

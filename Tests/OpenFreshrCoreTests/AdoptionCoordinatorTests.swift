@@ -54,6 +54,22 @@ struct AdoptionCoordinatorTests {
         #expect(onePassword.eligibility == .eligible(caskToken: "1password"))
     }
 
+    @Test
+    func managedCaskTokenIsSetOnlyForAnAlreadyManagedHomebrewSource() throws {
+        let apps = try Fixture.installedApps()
+
+        let managedReports = try coordinator(apps: apps, backend: FakeBackend(managed: ["1password"]))
+            .makeReports()
+        let managedOnePassword = try #require(managedReports.first { $0.app.bundleName == "1Password.app" })
+        #expect(managedOnePassword.managedCaskToken == "1password")
+
+        // Unmanaged: matched but not yet adopted — the Uninstall gate must not
+        // fire for a mere suggestion.
+        let unmanagedReports = try coordinator(apps: apps, backend: FakeBackend()).makeReports()
+        let unmanagedOnePassword = try #require(unmanagedReports.first { $0.app.bundleName == "1Password.app" })
+        #expect(unmanagedOnePassword.managedCaskToken == nil)
+    }
+
     // MARK: - Adoption confirmed only by rescan
 
     @Test

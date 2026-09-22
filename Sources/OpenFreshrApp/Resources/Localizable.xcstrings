@@ -1111,6 +1111,16 @@
         }
       }
     },
+    "Homebrew reported success, but still lists this app as managed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew hat Erfolg gemeldet, führt diese App aber weiterhin als verwaltet."
+          }
+        }
+      }
+    },
     "Homebrew was not found" : {
       "localizations" : {
         "de" : {
@@ -2271,6 +2281,26 @@
         }
       }
     },
+    "Remove %@ via Homebrew" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ über Homebrew entfernen"
+          }
+        }
+      }
+    },
+    "Removes it via Homebrew (brew uninstall). This does not touch its settings or documents." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernt sie über Homebrew (brew uninstall). Dabei bleiben ihre Einstellungen und Dokumente unberührt."
+          }
+        }
+      }
+    },
     "Replace anyway" : {
       "localizations" : {
         "de" : {
@@ -2917,6 +2947,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nicht zugeordnet"
+          }
+        }
+      }
+    },
+    "Uninstall" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deinstallieren"
+          }
+        }
+      }
+    },
+    "Uninstall %@?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ deinstallieren?"
           }
         }
       }

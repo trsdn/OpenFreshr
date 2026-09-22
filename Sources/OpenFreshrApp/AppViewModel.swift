@@ -79,6 +79,17 @@ public final class AppViewModel {
     /// Per-app last update outcome message, keyed by bundle path.
     public private(set) var updateOutcomes: [String: String] = [:]
 
+    /// Bundle paths whose uninstall is in flight (#40), tracked separately from
+    /// ``updateInFlight`` so a row's spinner never claims "Updating …" for an
+    /// action that is actually removing the app.
+    public private(set) var uninstallInFlight: Set<String> = []
+
+    /// Per-app last uninstall outcome message, keyed by bundle path. Only ever
+    /// populated on failure: a confirmed uninstall removes the app from
+    /// ``reports`` on the following rescan, so there is no row left to show a
+    /// success line on.
+    public private(set) var uninstallOutcomes: [String: String] = [:]
+
     /// The most recent human-facing update outcome, for the status line.
     public private(set) var lastUpdateMessage: String?
 
@@ -89,6 +100,10 @@ public final class AppViewModel {
     /// the first frame is not blocked on parsing the snapshot.
     private var coordinator: AdoptionCoordinator
     private let backend: HomebrewBackend
+
+    /// Owns **verify managed → uninstall → confirm** (#40). Never rebuilt
+    /// alongside ``coordinator`` — it only needs the backend, not the catalog.
+    private let uninstallCoordinator: UninstallCoordinator
     private let scanner: InventoryScanner
     private let scanDirectories: [String]
 
@@ -241,6 +256,7 @@ public final class AppViewModel {
         let scanner = InventoryScanner(fileSystem: fileSystem)
 
         self.backend = backend
+        self.uninstallCoordinator = UninstallCoordinator(backend: backend)
         self.scanner = scanner
         self.scanDirectories = InventoryScanner.defaultScanDirectories
 
@@ -895,6 +911,49 @@ public final class AppViewModel {
         case let .blockedByTrust(block):
             lastAdoptionMessage = String(localized: "\(app.displayName): \(block.explanation)")
         }
+    }
+
+    /// Remove `report`'s app via Homebrew (#40), then confirm the outcome with a
+    /// fresh full scan. A no-op when Homebrew does not currently manage this app
+    /// — see ``AppReport/managedCaskToken``, the same fact the Uninstall button
+    /// is gated on, checked again here so a stale UI can never trigger a wrong
+    /// removal.
+    ///
+    /// Scoped to Homebrew-managed apps only, exactly like ``UninstallCoordinator``:
+    /// there is no command here that removes a `.app` bundle directly.
+    public func uninstall(_ report: AppReport) async {
+        guard let token = report.managedCaskToken else { return }
+        let path = report.app.bundlePath
+        guard !uninstallInFlight.contains(path) else { return }
+        uninstallInFlight.insert(path)
+        defer { uninstallInFlight.remove(path) }
+        uninstallOutcomes[path] = nil
+
+        let coordinator = self.uninstallCoordinator
+        let result = await Task.detached {
+            coordinator.uninstall(caskToken: token)
+        }.value
+
+        switch result {
+        case .uninstalled:
+            // Nothing to say: the rescan below drops this row entirely.
+            break
+        case .notManaged:
+            // The button state was stale (someone else's action changed it
+            // between the click and this call); nothing to report either.
+            break
+        case let .hardFailedWithCaskError(message):
+            uninstallOutcomes[path] = String(localized: "Aborted (CaskError): \(message)")
+        case let .failed(reason):
+            uninstallOutcomes[path] = reason.explanation
+        case .notConfirmedByRescan:
+            uninstallOutcomes[path] = String(
+                localized: "Homebrew reported success, but still lists this app as managed.")
+        }
+
+        // Re-detect so a confirmed removal drops the row and nothing downstream
+        // still references a bundle that is gone.
+        await scan()
     }
 
     // MARK: - Trust (phase 4)
