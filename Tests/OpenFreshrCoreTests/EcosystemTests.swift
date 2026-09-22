@@ -565,6 +565,121 @@ struct PnpmEcosystemTests {
     }
 }
 
+/// Verified directly against real `pipx 1.17.3` (see ``PipxEcosystem``'s doc
+/// comment): `pipx list --outdated --json` is a genuinely read-only check,
+/// unlike the `pipx upgrade`-only world issue #29 originally found — no
+/// dry-run existed then. Also unlike npm/pnpm, it exits `0` whether or not
+/// anything is outdated; the payload alone carries the answer.
+@Suite("PipxEcosystem")
+struct PipxEcosystemTests {
+
+    private let pipx = "/opt/homebrew/bin/pipx"
+
+    private func ecosystem(
+        pipxInstalled: Bool = true,
+        handler: @escaping @Sendable (URL, [String]) -> ProcessResult
+    ) -> (PipxEcosystem, RecordingProcessRunner) {
+        var fileSystem = FakeFileSystem()
+        if pipxInstalled { fileSystem.addExistingPath(pipx) }
+        let runner = RecordingProcessRunner(handler: handler)
+        return (PipxEcosystem(processRunner: runner, fileSystem: fileSystem), runner)
+    }
+
+    private let sample = """
+        {
+          "data": {
+            "packages": [
+              {"package": "cowsay", "version": "5.0", "latest_version": "6.1", "environment": "cowsay", "injected": false, "pinned": false}
+            ],
+            "packages_checked": 1,
+            "skipped": []
+          },
+          "errors": [],
+          "exit_code": 0,
+          "pipx_result_version": "1",
+          "status": "success"
+        }
+        """
+
+    @Test("It parses the real pipx --outdated --json shape")
+    func parses() {
+        let (ecosystem, runner) = ecosystem { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: self.sample, standardError: "")
+        }
+        let packages = ecosystem.check().packages
+        #expect(packages.map(\.name) == ["cowsay"])
+        #expect(packages[0].installed == "5.0")
+        #expect(packages[0].available == "6.1")
+        #expect(runner.invocations.first?.arguments == ["list", "--outdated", "--json"])
+    }
+
+    @Test("An empty packages array, exit 0, is up to date")
+    func upToDate() {
+        let json = #"{"data": {"packages": [], "packages_checked": 3, "skipped": []}, "exit_code": 0}"#
+        let (ecosystem, _) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: json, standardError: "") }
+        #expect(ecosystem.check() == .upToDate)
+    }
+
+    @Test("A non-zero exit is always a real failure — pipx never uses exit code to signal \"outdated\"")
+    func nonZeroExitIsFailure() {
+        let (ecosystem, _) = ecosystem { _, _ in
+            ProcessResult(exitCode: 1, standardOutput: "", standardError: "pipx error")
+        }
+        #expect(ecosystem.check() == .unknown(.processFailed(exitCode: 1, standardError: "pipx error")))
+    }
+
+    @Test("Output that is not the expected JSON is unknown, never up to date")
+    func garbage() {
+        let (ecosystem, _) = ecosystem { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "not json", standardError: "")
+        }
+        #expect(ecosystem.check() == .unknown(.unparsableOutput))
+    }
+
+    @Test("Without pipx the ecosystem is unavailable and nothing runs")
+    func noPipx() {
+        let (ecosystem, runner) = ecosystem(pipxInstalled: false) { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        #expect(!ecosystem.isAvailable())
+        #expect(ecosystem.check() == .unavailable)
+        #expect(runner.invocations.isEmpty)
+    }
+
+    @Test("The update command upgrades exactly the one named package, with a -- separator")
+    func command() {
+        let (ecosystem, _) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "") }
+        let package = OutdatedPackage(
+            ecosystem: .pipx, name: "cowsay", installed: "5.0", available: "6.1", isMajor: true)
+        #expect(
+            ecosystem.resolveUpdateCommand(for: package)?.arguments
+                == ["upgrade", "--output", "json", "--", "cowsay"])
+    }
+
+    @Test("Names that could be parsed as flags are refused before any process runs")
+    func rejectsHostileNames() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        for name in ["-x", "--force", "a; rm -rf /", "", "cowsay\n"] {
+            let hostile = OutdatedPackage(ecosystem: .pipx, name: name, installed: "1", available: "2", isMajor: false)
+            #expect(ecosystem.resolveUpdateCommand(for: hostile) == nil, "\(name)")
+            #expect(!ecosystem.update(hostile).didReportSuccess, "\(name)")
+        }
+        #expect(runner.invocations.isEmpty)
+    }
+
+    @Test("A package with the wrong ecosystem tag is refused, never routed to pipx by name alone")
+    func refusesWrongEcosystemTag() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        let npmTagged = OutdatedPackage(
+            ecosystem: .npm, name: "cowsay", installed: "5.0", available: "6.1", isMajor: false)
+        #expect(ecosystem.resolveUpdateCommand(for: npmTagged) == nil)
+        #expect(!ecosystem.update(npmTagged).didReportSuccess)
+        #expect(runner.invocations.isEmpty)
+    }
+}
+
 @Suite("MacOSUpdateEcosystem")
 struct MacOSUpdateEcosystemTests {
 

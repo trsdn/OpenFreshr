@@ -281,6 +281,7 @@ public final class AppViewModel {
             HomebrewFormulaEcosystem(processRunner: processRunner, fileSystem: fileSystem),
             NpmEcosystem(processRunner: processRunner, fileSystem: fileSystem),
             PnpmEcosystem(processRunner: processRunner, fileSystem: fileSystem),
+            PipxEcosystem(processRunner: processRunner, fileSystem: fileSystem),
             MacOSUpdateEcosystem(processRunner: processRunner, fileSystem: fileSystem),
         ])
 
