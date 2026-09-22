@@ -57,6 +57,15 @@ public enum BackendFailureReason: Sendable, Equatable {
     /// installed"*). The update is refused **before** any process runs; the app
     /// must be adopted (`brew install --cask --adopt`) first. Carries the token.
     case requiresAdoption(caskToken: String)
+    /// The source is genuinely outdated and the tool that reports it is
+    /// installed, but OpenFreshr does not drive an install for it by design —
+    /// today, only macOS system updates: they can need elevated privileges and a
+    /// restart, and OpenFreshr has no privileged helper. Never returned for a
+    /// source that could be driven; ``EcosystemUpdating/resolveUpdateCommand(for:)``
+    /// already says so by returning `nil`, and a caller should offer "open the
+    /// place to install it" instead of calling ``EcosystemUpdating/update(_:)`` at
+    /// all.
+    case requiresManualAction
 
     public var explanation: String {
         switch self {
@@ -75,6 +84,8 @@ public enum BackendFailureReason: Sendable, Equatable {
             return String(localized: "Invalid identifier rejected (not executed): \(identifier)")
         case let .requiresAdoption(token):
             return String(localized: "Requires adoption first — cask “\(token)” is not managed by brew (not executed).")
+        case .requiresManualAction:
+            return String(localized: "OpenFreshr does not install this automatically.")
         }
     }
 }

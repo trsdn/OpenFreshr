@@ -181,6 +181,7 @@ private struct PackageRow: View {
     let package: OutdatedPackage
 
     private var isUpdating: Bool { viewModel.updateInFlight.contains(package.id) }
+    private var canAutomaticallyUpdate: Bool { viewModel.canAutomaticallyUpdate(package) }
     private var problem: String? {
         guard let message = viewModel.updateOutcomes[package.id], message != Self.updatedMessage else {
             return nil
@@ -201,9 +202,14 @@ private struct PackageRow: View {
                 Text(package.name)
                     .font(.headline)
                     .lineLimit(1)
-                Text("\(package.installed) → \(package.available)")
+                Text(versionChange)
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                if !canAutomaticallyUpdate {
+                    Text(hint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 if let problem {
                     Text(problem)
                         .font(.caption)
@@ -217,15 +223,37 @@ private struct PackageRow: View {
             if isUpdating {
                 ProgressView().controlSize(.small)
                 Text("Updating …").foregroundStyle(.secondary)
-            } else {
+            } else if canAutomaticallyUpdate {
                 Button("Update") {
                     Task { await viewModel.updatePackage(package) }
                 }
                 .buttonStyle(.borderedProminent)
                 .help("Install the new version of \(package.name)")
+            } else {
+                Button("Open") {
+                    openWhereToUpdate()
+                }
+                .help("Open where \(package.name) can be updated")
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private var versionChange: String {
+        package.installed.isEmpty ? package.available : "\(package.installed) → \(package.available)"
+    }
+
+    private var hint: String {
+        package.ecosystem == .macOS
+            ? String(localized: "Install it in System Settings.")
+            : String(localized: "OpenFreshr does not install this automatically.")
+    }
+
+    private func openWhereToUpdate() {
+        guard package.ecosystem == .macOS,
+            let url = URL(string: "x-apple.systempreferences:com.apple.Software-Update-Settings.extension")
+        else { return }
+        NSWorkspace.shared.open(url)
     }
 }
 
