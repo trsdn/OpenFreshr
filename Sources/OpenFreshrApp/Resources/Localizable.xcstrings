@@ -761,6 +761,16 @@
         }
       }
     },
+    "Collapse" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einklappen"
+          }
+        }
+      }
+    },
     "Confirmed Team ID Changes" : {
       "localizations" : {
         "de" : {
@@ -851,6 +861,16 @@
         }
       }
     },
+    "Expand" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausklappen"
+          }
+        }
+      }
+    },
     "Fetch failed – the last snapshot stays active." : {
       "localizations" : {
         "de" : {
@@ -937,6 +957,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hat einen eigenen Updater"
+          }
+        }
+      }
+    },
+    "Homebrew" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew"
           }
         }
       }
@@ -2471,6 +2501,16 @@
         }
       }
     },
+    "The app's signature does not check out. OpenFreshr does not replace it automatically." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Signatur der App stimmt nicht. OpenFreshr ersetzt sie deshalb nicht automatisch."
+          }
+        }
+      }
+    },
     "The bundle identity is unreadable. Without a clear identity nothing is replaced automatically — please check manually." : {
       "localizations" : {
         "de" : {
@@ -2637,6 +2677,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dieser Cask liefert kein App-Bundle, sondern startet einen pkg-/Installer mit Rechteabfrage (Administratorkennwort). Der Erfolg wird über den Homebrew-Eintrag bestätigt, nicht über eine gefundene App."
+          }
+        }
+      }
+    },
+    "This needs administrator rights that OpenFreshr does not ask for. Please install it yourself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dafür sind Administratorrechte nötig, die OpenFreshr nicht anfordert. Bitte selbst installieren."
           }
         }
       }
@@ -3061,6 +3111,26 @@
         }
       }
     },
+    "macOS" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS"
+          }
+        }
+      }
+    },
+    "macOS itself refuses to run this app's signature (Gatekeeper). OpenFreshr does not replace it automatically." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS selbst lehnt die Signatur dieser App ab (Gatekeeper). OpenFreshr ersetzt sie deshalb nicht automatisch."
+          }
+        }
+      }
+    },
     "managed" : {
       "localizations" : {
         "de" : {
@@ -3111,12 +3181,32 @@
         }
       }
     },
+    "npm" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "npm"
+          }
+        }
+      }
+    },
     "other artifact" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "sonstiges Artefakt"
+          }
+        }
+      }
+    },
+    "pipx" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pipx"
           }
         }
       }

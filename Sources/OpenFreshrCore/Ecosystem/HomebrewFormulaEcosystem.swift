@@ -51,7 +51,35 @@ public struct HomebrewFormulaEcosystem: EcosystemUpdating {
         guard let packages = Self.parseOutdated(result.standardOutput) else {
             return .unknown(.unparsableOutput)
         }
-        return packages.isEmpty ? .upToDate : .outdated(packages)
+        guard !packages.isEmpty else { return .upToDate }
+        return .outdated(withDescriptions(packages, brew: brew))
+    }
+
+    /// One extra, best-effort `brew info` call for every outdated formula at
+    /// once, so a row can say what a cryptic name (`fribidi`, `xxhash`,
+    /// `httrack`) actually is. Batched rather than per-formula on purpose: one
+    /// process instead of ten. `brew info` reads Homebrew's local API cache, so
+    /// this is not a second network round trip in the ordinary case. A failure
+    /// here never fails the check — the packages are still real and still
+    /// outdated, just without a description.
+    private func withDescriptions(_ packages: [OutdatedPackage], brew: URL) -> [OutdatedPackage] {
+        // Same validation as an update command: a name is external data (from
+        // `brew outdated`'s own JSON) and follows `--`, but is checked anyway
+        // before it ever reaches a command line.
+        let names = packages.map(\.name).filter(Self.isValidFormulaName)
+        guard !names.isEmpty,
+            let result = try? processRunner.run(
+                executableURL: brew,
+                arguments: ["info", "--json=v2", "--formula", "--"] + names,
+                environment: nil, timeout: 10),
+            result.didSucceed,
+            let descriptions = Self.parseDescriptions(result.standardOutput)
+        else { return packages }
+        return packages.map { package in
+            var package = package
+            package.description = descriptions[package.name]
+            return package
+        }
     }
 
     public func resolveUpdateCommand(for package: OutdatedPackage) -> ResolvedCommand? {
@@ -121,6 +149,27 @@ public struct HomebrewFormulaEcosystem: EcosystemUpdating {
                 isMajor: VersionComparator.isMajorChange(from: installed, to: formula.currentVersion)
             )
         }
+    }
+
+    private struct Info: Decodable {
+        struct Formula: Decodable {
+            var name: String
+            var desc: String?
+        }
+        var formulae: [Formula]
+    }
+
+    /// Parses `brew info --json=v2 --formula`'s formula names and descriptions
+    /// into a lookup by name. `nil` when the output is not the expected JSON.
+    static func parseDescriptions(_ output: String) -> [String: String]? {
+        guard let data = output.data(using: .utf8),
+            let decoded = try? JSONDecoder().decode(Info.self, from: data)
+        else { return nil }
+        var result: [String: String] = [:]
+        for formula in decoded.formulae {
+            if let desc = formula.desc, !desc.isEmpty { result[formula.name] = desc }
+        }
+        return result
     }
 
     /// Lowercase letters, digits and `@ + . _ -`, not starting with `-`, with up to

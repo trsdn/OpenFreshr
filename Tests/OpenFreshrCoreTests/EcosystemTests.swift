@@ -146,6 +146,42 @@ struct HomebrewFormulaEcosystemTests {
         #expect(runner.invocations.first?.arguments == ["outdated", "--formula", "--json=v2"])
     }
 
+    @Test("A second, batched call fetches descriptions for every outdated formula and attaches them")
+    func fetchesDescriptions() {
+        let infoSample = """
+            {"formulae":[
+              {"name":"git","desc":"Distributed revision control system"},
+              {"name":"node@20","desc":""}
+            ]}
+            """
+        let (ecosystem, runner) = ecosystem { _, arguments in
+            if arguments.first == "outdated" {
+                return ProcessResult(exitCode: 0, standardOutput: self.sample, standardError: "")
+            }
+            return ProcessResult(exitCode: 0, standardOutput: infoSample, standardError: "")
+        }
+        let packages = ecosystem.check().packages
+        #expect(packages.first(where: { $0.name == "git" })?.description == "Distributed revision control system")
+        // An empty desc from brew is treated as no description, not a blank line.
+        #expect(packages.first(where: { $0.name == "node@20" })?.description == nil)
+
+        let infoCall = runner.invocations.last
+        #expect(infoCall?.arguments == ["info", "--json=v2", "--formula", "--", "git", "node@20"])
+    }
+
+    @Test("A failed or unparsable info call never fails the check — packages stay outdated, just without a description")
+    func descriptionFailureIsHarmless() {
+        let (ecosystem, _) = ecosystem { _, arguments in
+            if arguments.first == "outdated" {
+                return ProcessResult(exitCode: 0, standardOutput: self.sample, standardError: "")
+            }
+            return ProcessResult(exitCode: 1, standardOutput: "", standardError: "boom")
+        }
+        let packages = ecosystem.check().packages
+        #expect(packages.map(\.name) == ["git", "node@20"])
+        #expect(packages.allSatisfy { $0.description == nil })
+    }
+
     @Test("No outdated formulae is up to date")
     func upToDate() {
         let (ecosystem, _) = ecosystem { _, _ in

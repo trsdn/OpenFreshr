@@ -259,6 +259,9 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
         }
 
         let combined = result.standardError + "\n" + result.standardOutput
+        if Self.requiresAdministratorPrivileges(in: combined) {
+            return .failed(reason: .requiresAdministratorPrivileges)
+        }
         if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
             return .caskError(message: caskErrorMessage)
         }
@@ -309,6 +312,9 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
         // mismatches, an explicit CaskError. Detect that specific hard-fail so
         // the coordinator can tell it apart from an ordinary failure.
         let combined = result.standardError + "\n" + result.standardOutput
+        if Self.requiresAdministratorPrivileges(in: combined) {
+            return .failed(reason: .requiresAdministratorPrivileges)
+        }
         if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
             return .caskError(message: caskErrorMessage)
         }
@@ -378,6 +384,9 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
         }
 
         let combined = result.standardError + "\n" + result.standardOutput
+        if Self.requiresAdministratorPrivileges(in: combined) {
+            return .failed(reason: .requiresAdministratorPrivileges)
+        }
         if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
             return .caskError(message: caskErrorMessage)
         }
@@ -388,6 +397,20 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
                 standardError: result.standardError
             )
         )
+    }
+
+    /// Whether combined brew output shows the OS itself refusing a `sudo` step —
+    /// observed directly: cask adoption can shell out to `sudo chmod` to fix up an
+    /// existing app's permissions, and it fails this way when there is no TTY and
+    /// no stored password, which OpenFreshr never has. Checked **before**
+    /// ``caskErrorMessage(in:)`` at every call site, so this specific, actionable
+    /// cause is never buried under a generic ``BackendFailureReason/processFailed``
+    /// dump of brew's full transcript (which also prints unrelated tap-trust
+    /// warnings ahead of the real failure).
+    static func requiresAdministratorPrivileges(in output: String) -> Bool {
+        let lower = output.lowercased()
+        return lower.contains("sudo: a password is required")
+            || lower.contains("sudo: a terminal is required")
     }
 
     /// Extract a `CaskError` message from combined brew output, or `nil`.

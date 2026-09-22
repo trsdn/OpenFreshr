@@ -15,10 +15,10 @@ public enum EcosystemKind: String, CaseIterable, Hashable, Sendable, Identifiabl
     /// Short label for UI and command-line output.
     public var label: String {
         switch self {
-        case .homebrewFormula: return "Homebrew formulae"
-        case .macOS: return "macOS"
-        case .npm: return "npm"
-        case .pipx: return "pipx"
+        case .homebrewFormula: return String(localized: "Homebrew")
+        case .macOS: return String(localized: "macOS")
+        case .npm: return String(localized: "npm")
+        case .pipx: return String(localized: "pipx")
         }
     }
 }
@@ -33,6 +33,11 @@ public struct OutdatedPackage: Hashable, Sendable, Identifiable {
     /// Whether the update changes the first version component, which callers keep
     /// in a separate approval exactly as for apps.
     public var isMajor: Bool
+    /// One line saying what the package is, when the ecosystem can supply one —
+    /// most package names (`fribidi`, `xxhash`, `httrack`) mean nothing on their
+    /// own. `nil` when the ecosystem has no cheap, reliable source for it; a row
+    /// with no description is honest, a guessed one would not be.
+    public var description: String?
 
     public var id: String { "\(ecosystem.rawValue):\(name)" }
 
@@ -41,13 +46,15 @@ public struct OutdatedPackage: Hashable, Sendable, Identifiable {
         name: String,
         installed: String,
         available: String,
-        isMajor: Bool
+        isMajor: Bool,
+        description: String? = nil
     ) {
         self.ecosystem = ecosystem
         self.name = name
         self.installed = installed
         self.available = available
         self.isMajor = isMajor
+        self.description = description
     }
 }
 
