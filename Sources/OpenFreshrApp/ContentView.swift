@@ -38,6 +38,11 @@ struct ContentView: View {
 
     private var isBusy: Bool { viewModel.isScanning || viewModel.isCheckingUpdates }
 
+    private var outdatedPackages: [OutdatedPackage] {
+        viewModel.ecosystemReports.flatMap(\.check.packages)
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
     /// What "Update All" would run: updates OpenFreshr can install, without the ones
     /// that change the major version. Those are updated one by one, on purpose.
     private var batchItems: [UpdateItem] {
@@ -82,7 +87,7 @@ struct ContentView: View {
         if viewModel.reports.isEmpty || (isBusy && !viewModel.hasCompletedUpdateCheck) {
             return String(localized: "Checking your apps …")
         }
-        switch actionable.count {
+        switch actionable.count + outdatedPackages.count {
         case 0: return String(localized: "Everything is up to date")
         case 1: return String(localized: "1 update available")
         case let count: return String(localized: "\(count) updates available")
@@ -107,6 +112,16 @@ struct ContentView: View {
                     ForEach(actionable, id: \.report.id) { entry in
                         UpdateRow(report: entry.report, bucket: entry.bucket)
                     }
+                }
+            }
+
+            if !outdatedPackages.isEmpty {
+                Section {
+                    ForEach(outdatedPackages) { package in
+                        PackageRow(package: package)
+                    }
+                } header: {
+                    Text("Packages")
                 }
             }
 
@@ -154,6 +169,63 @@ struct ContentView: View {
                 Text(title)
             }
         }
+    }
+}
+
+/// One outdated command-line package: its name, the version change, and one
+/// button. No icon — a package has none — a small symbol for its ecosystem does
+/// the same job of grouping at a glance.
+private struct PackageRow: View {
+
+    @Environment(AppViewModel.self) private var viewModel
+    let package: OutdatedPackage
+
+    private var isUpdating: Bool { viewModel.updateInFlight.contains(package.id) }
+    private var problem: String? {
+        guard let message = viewModel.updateOutcomes[package.id], message != Self.updatedMessage else {
+            return nil
+        }
+        return message
+    }
+    private static var updatedMessage: String { String(localized: "Updated and confirmed.") }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "shippingbox")
+                .font(.system(size: 20))
+                .foregroundStyle(.secondary)
+                .frame(width: 36, height: 36)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(package.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                Text("\(package.installed) → \(package.available)")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                if let problem {
+                    Text(problem)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .lineLimit(3)
+                }
+            }
+
+            Spacer()
+
+            if isUpdating {
+                ProgressView().controlSize(.small)
+                Text("Updating …").foregroundStyle(.secondary)
+            } else {
+                Button("Update") {
+                    Task { await viewModel.updatePackage(package) }
+                }
+                .buttonStyle(.borderedProminent)
+                .help("Install the new version of \(package.name)")
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

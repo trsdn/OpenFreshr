@@ -20,6 +20,16 @@ public enum BackendActionResult: Sendable, Equatable {
         if case .succeeded = self { return true }
         return false
     }
+
+    /// A human-facing line for a non-success result. `nil` for ``succeeded``,
+    /// which has nothing to explain.
+    public var explanation: String? {
+        switch self {
+        case .succeeded: return nil
+        case let .caskError(message): return message
+        case let .failed(reason): return reason.explanation
+        }
+    }
 }
 
 /// Why a backend action failed for reasons other than a `CaskError`.
