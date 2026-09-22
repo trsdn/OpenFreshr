@@ -124,6 +124,28 @@ public protocol EcosystemUpdating: Sendable {
     func update(_ package: OutdatedPackage) -> BackendActionResult
 }
 
+/// An ``EcosystemUpdating`` that can additionally **remove** a package it
+/// manages. Only meaningful where removing a stale tracked copy is itself
+/// safe and well-understood (`npm uninstall`) — not every ecosystem needs
+/// this, so it is a separate capability, mirroring ``UninstallingBackend``'s
+/// relationship to ``PackageBackend``.
+///
+/// Exists for exactly one purpose today: after ``PnpmEcosystem`` rescues an
+/// npm package a corporate registry refuses to let `npm` itself fetch (see
+/// ``AppViewModel/retryViaPnpm(_:)``), the stale npm-tracked copy is removed
+/// so `npm outdated` stops reporting a package that is verifiably current
+/// again, just through a different tool.
+public protocol EcosystemUninstalling: EcosystemUpdating {
+
+    /// The exact command that would remove `package`, or `nil` when the tool
+    /// is missing or the name fails validation.
+    func resolveUninstallCommand(for package: OutdatedPackage) -> ResolvedCommand?
+
+    /// Remove `package`. A reported success is only a claim, like every other
+    /// action here.
+    func uninstall(_ package: OutdatedPackage) -> BackendActionResult
+}
+
 /// One ecosystem's check, paired with the ecosystem it belongs to.
 public struct EcosystemReport: Hashable, Sendable, Identifiable {
     public var kind: EcosystemKind
@@ -189,6 +211,28 @@ public struct EcosystemCoordinator: Sendable {
     public func canAutomaticallyUpdate(_ package: OutdatedPackage) -> Bool {
         guard let ecosystem = ecosystems.first(where: { $0.kind == package.ecosystem }) else { return false }
         return ecosystem.resolveUpdateCommand(for: package) != nil
+    }
+
+    /// Whether `kind`'s ecosystem is configured here and its tool is present
+    /// right now — checked fresh (a cheap file-exists probe, no process
+    /// spawn), not read from a stale cached report.
+    public func isAvailable(_ kind: EcosystemKind) -> Bool {
+        ecosystems.first(where: { $0.kind == kind })?.isAvailable() ?? false
+    }
+
+    /// Remove `package` via its own ecosystem, when that ecosystem supports
+    /// removal (see ``EcosystemUninstalling``). `.failed(.toolUnavailable)`
+    /// when the ecosystem is not configured, or does not support removal at
+    /// all — a reported success is only a claim, exactly like every other
+    /// action here.
+    public func uninstall(_ package: OutdatedPackage) -> BackendActionResult {
+        guard
+            let ecosystem = ecosystems.first(where: { $0.kind == package.ecosystem })
+                as? any EcosystemUninstalling
+        else {
+            return .failed(reason: .toolUnavailable(tool: package.ecosystem.label))
+        }
+        return ecosystem.uninstall(package)
     }
 
     /// Updates the given packages one after another, then checks each affected

@@ -49,6 +49,37 @@ private func package(_ name: String, _ kind: EcosystemKind = .npm) -> OutdatedPa
     OutdatedPackage(ecosystem: kind, name: name, installed: "1.0.0", available: "1.1.0", isMajor: false)
 }
 
+/// Same programmed-answers shape as ``FakeEcosystem``, but additionally
+/// conforming to ``EcosystemUninstalling``, so ``EcosystemCoordinator/uninstall(_:)``
+/// can be exercised against an ecosystem that actually supports removal.
+private final class FakeUninstallingEcosystem: EcosystemUninstalling, @unchecked Sendable {
+    let kind: EcosystemKind
+    private let lock = NSLock()
+    private(set) var uninstallCalls: [String] = []
+    private let uninstallResult: BackendActionResult
+
+    init(kind: EcosystemKind, uninstallResult: BackendActionResult = .succeeded(standardOutput: "")) {
+        self.kind = kind
+        self.uninstallResult = uninstallResult
+    }
+
+    func isAvailable() -> Bool { true }
+    func check() -> EcosystemCheck { .upToDate }
+    func resolveUpdateCommand(for package: OutdatedPackage) -> ResolvedCommand? { nil }
+    func update(_ package: OutdatedPackage) -> BackendActionResult { .succeeded(standardOutput: "") }
+
+    func resolveUninstallCommand(for package: OutdatedPackage) -> ResolvedCommand? {
+        ResolvedCommand(executablePath: "/fake", arguments: ["uninstall", package.name])
+    }
+
+    func uninstall(_ package: OutdatedPackage) -> BackendActionResult {
+        lock.lock()
+        defer { lock.unlock() }
+        uninstallCalls.append(package.name)
+        return uninstallResult
+    }
+}
+
 @Suite("EcosystemCoordinator")
 struct EcosystemCoordinatorTests {
 
@@ -108,6 +139,40 @@ struct EcosystemCoordinatorTests {
         let coordinator = EcosystemCoordinator(ecosystems: [])
         let results = await coordinator.update([package("a")])
         #expect(!results[0].action.didReportSuccess)
+    }
+
+    @Test("isAvailable reflects the configured ecosystem's own answer, and false when not configured at all")
+    func isAvailableReflectsTheEcosystem() {
+        let coordinator = EcosystemCoordinator(ecosystems: [
+            FakeEcosystem(kind: .npm, available: true),
+            FakeEcosystem(kind: .pnpm, available: false),
+        ])
+        #expect(coordinator.isAvailable(.npm))
+        #expect(!coordinator.isAvailable(.pnpm))
+        #expect(!coordinator.isAvailable(.pipx))
+    }
+
+    @Test("uninstall routes to an ecosystem that supports removal")
+    func uninstallRoutesToASupportingEcosystem() {
+        let uninstaller = FakeUninstallingEcosystem(kind: .npm)
+        let coordinator = EcosystemCoordinator(ecosystems: [uninstaller])
+        let result = coordinator.uninstall(package("corepack"))
+        #expect(result.didReportSuccess)
+        #expect(uninstaller.uninstallCalls == ["corepack"])
+    }
+
+    @Test("uninstall fails without running anything when the ecosystem cannot remove packages")
+    func uninstallFailsForANonUninstallingEcosystem() {
+        let coordinator = EcosystemCoordinator(ecosystems: [FakeEcosystem(kind: .npm)])
+        let result = coordinator.uninstall(package("corepack"))
+        #expect(!result.didReportSuccess)
+    }
+
+    @Test("uninstall fails when the ecosystem is not configured at all")
+    func uninstallFailsForAnUnconfiguredEcosystem() {
+        let coordinator = EcosystemCoordinator(ecosystems: [])
+        let result = coordinator.uninstall(package("corepack"))
+        #expect(!result.didReportSuccess)
     }
 }
 
@@ -349,6 +414,46 @@ struct NpmEcosystemTests {
             #expect(ecosystem.resolveUpdateCommand(for: hostile) == nil, "\(name)")
             #expect(!ecosystem.update(hostile).didReportSuccess, "\(name)")
         }
+        #expect(runner.invocations.isEmpty)
+    }
+
+    // MARK: - Uninstall (the pnpm-fallback cleanup step)
+
+    @Test("The uninstall command removes exactly the one named package, with a -- separator, verified directly")
+    func uninstallCommand() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        let plain = OutdatedPackage(
+            ecosystem: .npm, name: "corepack", installed: "0.34.6", available: "0.36.0", isMajor: false)
+        #expect(
+            ecosystem.resolveUninstallCommand(for: plain)?.arguments
+                == ["uninstall", "--global", "--", "corepack"])
+
+        let result = ecosystem.uninstall(plain)
+        #expect(result.didReportSuccess)
+        #expect(runner.invocations.last?.arguments == ["uninstall", "--global", "--", "corepack"])
+    }
+
+    @Test("A hostile name is refused before any uninstall process runs")
+    func uninstallRejectsHostileNames() {
+        let (ecosystem, runner) = ecosystem { _, _ in ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        let hostile = OutdatedPackage(
+            ecosystem: .npm, name: "-g", installed: "1", available: "2", isMajor: false)
+        #expect(ecosystem.resolveUninstallCommand(for: hostile) == nil)
+        #expect(!ecosystem.uninstall(hostile).didReportSuccess)
+        #expect(runner.invocations.isEmpty)
+    }
+
+    @Test("Without npm the uninstall command is nil and nothing runs")
+    func uninstallFailsCleanlyWithoutNpm() {
+        let (ecosystem, runner) = ecosystem(npmInstalled: false) { _, _ in
+            ProcessResult(exitCode: 0, standardOutput: "", standardError: "")
+        }
+        let plain = OutdatedPackage(
+            ecosystem: .npm, name: "corepack", installed: "1", available: "2", isMajor: false)
+        #expect(ecosystem.resolveUninstallCommand(for: plain) == nil)
+        #expect(!ecosystem.uninstall(plain).didReportSuccess)
         #expect(runner.invocations.isEmpty)
     }
 }

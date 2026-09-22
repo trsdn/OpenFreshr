@@ -298,17 +298,27 @@ private struct PackageRow: View {
             if isUpdating {
                 ProgressView().controlSize(.small)
                 Text("Updating …").foregroundStyle(.secondary)
-            } else if canAutomaticallyUpdate {
-                Button("Update") {
-                    Task { await viewModel.updatePackage(package) }
-                }
-                .buttonStyle(.borderedProminent)
-                .help("Install the new version of \(package.name)")
             } else {
-                Button("Open") {
-                    openWhereToUpdate()
+                HStack(spacing: 8) {
+                    if problem != nil, viewModel.canRetryViaPnpm(package) {
+                        Button("Try via pnpm") {
+                            Task { await viewModel.retryViaPnpm(package) }
+                        }
+                        .help("Retry updating \(package.name) through pnpm instead of npm")
+                    }
+                    if canAutomaticallyUpdate {
+                        Button("Update") {
+                            Task { await viewModel.updatePackage(package) }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .help("Install the new version of \(package.name)")
+                    } else {
+                        Button("Open") {
+                            openWhereToUpdate()
+                        }
+                        .help("Open where \(package.name) can be updated")
+                    }
                 }
-                .help("Open where \(package.name) can be updated")
             }
         }
         .padding(.vertical, 4)

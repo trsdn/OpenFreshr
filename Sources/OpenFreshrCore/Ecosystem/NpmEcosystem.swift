@@ -8,7 +8,7 @@ import Foundation
 /// built with) puts `npm` somewhere else, and this ecosystem reports
 /// ``EcosystemCheck/unavailable`` rather than guess a path. A caller who knows the
 /// real path can pass it in `candidateNpmPaths`.
-public struct NpmEcosystem: EcosystemUpdating {
+public struct NpmEcosystem: EcosystemUninstalling {
 
     public let kind: EcosystemKind = .npm
 
@@ -79,6 +79,41 @@ public struct NpmEcosystem: EcosystemUpdating {
             return .failed(reason: .invalidIdentifier(package.name))
         }
         guard let command = resolveUpdateCommand(for: package) else {
+            return .failed(reason: .toolUnavailable(tool: "npm"))
+        }
+        do {
+            let result = try processRunner.run(
+                executableURL: URL(fileURLWithPath: command.executablePath), arguments: command.arguments)
+            if result.didSucceed { return .succeeded(standardOutput: result.standardOutput) }
+            return .failed(
+                reason: .processFailed(exitCode: result.exitCode, standardError: result.standardError))
+        } catch {
+            return .failed(reason: .launchFailed(message: error.localizedDescription))
+        }
+    }
+
+    /// The exact `npm uninstall --global -- <name>` command, or `nil` when the
+    /// tool is missing or the name fails validation. Verified directly:
+    /// `npm uninstall` accepts a `--` separator the same way `install` does.
+    public func resolveUninstallCommand(for package: OutdatedPackage) -> ResolvedCommand? {
+        guard package.ecosystem == .npm, Self.isValidPackageName(package.name), let npm = npmURL() else {
+            return nil
+        }
+        return ResolvedCommand(
+            executablePath: npm.path,
+            arguments: ["uninstall", "--global", "--", package.name]
+        )
+    }
+
+    /// Remove the globally installed npm package `package`. Exists for
+    /// ``AppViewModel/retryViaPnpm(_:)``: once pnpm has confirmed it can
+    /// manage a package npm itself could not fetch, the stale npm-tracked
+    /// copy is removed so `npm outdated` stops reporting it.
+    public func uninstall(_ package: OutdatedPackage) -> BackendActionResult {
+        guard package.ecosystem == .npm, Self.isValidPackageName(package.name) else {
+            return .failed(reason: .invalidIdentifier(package.name))
+        }
+        guard let command = resolveUninstallCommand(for: package) else {
             return .failed(reason: .toolUnavailable(tool: "npm"))
         }
         do {
