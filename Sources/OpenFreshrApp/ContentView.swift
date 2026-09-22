@@ -356,48 +356,69 @@ private struct UpdateRow: View {
             if isUpdating {
                 ProgressView().controlSize(.small)
                 Text("Updating …").foregroundStyle(.secondary)
-            } else if bucket == .ready {
-                Button("Update") {
-                    if isMajor { confirmingMajor = true } else { install() }
-                }
-                .buttonStyle(.borderedProminent)
-                .confirmationDialog(
-                    "Update \(report.app.displayName) to a new major version?",
-                    isPresented: $confirmingMajor
-                ) {
-                    Button("Update") { install() }
-                    Button("Cancel", role: .cancel) {}
-                } message: {
-                    Text("A new major version can change how the app works.")
-                }
-                .help("Install the new version of \(report.app.displayName)")
             } else {
                 HStack(spacing: 8) {
-                    if bucket == .manual && viewModel.isAIAgentAvailable() {
-                        Button("Update with AI") {
-                            confirmingAI = true
-                        }
-                        .confirmationDialog(
-                            "Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)?",
-                            isPresented: $confirmingAI
-                        ) {
-                            Button("Update with AI") { updateWithAI() }
-                            Button("Cancel", role: .cancel) {}
-                        } message: {
-                            Text(
-                                "It runs on its own, as you, without asking before each step. OpenFreshr does not check what it does, and only confirms afterward whether the app actually changed."
-                            )
-                        }
-                        .help("Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)")
+                    if viewModel.isAIAgentAvailable() {
+                        aiButton
                     }
-                    Button("Open") {
-                        NSWorkspace.shared.open(URL(fileURLWithPath: path))
+                    if bucket == .ready {
+                        updateButton
+                    } else {
+                        openButton
                     }
-                    .help("Open \(report.app.displayName) to update it there")
                 }
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private var updateButton: some View {
+        Button("Update") {
+            if isMajor { confirmingMajor = true } else { install() }
+        }
+        .buttonStyle(.borderedProminent)
+        .confirmationDialog(
+            "Update \(report.app.displayName) to a new major version?",
+            isPresented: $confirmingMajor
+        ) {
+            Button("Update") { install() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("A new major version can change how the app works.")
+        }
+        .help("Install the new version of \(report.app.displayName)")
+    }
+
+    private var openButton: some View {
+        Button("Open") {
+            NSWorkspace.shared.open(URL(fileURLWithPath: path))
+        }
+        .help("Open \(report.app.displayName) to update it there")
+    }
+
+    /// Offered for every bucket, not only `.manual`: a person may prefer the
+    /// agent over OpenFreshr's own path, or over an app's own updater, and — for
+    /// a `.ready` app whose own command just failed (a trust block, a sudo
+    /// refusal) — may choose it anyway, having already read why OpenFreshr would
+    /// not. That reading is what keeps this an informed choice rather than a
+    /// hidden bypass: the trust or failure message above stays visible right next
+    /// to this button, never replaced by it.
+    private var aiButton: some View {
+        Button("Update with AI") {
+            confirmingAI = true
+        }
+        .confirmationDialog(
+            "Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)?",
+            isPresented: $confirmingAI
+        ) {
+            Button("Update with AI") { updateWithAI() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(
+                "It runs on its own, as you, without asking before each step. OpenFreshr does not check what it does, and only confirms afterward whether the app actually changed."
+            )
+        }
+        .help("Let \(viewModel.aiAgentKind.label) try to update \(report.app.displayName)")
     }
 
     private func install() {
@@ -407,7 +428,7 @@ private struct UpdateRow: View {
 
     private func updateWithAI() {
         guard let update else { return }
-        Task { await viewModel.updateWithAI(update) }
+        Task { await viewModel.updateWithAI(update, bucket: bucket) }
     }
 
     private var versionChange: String {

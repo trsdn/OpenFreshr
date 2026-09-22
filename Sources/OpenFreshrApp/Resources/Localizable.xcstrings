@@ -2041,6 +2041,16 @@
         }
       }
     },
+    "OpenFreshr could install this itself, but you chose the AI agent instead." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshr könnte das selbst installieren, aber du hast stattdessen den KI-Agenten gewählt."
+          }
+        }
+      }
+    },
     "OpenFreshr does not install this automatically." : {
       "localizations" : {
         "de" : {
@@ -2087,6 +2097,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OpenFreshr prüft im Hintergrund nur auf Updates — installiert wird nie automatisch. Jede Aktualisierung läuft über die Vorschau und Bestätigung im Fenster."
+          }
+        }
+      }
+    },
+    "OpenFreshr's own attempt to update this failed: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenFreshrs eigener Versuch, dies zu aktualisieren, ist fehlgeschlagen: %@"
           }
         }
       }
@@ -2747,6 +2767,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Diese App ist nicht adoptierbar."
+          }
+        }
+      }
+    },
+    "This app has its own updater, but you chose the AI agent instead." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese App hat einen eigenen Updater, aber du hast stattdessen den KI-Agenten gewählt."
           }
         }
       }
