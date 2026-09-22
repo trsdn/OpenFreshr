@@ -2441,6 +2441,16 @@
         }
       }
     },
+    "Retry updating %@ through pnpm instead of npm" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ stattdessen über pnpm statt npm aktualisieren"
+          }
+        }
+      }
+    },
     "Scanning …" : {
       "localizations" : {
         "de" : {
@@ -2981,6 +2991,16 @@
         }
       }
     },
+    "Try via pnpm" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über pnpm versuchen"
+          }
+        }
+      }
+    },
     "Type" : {
       "localizations" : {
         "de" : {
@@ -3507,6 +3527,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "pnpm"
+          }
+        }
+      }
+    },
+    "pnpm also reported success, but the package is still outdated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pnpm hat ebenfalls Erfolg gemeldet, das Paket ist aber weiterhin veraltet."
+          }
+        }
+      }
+    },
+    "pnpm could not update this either." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pnpm konnte dies ebenfalls nicht aktualisieren."
           }
         }
       }

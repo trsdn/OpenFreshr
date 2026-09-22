@@ -729,6 +729,56 @@ public final class AppViewModel {
         }
     }
 
+    /// Whether ``retryViaPnpm(_:)`` can be offered for `package`: it is
+    /// npm-tracked, and pnpm is actually available right now.
+    ///
+    /// Exists for a verified real-world case, not a hypothetical one: a
+    /// corporate npm registry was found to refuse `npm install`'s own fetch
+    /// for a package while `pnpm add` succeeded for the exact same package,
+    /// version and registry, every time. Deliberately npm-specific — this is
+    /// not a generic "try a different tool" button, only the one pairing this
+    /// was verified for.
+    public func canRetryViaPnpm(_ package: OutdatedPackage) -> Bool {
+        package.ecosystem == .npm && ecosystemCoordinator.isAvailable(.pnpm)
+    }
+
+    /// Retry `package` (an npm package whose own update just failed) via pnpm
+    /// instead. On a **confirmed** pnpm success — the coordinator's own
+    /// rescan, not pnpm's claim — the stale npm-tracked copy is removed
+    /// (best-effort; pnpm is already the source of truth for this package
+    /// regardless of whether that succeeds), so `npm outdated` stops
+    /// reporting a package that is verifiably current again, just through a
+    /// different tool.
+    public func retryViaPnpm(_ package: OutdatedPackage) async {
+        guard package.ecosystem == .npm else { return }
+        let key = package.id
+        guard !updateInFlight.contains(key) else { return }
+        updateInFlight.insert(key)
+        defer { updateInFlight.remove(key) }
+
+        let pnpmPackage = OutdatedPackage(
+            ecosystem: .pnpm, name: package.name, installed: package.installed,
+            available: package.available, isMajor: package.isMajor, description: package.description)
+
+        let ecosystems = self.ecosystemCoordinator
+        let results = await ecosystems.update([pnpmPackage])
+        guard let result = results.first else { return }
+
+        guard result.isVerified else {
+            updateOutcomes[key] =
+                result.stillOutdated == true
+                ? String(localized: "pnpm also reported success, but the package is still outdated.")
+                : (result.action.explanation ?? String(localized: "pnpm could not update this either."))
+            return
+        }
+
+        updateOutcomes[key] = Self.updatedMessage
+        _ = await Task.detached { ecosystems.uninstall(package) }.value
+        // Both ecosystems changed (npm lost a row, pnpm gained one); a full
+        // recheck reflects both rather than hand-patching two reports at once.
+        await checkForUpdates()
+    }
+
     /// The ecosystem's check with `package` removed when the update was verified,
     /// or unchanged otherwise — a light local patch so the row disappears at once
     /// instead of waiting for the next full ``checkForUpdates()``.
