@@ -64,6 +64,13 @@ public final class AppViewModel {
     /// The most recent human-facing adoption outcome, for a status line.
     public private(set) var lastAdoptionMessage: String?
 
+    /// Per-app last adoption-attempt outcome, keyed by bundle path, for the row
+    /// itself — mirrors ``updateOutcomes``/``uninstallOutcomes``. Only ever
+    /// populated on failure: a confirmed adoption makes the "Manage with
+    /// Homebrew" button disappear (``AppReport/managedCaskToken`` becomes
+    /// non-nil), so there is nothing left to show a success line on.
+    public private(set) var adoptionOutcomes: [String: String] = [:]
+
     /// Update reports keyed by bundle path, produced by the update coordinator.
     /// Empty until the first ``checkForUpdates()`` completes; the UI degrades to
     /// "not yet checked" rather than blocking on it.
@@ -882,10 +889,18 @@ public final class AppViewModel {
 
     /// Attempt to adopt `app`, then refresh the affected report from the
     /// coordinator's rescan-confirmed result.
+    ///
+    /// This is the standalone "Manage with Homebrew" action: unlike the
+    /// adoption folded into "Update" (``UpdateCoordinator``'s
+    /// `.adoptThenReinstall`, for an app that also has a pending update), this
+    /// is offered for an app that is already at the cask's current version —
+    /// where a take-over is the *only* thing to do, so nothing folds it into
+    /// another action for the button to ride along with.
     public func adopt(_ app: InstalledApp, acknowledgeTeamChange: Bool = false) async {
         guard !adoptionInFlight.contains(app.bundlePath) else { return }
         adoptionInFlight.insert(app.bundlePath)
         defer { adoptionInFlight.remove(app.bundlePath) }
+        adoptionOutcomes[app.bundlePath] = nil
 
         let coordinator = self.coordinator
         let result = await Task.detached {
@@ -897,19 +912,31 @@ public final class AppViewModel {
             lastAdoptionMessage = String(localized: "\(app.displayName) is now managed by Homebrew.")
             // The coordinator already rescanned and re-classified this app to
             // confirm the adoption; reuse that verified report instead of
-            // triggering a second full inventory scan.
+            // triggering a second full inventory scan. Its managedCaskToken is
+            // what makes the Uninstall button appear on the next render, and
+            // this same replace makes the "Manage with Homebrew" button
+            // disappear — both read straight off this report, not off a flag
+            // this method sets.
             replace(report)
         case let .hardFailedWithCaskError(message):
-            lastAdoptionMessage = String(localized: "Adoption aborted (CaskError): \(message)")
+            let text = String(localized: "Adoption aborted (CaskError): \(message)")
+            lastAdoptionMessage = String(localized: "\(app.displayName): \(text)")
+            adoptionOutcomes[app.bundlePath] = text
         case .notConfirmedByRescan:
-            lastAdoptionMessage = String(
-                localized: "\(app.displayName): Homebrew reported success, but the renewed scan does not confirm it.")
+            let text = String(
+                localized: "Homebrew reported success, but the renewed scan does not confirm it.")
+            lastAdoptionMessage = String(localized: "\(app.displayName): \(text)")
+            adoptionOutcomes[app.bundlePath] = text
         case let .failed(reason):
             lastAdoptionMessage = String(localized: "\(app.displayName): \(reason.explanation)")
+            adoptionOutcomes[app.bundlePath] = reason.explanation
         case let .notEligible(reason):
-            lastAdoptionMessage = String(localized: "\(app.displayName) cannot be adopted: \(reason.explanation)")
+            let text = String(localized: "Cannot be adopted: \(reason.explanation)")
+            lastAdoptionMessage = String(localized: "\(app.displayName): \(text)")
+            adoptionOutcomes[app.bundlePath] = text
         case let .blockedByTrust(block):
             lastAdoptionMessage = String(localized: "\(app.displayName): \(block.explanation)")
+            adoptionOutcomes[app.bundlePath] = block.explanation
         }
     }
 

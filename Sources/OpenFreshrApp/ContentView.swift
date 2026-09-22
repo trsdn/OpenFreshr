@@ -198,6 +198,7 @@ private struct SimpleAppRow: View {
 
     private var path: String { report.app.bundlePath }
     private var isUninstalling: Bool { viewModel.uninstallInFlight.contains(path) }
+    private var isAdopting: Bool { viewModel.adoptionInFlight.contains(path) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -207,14 +208,22 @@ private struct SimpleAppRow: View {
                 Spacer()
                 Text(report.app.displayVersion ?? "")
                     .foregroundStyle(.secondary)
-                if isUninstalling {
+                if isUninstalling || isAdopting {
                     ProgressView().controlSize(.small)
                 } else if report.managedCaskToken != nil {
                     UninstallButton(report: report)
+                } else if report.isSafelyAdoptable {
+                    AdoptButton(report: report)
                 }
             }
             .font(.callout)
             if let problem = viewModel.uninstallOutcomes[path] {
+                Text(problem)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .lineLimit(4)
+            }
+            if let problem = viewModel.adoptionOutcomes[path] {
                 Text(problem)
                     .font(.caption)
                     .foregroundStyle(.orange)
@@ -359,6 +368,42 @@ private struct UninstallButton: View {
     }
 }
 
+/// Brings an app under Homebrew management with no update attached — the
+/// standalone counterpart to the adoption folded into "Update" for an app
+/// that *also* has a pending version bump (`.adoptThenReinstall`). Without a
+/// bump there is nothing to fold this into, so this is the only way to adopt
+/// an app already at the cask's current version.
+///
+/// Gated on ``AppReport/isSafelyAdoptable``, so it's never offered where the
+/// take-over is predicted to abort with a `CaskError` — the same rule "Update"
+/// already applies before folding adoption into itself.
+private struct AdoptButton: View {
+
+    @Environment(AppViewModel.self) private var viewModel
+    let report: AppReport
+    @State private var confirming = false
+
+    var body: some View {
+        Button("Manage with Homebrew") {
+            confirming = true
+        }
+        .confirmationDialog(
+            "Let Homebrew manage \(report.app.displayName)?",
+            isPresented: $confirming
+        ) {
+            Button("Manage with Homebrew") {
+                Task { await viewModel.adopt(report.app) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(
+                "Homebrew takes over updating it from now on. Nothing changes about the app itself right now."
+            )
+        }
+        .help("Let Homebrew manage \(report.app.displayName) from now on")
+    }
+}
+
 /// The app's own icon, so a row is recognisable at a glance.
 private struct AppIcon: View {
     let path: String
@@ -421,6 +466,12 @@ private struct UpdateRow: View {
                         .foregroundStyle(.orange)
                         .lineLimit(6)
                 }
+                if let problem = viewModel.adoptionOutcomes[path] {
+                    Text(problem)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .lineLimit(6)
+                }
             }
 
             Spacer()
@@ -438,10 +489,12 @@ private struct UpdateRow: View {
                     } else {
                         openButton
                     }
-                    if viewModel.uninstallInFlight.contains(path) {
+                    if viewModel.uninstallInFlight.contains(path) || viewModel.adoptionInFlight.contains(path) {
                         ProgressView().controlSize(.small)
                     } else if report.managedCaskToken != nil {
                         UninstallButton(report: report)
+                    } else if report.isSafelyAdoptable {
+                        AdoptButton(report: report)
                     }
                 }
             }

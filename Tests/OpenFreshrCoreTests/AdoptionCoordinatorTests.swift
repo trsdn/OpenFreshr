@@ -70,6 +70,29 @@ struct AdoptionCoordinatorTests {
         #expect(unmanagedOnePassword.managedCaskToken == nil)
     }
 
+    @Test
+    func isSafelyAdoptableIsTrueOnlyForAnUnmanagedAppThatWouldNotAbort() throws {
+        let apps = try Fixture.installedApps()
+        let reports = try coordinator(apps: apps, backend: FakeBackend()).makeReports()
+
+        // 1Password: auto_updates cask, unmanaged — succeeds unconditionally.
+        let onePassword = try #require(reports.first { $0.app.bundleName == "1Password.app" })
+        #expect(onePassword.predictedOutcome == .succeedsUnconditionally)
+        #expect(onePassword.isSafelyAdoptable)
+
+        // Amazon Photos: a real regression fixture where the take-over is
+        // predicted to abort with a CaskError — never offered a one-click button.
+        let amazonPhotos = try #require(reports.first { $0.app.bundleName == "Amazon Photos.app" })
+        #expect(amazonPhotos.predictedOutcome == .abortsWithCaskError)
+        #expect(!amazonPhotos.isSafelyAdoptable)
+
+        // Already managed: never adoptable again, regardless of prediction.
+        let managedReports = try coordinator(apps: apps, backend: FakeBackend(managed: ["1password"]))
+            .makeReports()
+        let managedOnePassword = try #require(managedReports.first { $0.app.bundleName == "1Password.app" })
+        #expect(!managedOnePassword.isSafelyAdoptable)
+    }
+
     // MARK: - Adoption confirmed only by rescan
 
     @Test

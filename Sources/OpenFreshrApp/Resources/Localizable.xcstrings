@@ -611,6 +611,16 @@
         }
       }
     },
+    "Cannot be adopted: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kann nicht übernommen werden: %@"
+          }
+        }
+      }
+    },
     "Cask %@ installs via pkg/installer — cannot be adopted losslessly" : {
       "localizations" : {
         "de" : {
@@ -1121,6 +1131,16 @@
         }
       }
     },
+    "Homebrew takes over updating it from now on. Nothing changes about the app itself right now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Homebrew übernimmt ab jetzt die Aktualisierung. An der App selbst ändert sich dabei zunächst nichts."
+          }
+        }
+      }
+    },
     "Homebrew was not found" : {
       "localizations" : {
         "de" : {
@@ -1441,6 +1461,26 @@
         }
       }
     },
+    "Let Homebrew manage %@ from now on" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ab jetzt von Homebrew verwalten lassen"
+          }
+        }
+      }
+    },
+    "Let Homebrew manage %@?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ von Homebrew verwalten lassen?"
+          }
+        }
+      }
+    },
     "Loading catalog" : {
       "localizations" : {
         "de" : {
@@ -1547,6 +1587,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verwalte gespeicherte Vertrauensentscheidungen (Signatur, Team-ID) pro App."
+          }
+        }
+      }
+    },
+    "Manage with Homebrew" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Homebrew verwalten lassen"
           }
         }
       }

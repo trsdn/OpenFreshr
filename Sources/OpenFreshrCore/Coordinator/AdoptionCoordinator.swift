@@ -40,6 +40,20 @@ public struct AppReport: Sendable, Identifiable {
         }
         return nil
     }
+
+    /// Whether a one-click "Manage with Homebrew" take-over is safe to offer
+    /// right now: not already managed, and the take-over is not predicted to
+    /// abort with a `CaskError`. The same predicate ``UpdateCoordinator``
+    /// checks before folding adoption into an update (`.adoptThenReinstall`) —
+    /// this is the standalone equivalent for an app with no pending update to
+    /// fold it into, so the two never disagree about when a take-over is safe.
+    public var isSafelyAdoptable: Bool {
+        guard managedCaskToken == nil else { return false }
+        switch predictedOutcome {
+        case .succeedsUnconditionally, .succeeds: return true
+        case .abortsWithCaskError, .unknown, .none: return false
+        }
+    }
 }
 
 /// The result of an adoption attempt, confirmed by a rescan.
