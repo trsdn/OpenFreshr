@@ -8,6 +8,7 @@ public enum EcosystemKind: String, CaseIterable, Hashable, Sendable, Identifiabl
     case homebrewFormula
     case macOS
     case npm
+    case pnpm
     case pipx
 
     public var id: String { rawValue }
@@ -18,6 +19,7 @@ public enum EcosystemKind: String, CaseIterable, Hashable, Sendable, Identifiabl
         case .homebrewFormula: return String(localized: "Homebrew")
         case .macOS: return String(localized: "macOS")
         case .npm: return String(localized: "npm")
+        case .pnpm: return String(localized: "pnpm")
         case .pipx: return String(localized: "pipx")
         }
     }
