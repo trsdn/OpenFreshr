@@ -1961,6 +1961,16 @@
         }
       }
     },
+    "Packages" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pakete"
+          }
+        }
+      }
+    },
     "Perform Major Upgrade" : {
       "localizations" : {
         "de" : {
@@ -2067,6 +2077,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ersetzung blockiert"
+          }
+        }
+      }
+    },
+    "Reported success, but the package is still outdated." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erfolg gemeldet, aber das Paket ist weiterhin veraltet."
           }
         }
       }
@@ -2777,6 +2797,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aktualisiert und per Scan bestätigt."
+          }
+        }
+      }
+    },
+    "Updated and confirmed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert und bestätigt."
           }
         }
       }

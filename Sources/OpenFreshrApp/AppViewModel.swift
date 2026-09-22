@@ -219,6 +219,10 @@ public final class AppViewModel {
         self.microsoftAutoUpdate = microsoftAutoUpdate
         self.httpFetcher = httpFetcher
 
+        self.ecosystemCoordinator = EcosystemCoordinator(ecosystems: [
+            HomebrewFormulaEcosystem(processRunner: processRunner, fileSystem: fileSystem)
+        ])
+
         // The live catalog provider: a real Application-Support cache plus the
         // bundled snapshot as the offline/first-run floor. The cache is read back
         // *only* through CaskCatalogIngestion (see the provider), so a tampered
@@ -533,12 +537,16 @@ public final class AppViewModel {
         await catalogLoad?.value
 
         let coordinator = self.updateCoordinator
-        let produced = await Task.detached { await coordinator.makeUpdateReports() }.value
+        let ecosystems = self.ecosystemCoordinator
+        async let produced = Task.detached { await coordinator.makeUpdateReports() }.value
+        async let packages = ecosystems.checkAll()
 
         var byPath: [String: AppUpdateReport] = [:]
-        byPath.reserveCapacity(produced.count)
-        for report in produced { byPath[report.app.bundlePath] = report }
+        let (appReports, packageReports) = await (produced, packages)
+        byPath.reserveCapacity(appReports.count)
+        for report in appReports { byPath[report.app.bundlePath] = report }
         self.updateReports = byPath
+        self.ecosystemReports = packageReports
 
         // Phase 6: any completed detection — whether triggered by the window, the
         // menu bar's "Check Now", or the background scheduler — advances the
@@ -576,6 +584,13 @@ public final class AppViewModel {
         }
         return nil
     }
+
+    /// Package-manager and system sources that are not apps (Homebrew formulae
+    /// today; macOS and language package managers follow). Empty until the first
+    /// ``checkForUpdates()`` completes.
+    public private(set) var ecosystemReports: [EcosystemReport] = []
+
+    @ObservationIgnored private let ecosystemCoordinator: EcosystemCoordinator
 
     /// The update report for a given adoption report, if one has been detected.
     public func updateReport(for report: AppReport) -> AppUpdateReport? {
@@ -616,6 +631,40 @@ public final class AppViewModel {
             release,
             acknowledgingTeamChanges: acknowledgeTeamChange ? [item.app.bundlePath] : []
         )
+    }
+
+    /// Install one outdated package and confirm the ecosystem's own report.
+    public func updatePackage(_ package: OutdatedPackage) async {
+        let key = package.id
+        guard !updateInFlight.contains(key) else { return }
+        updateInFlight.insert(key)
+        defer { updateInFlight.remove(key) }
+
+        let ecosystems = self.ecosystemCoordinator
+        let results = await ecosystems.update([package])
+        guard let result = results.first else { return }
+        updateOutcomes[key] =
+            result.isVerified
+            ? Self.updatedMessage
+            : (result.stillOutdated == true
+                ? String(localized: "Reported success, but the package is still outdated.")
+                : (result.action.explanation ?? ""))
+
+        if let index = ecosystemReports.firstIndex(where: { $0.kind == package.ecosystem }) {
+            ecosystemReports[index].check = checkAfterVerifiedUpdate(for: package.ecosystem, result: result)
+        }
+    }
+
+    /// The ecosystem's check with `package` removed when the update was verified,
+    /// or unchanged otherwise — a light local patch so the row disappears at once
+    /// instead of waiting for the next full ``checkForUpdates()``.
+    private func checkAfterVerifiedUpdate(for kind: EcosystemKind, result: PackageUpdateResult) -> EcosystemCheck {
+        guard result.isVerified, let current = ecosystemReports.first(where: { $0.kind == kind })?.check
+        else {
+            return ecosystemReports.first(where: { $0.kind == kind })?.check ?? .unknown(.unparsableOutput)
+        }
+        let remaining = current.packages.filter { $0.id != result.package.id }
+        return remaining.isEmpty ? .upToDate : .outdated(remaining)
     }
 
     /// Run a batch of already-vetted items as one release. Returns `false` when
