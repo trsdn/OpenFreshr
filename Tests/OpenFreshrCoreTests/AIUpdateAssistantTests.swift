@@ -22,6 +22,13 @@ struct AIAgentKindTests {
     func offHasNoCandidates() {
         #expect(AIAgentKind.none.candidatePaths(homeDirectory: "/Users/demo").isEmpty)
     }
+
+    @Test("The default autonomy flags are the real, verified ones — --yolo for Copilot, not an invented broader flag")
+    func defaultAutonomyFlags() {
+        #expect(AIAgentKind.claudeCode.defaultAutonomyArguments == ["--dangerously-skip-permissions"])
+        #expect(AIAgentKind.githubCopilot.defaultAutonomyArguments == ["--yolo"])
+        #expect(AIAgentKind.none.defaultAutonomyArguments == [])
+    }
 }
 
 @Suite("SystemAIUpdateAssistant")
