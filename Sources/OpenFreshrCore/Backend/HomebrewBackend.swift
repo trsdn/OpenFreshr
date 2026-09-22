@@ -41,7 +41,7 @@ public enum HomebrewUpdateStrategy: String, Sendable, Hashable {
 ///   validated against a strict allowlist before use.
 /// * **A `CaskError` is detected and reported distinctly** from other failures,
 ///   so a version-mismatch hard-fail is never mistaken for "nothing happened".
-public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
+public struct HomebrewBackend: AdoptingBackend, InstallingBackend, UninstallingBackend {
 
     private let processRunner: any ProcessRunning
     private let fileSystem: any FileSystemReading
@@ -374,6 +374,80 @@ public struct HomebrewBackend: AdoptingBackend, InstallingBackend {
             result = try processRunner.run(
                 executableURL: brewURL,
                 arguments: Self.installArguments(token: caskToken)
+            )
+        } catch {
+            return .failed(reason: .launchFailed(message: String(describing: error)))
+        }
+
+        if result.didSucceed {
+            return .succeeded(standardOutput: result.standardOutput)
+        }
+
+        let combined = result.standardError + "\n" + result.standardOutput
+        if Self.requiresAdministratorPrivileges(in: combined) {
+            return .failed(reason: .requiresAdministratorPrivileges)
+        }
+        if let caskErrorMessage = Self.caskErrorMessage(in: combined) {
+            return .caskError(message: caskErrorMessage)
+        }
+
+        return .failed(
+            reason: .processFailed(
+                exitCode: result.exitCode,
+                standardError: result.standardError
+            )
+        )
+    }
+
+    /// The separated argument vector that removes a managed cask:
+    /// `brew uninstall --cask -- <token>`. Deliberately **not** `--zap` — zap
+    /// also deletes the app's preferences/support files, a broader action this
+    /// does not offer. `--` terminates option parsing so an externally sourced
+    /// token can never be read as a flag, and — as everywhere — never `--force`.
+    /// Single source of truth for the previewed and executed uninstall command
+    /// alike.
+    static func uninstallArguments(token: String) -> [String] {
+        ["uninstall", "--cask", "--", token]
+    }
+
+    /// Resolve the exact `brew uninstall --cask -- <token>` command for a
+    /// managed cask, or `nil` when Homebrew is absent or the token fails
+    /// validation — so the confirmation dialog can never preview a command it
+    /// could not actually run.
+    public func resolveUninstallCommand(identifier: String) -> ResolvedCommand? {
+        guard let brewURL = brewURL() else { return nil }
+        guard Self.isValidCaskToken(identifier) else { return nil }
+        return ResolvedCommand(
+            executablePath: brewURL.path,
+            arguments: Self.uninstallArguments(token: identifier)
+        )
+    }
+
+    /// Remove the managed cask `caskToken` via `brew uninstall --cask -- <token>`.
+    ///
+    /// Reuses the same safety posture as every other action here: the token is
+    /// validated against the strict allowlist and refused **before** any process
+    /// launches, the argument vector is separated with a `--` terminator, and a
+    /// cask-level abort is reported distinctly from an ordinary non-zero exit.
+    /// The reported success is only a claim — ``UninstallCoordinator`` confirms
+    /// it by rechecking ``managedTokens()``.
+    public func uninstall(caskToken: String) -> BackendActionResult {
+        guard let brewURL = brewURL() else {
+            return .failed(reason: .homebrewUnavailable)
+        }
+
+        // The token comes from a match this app was scanned into, but is
+        // validated exactly like every other externally sourced token — never
+        // placed on a command line before it passes the strict allowlist.
+        guard Self.isValidCaskToken(caskToken) else {
+            return .failed(reason: .invalidCaskToken(caskToken))
+        }
+
+        let result: ProcessResult
+        do {
+            result = try processRunner.run(
+                executableURL: brewURL,
+                arguments: Self.uninstallArguments(token: caskToken)
             )
         } catch {
             return .failed(reason: .launchFailed(message: String(describing: error)))

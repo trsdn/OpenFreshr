@@ -159,14 +159,7 @@ struct ContentView: View {
             Section {
                 if isExpanded.wrappedValue {
                     ForEach(reports) { report in
-                        HStack(spacing: 10) {
-                            AppIcon(path: report.app.bundlePath, size: 24)
-                            Text(report.app.displayName)
-                            Spacer()
-                            Text(report.app.displayVersion ?? "")
-                                .foregroundStyle(.secondary)
-                        }
-                        .font(.callout)
+                        SimpleAppRow(report: report)
                     }
                     if let footer {
                         Text(footer).font(.caption).foregroundStyle(.secondary)
@@ -189,6 +182,43 @@ struct ContentView: View {
                 .help(
                     isExpanded.wrappedValue
                         ? String(localized: "Collapse") : String(localized: "Expand"))
+            }
+        }
+    }
+}
+
+/// One app in the plain "Up to date" / "Can't be checked" lists: its icon, name
+/// and version, plus Uninstall when OpenFreshr has confirmed Homebrew already
+/// manages it — the one action these apps still have, even with no update to
+/// offer.
+private struct SimpleAppRow: View {
+
+    @Environment(AppViewModel.self) private var viewModel
+    let report: AppReport
+
+    private var path: String { report.app.bundlePath }
+    private var isUninstalling: Bool { viewModel.uninstallInFlight.contains(path) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 10) {
+                AppIcon(path: path, size: 24)
+                Text(report.app.displayName)
+                Spacer()
+                Text(report.app.displayVersion ?? "")
+                    .foregroundStyle(.secondary)
+                if isUninstalling {
+                    ProgressView().controlSize(.small)
+                } else if report.managedCaskToken != nil {
+                    UninstallButton(report: report)
+                }
+            }
+            .font(.callout)
+            if let problem = viewModel.uninstallOutcomes[path] {
+                Text(problem)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .lineLimit(4)
             }
         }
     }
@@ -293,6 +323,42 @@ private struct PackageRow: View {
     }
 }
 
+/// Removes an app OpenFreshr has confirmed Homebrew already manages (#40).
+/// Offered next to whatever other action a row has, never in its place — a
+/// managed app in `.ready`/`.ownUpdater`/`.manual` can still be updated *or*
+/// removed, so this never crowds the update path out.
+///
+/// The caller (``UpdateRow``, ``SimpleAppRow``) checks
+/// `report.managedCaskToken != nil` before showing this and shows its own
+/// progress state while ``AppViewModel/uninstallInFlight`` holds the app's
+/// bundle path — never both a spinner and this button on screen together.
+private struct UninstallButton: View {
+
+    @Environment(AppViewModel.self) private var viewModel
+    let report: AppReport
+    @State private var confirming = false
+
+    var body: some View {
+        Button("Uninstall", role: .destructive) {
+            confirming = true
+        }
+        .confirmationDialog(
+            "Uninstall \(report.app.displayName)?",
+            isPresented: $confirming
+        ) {
+            Button("Uninstall", role: .destructive) {
+                Task { await viewModel.uninstall(report) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(
+                "Removes it via Homebrew (brew uninstall). This does not touch its settings or documents."
+            )
+        }
+        .help("Remove \(report.app.displayName) via Homebrew")
+    }
+}
+
 /// The app's own icon, so a row is recognisable at a glance.
 private struct AppIcon: View {
     let path: String
@@ -349,6 +415,12 @@ private struct UpdateRow: View {
                         .foregroundStyle(.orange)
                         .lineLimit(6)
                 }
+                if let problem = viewModel.uninstallOutcomes[path] {
+                    Text(problem)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .lineLimit(6)
+                }
             }
 
             Spacer()
@@ -365,6 +437,11 @@ private struct UpdateRow: View {
                         updateButton
                     } else {
                         openButton
+                    }
+                    if viewModel.uninstallInFlight.contains(path) {
+                        ProgressView().controlSize(.small)
+                    } else if report.managedCaskToken != nil {
+                        UninstallButton(report: report)
                     }
                 }
             }

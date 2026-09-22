@@ -12,13 +12,14 @@ import Foundation
 /// it does not (token still absent).
 ///
 /// `@unchecked Sendable`: mutable state is serialised behind a lock.
-final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable {
+final class FakeBackend: AdoptingBackend, InstallingBackend, UninstallingBackend, @unchecked Sendable {
 
     private let lock = NSLock()
     private var _managed: Set<String>
     private var _adoptCalls: [(bundlePath: String, token: String)] = []
     private var _updateCalls: [String] = []
     private var _installCalls: [String] = []
+    private var _uninstallCalls: [String] = []
 
     var available: Bool
     var adoptResult: BackendActionResult
@@ -32,6 +33,13 @@ final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable
     /// modelling the brew receipt an installer-only cask leaves behind, which is
     /// how the coordinator confirms a cask that drops no app bundle to find.
     var installBecomesManaged: Bool
+    /// Result returned by ``uninstall(caskToken:)``. Defaults to success.
+    var uninstallResult: BackendActionResult
+    /// When `true`, a successful uninstall removes its token from the managed
+    /// set — modelling the real world where success only becomes observable on
+    /// the next `brew list`. `false` lets a test model a reported success the
+    /// recheck does not corroborate.
+    var uninstallBecomesUnmanaged: Bool
 
     init(
         available: Bool = true,
@@ -40,7 +48,9 @@ final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable
         adoptBecomesManaged: Bool = true,
         updateResult: BackendActionResult = .succeeded(standardOutput: "ok"),
         installResult: BackendActionResult = .succeeded(standardOutput: "ok"),
-        installBecomesManaged: Bool = true
+        installBecomesManaged: Bool = true,
+        uninstallResult: BackendActionResult = .succeeded(standardOutput: "ok"),
+        uninstallBecomesUnmanaged: Bool = true
     ) {
         self.available = available
         self._managed = managed
@@ -49,6 +59,8 @@ final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable
         self.updateResult = updateResult
         self.installResult = installResult
         self.installBecomesManaged = installBecomesManaged
+        self.uninstallResult = uninstallResult
+        self.uninstallBecomesUnmanaged = uninstallBecomesUnmanaged
     }
 
     var adoptCalls: [(bundlePath: String, token: String)] {
@@ -64,6 +76,11 @@ final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable
     var installCalls: [String] {
         lock.lock(); defer { lock.unlock() }
         return _installCalls
+    }
+
+    var uninstallCalls: [String] {
+        lock.lock(); defer { lock.unlock() }
+        return _uninstallCalls
     }
 
     func isAvailable() -> Bool { available }
@@ -115,5 +132,23 @@ final class FakeBackend: AdoptingBackend, InstallingBackend, @unchecked Sendable
         }
         lock.unlock()
         return installResult
+    }
+
+    func resolveUninstallCommand(identifier: String) -> ResolvedCommand? {
+        guard available else { return nil }
+        return ResolvedCommand(
+            executablePath: "/opt/homebrew/bin/brew",
+            arguments: ["uninstall", "--cask", "--", identifier]
+        )
+    }
+
+    func uninstall(caskToken: String) -> BackendActionResult {
+        lock.lock()
+        _uninstallCalls.append(caskToken)
+        if uninstallResult.didReportSuccess, uninstallBecomesUnmanaged {
+            _managed.remove(caskToken)
+        }
+        lock.unlock()
+        return uninstallResult
     }
 }
