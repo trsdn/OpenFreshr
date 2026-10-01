@@ -20,7 +20,7 @@ jobs:
     # branch must exist before the first run: create it once from `main`.
     permissions:
       contents: write
-    uses: trsdn/.github/.github/workflows/repo-stats.yml@d99c090e092e4b4ef7f12fd58d191b3a33372860 # main after 1.13.0
+    uses: trsdn/.github/.github/workflows/repo-stats.yml@91e111bd0f462be7d5f817ec306cbc457066107b # main after 1.13.0
     with:
       branch: stats
       output-dir: .github/stats
